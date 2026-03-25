@@ -13,7 +13,7 @@
  * @module @router
  */
 
-import React from 'react';
+import { lazy, Suspense, type ComponentType, type LazyExoticComponent, type ReactNode } from 'react';
 import { createBrowserRouter, type RouteObject, type LoaderFunctionArgs } from 'react-router-dom';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import type { UserRole } from './types/user.types';
@@ -28,11 +28,11 @@ import type { UserRole } from './types/user.types';
  * @param importFn - Dynamic import function
  * @param componentName - Component name for error logging
  */
-function createLazyComponent<T extends React.ComponentType>(
+function createLazyComponent<T extends ComponentType>(
   importFn: () => Promise<{ default: T }>,
   componentName: string
-): React.LazyExoticComponent<T> {
-  return React.lazy(() =>
+): LazyExoticComponent<T> {
+  return lazy(() =>
     importFn().catch((error) => {
       console.error(`[Router] Failed to load component "${componentName}":`, error);
       throw error;
@@ -49,6 +49,10 @@ const LandingPage = createLazyComponent(() => import('./pages/LandingPage'), 'La
 const CourtsPage = createLazyComponent(() => import('./pages/CourtsPage'), 'CourtsPage');
 const LoginPage = createLazyComponent(() => import('./pages/auth/LoginPage'), 'LoginPage');
 const RegisterPage = createLazyComponent(() => import('./pages/auth/RegisterPage'), 'RegisterPage');
+const ForgotPasswordPage = createLazyComponent(
+  () => import('./pages/auth/ForgotPasswordPage'),
+  'ForgotPasswordPage'
+);
 const AboutPage = createLazyComponent(() => import('./pages/AboutPage'), 'AboutPage');
 const ContactPage = createLazyComponent(() => import('./pages/ContactPage'), 'ContactPage');
 const UnauthorizedPage = createLazyComponent(() => import('./pages/UnauthorizedPage'), 'UnauthorizedPage');
@@ -60,6 +64,8 @@ const ClientBookings = createLazyComponent(() => import('./pages/client/Bookings
 const ClientReservations = createLazyComponent(() => import('./pages/client/Reservations'), 'ClientReservations');
 const ClientSlots = createLazyComponent(() => import('./pages/client/Slots'), 'ClientSlots');
 const ClientProfile = createLazyComponent(() => import('./pages/client/Profile'), 'ClientProfile');
+const BookingPage = createLazyComponent(() => import('./pages/client/BookingPage'), 'BookingPage');
+const MyReservationsPage = createLazyComponent(() => import('./pages/client/MyReservationsPage'), 'MyReservationsPage');
 
 // Moniteur pages
 const MoniteurDashboard = createLazyComponent(() => import('./pages/moniteur/Dashboard'), 'MoniteurDashboard');
@@ -80,7 +86,7 @@ const AdminSettings = createLazyComponent(() => import('./pages/admin/Settings')
 // LAYOUT COMPONENTS
 // ==========================================
 
-const MainLayout = ({ children }: { children: React.ReactNode }) => (
+const MainLayout = ({ children }: { children: ReactNode }) => (
   <div className="min-h-screen bg-surface">
     <header className="bg-surface-container px-4 py-4">
       <nav className="container mx-auto">
@@ -91,11 +97,11 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-const AuthLayout = ({ children }: { children: React.ReactNode }) => (
+const AuthLayout = ({ children }: { children: ReactNode }) => (
   <div className="flex min-h-screen items-center justify-center bg-surface p-4">{children}</div>
 );
 
-const DashboardLayout = ({ children, role }: { children: React.ReactNode; role: UserRole }) => (
+const DashboardLayout = ({ children, role }: { children: ReactNode; role: UserRole }) => (
   <div className="flex min-h-screen bg-surface">
     <aside className="w-64 bg-surface-container">
       <nav className="p-4">
@@ -143,18 +149,61 @@ interface RouteLoaderData {
   userRole: UserRole | null;
 }
 
+/**
+ * Get auth data from session storage
+ */
+function getAuthFromStorage(): { isAuthenticated: boolean; userRole: UserRole | null } {
+  try {
+    const authData = sessionStorage.getItem('auth_data') || localStorage.getItem('auth_data');
+    if (authData) {
+      const parsed = JSON.parse(authData);
+      return {
+        isAuthenticated: !!parsed.user,
+        userRole: parsed.user?.role || null,
+      };
+    }
+  } catch (error) {
+    console.error('[Router] Error reading auth data:', error);
+  }
+  return { isAuthenticated: false, userRole: null };
+}
+
+/**
+ * Create auth loader - redirects if already authenticated
+ * Returns redirect to role-based dashboard if user is logged in
+ */
+function createAuthLoader() {
+  return async function loader({ request }: LoaderFunctionArgs): Promise<Response | RouteLoaderData> {
+    const { isAuthenticated, userRole } = getAuthFromStorage();
+
+    if (isAuthenticated && userRole) {
+      // Redirect to role-based dashboard
+      const roleRoutes: Record<string, string> = {
+        admin: '/admin',
+        moniteur: '/moniteur',
+        client: '/client',
+      };
+      return Response.redirect(new URL(roleRoutes[userRole], request.url));
+    }
+
+    return { isAuthenticated, userRole };
+  };
+}
+
 function createRoleLoader(requiredRoles?: UserRole | UserRole[]) {
-  return async function loader({ request }: LoaderFunctionArgs): Promise<RouteLoaderData> {
-    const isAuthenticated = false;
-    const userRole: UserRole | null = null;
+  return async function loader({ request }: LoaderFunctionArgs): Promise<Response | RouteLoaderData> {
+    const { isAuthenticated, userRole } = getAuthFromStorage();
+
+    if (!isAuthenticated) {
+      // Redirect to login if not authenticated
+      return Response.redirect(new URL('/login', request.url));
+    }
 
     if (requiredRoles) {
       const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
       if (!userRole || !roles.includes(userRole)) {
-        throw new Response('Unauthorized', {
-          status: 403,
-          statusText: 'Unauthorized',
-        });
+        // Redirect to unauthorized page
+        return Response.redirect(new URL('/unauthorized', request.url));
       }
     }
 
@@ -169,11 +218,11 @@ function createRoleLoader(requiredRoles?: UserRole | UserRole[]) {
 /**
  * Create a route element with Suspense
  */
-function createRouteElement(Component: React.LazyExoticComponent<React.ComponentType>): React.ReactNode {
+function createRouteElement(Component: LazyExoticComponent<ComponentType>): ReactNode {
   return (
-    <React.Suspense fallback={<LoadingFallback />}>
+    <Suspense fallback={<LoadingFallback />}>
       <Component />
-    </React.Suspense>
+    </Suspense>
   );
 }
 
@@ -210,13 +259,22 @@ const publicRoutes: RouteObject[] = [
     path: '/login',
     element: <AuthLayout><LoadingFallback /></AuthLayout>,
     errorElement: <ErrorBoundary />,
+    loader: createAuthLoader(),
     children: [{ index: true, element: createRouteElement(LoginPage) }],
   },
   {
     path: '/register',
     element: <AuthLayout><LoadingFallback /></AuthLayout>,
     errorElement: <ErrorBoundary />,
+    loader: createAuthLoader(),
     children: [{ index: true, element: createRouteElement(RegisterPage) }],
+  },
+  {
+    path: '/forgot-password',
+    element: <AuthLayout><LoadingFallback /></AuthLayout>,
+    errorElement: <ErrorBoundary />,
+    loader: createAuthLoader(),
+    children: [{ index: true, element: createRouteElement(ForgotPasswordPage) }],
   },
   {
     path: '/unauthorized',
@@ -236,7 +294,8 @@ const clientRoutes: RouteObject[] = [
       { index: true, element: createRouteElement(ClientDashboard) },
       { path: 'dashboard', element: createRouteElement(ClientDashboard) },
       { path: 'bookings', element: createRouteElement(ClientBookings) },
-      { path: 'reservations', element: createRouteElement(ClientReservations) },
+      { path: 'book', element: createRouteElement(BookingPage) },
+      { path: 'reservations', element: createRouteElement(MyReservationsPage) },
       { path: 'slots', element: createRouteElement(ClientSlots) },
       { path: 'profile', element: createRouteElement(ClientProfile) },
     ],

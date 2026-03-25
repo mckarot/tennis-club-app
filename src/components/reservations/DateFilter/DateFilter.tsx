@@ -8,7 +8,7 @@ export interface DateFilterProps {
   className?: string;
 }
 
-export function DateFilter({ selectedDate = new Date(), onChange, className = '' }: DateFilterProps) {
+export function DateFilter({ selectedDate = new Date(), onChange, className = '' }: DateFilterProps): JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);

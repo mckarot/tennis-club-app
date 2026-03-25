@@ -11,7 +11,7 @@ export interface CourtCardProps {
   className?: string;
 }
 
-export function CourtCard({ court, onClick, className = '' }: CourtCardProps) {
+export function CourtCard({ court, onClick, className = '' }: CourtCardProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
   const statusConfig = statusBadgeConfig[court.status];
 

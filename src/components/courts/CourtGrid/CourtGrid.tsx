@@ -1,30 +1,22 @@
 import { motion, useReducedMotion } from 'framer-motion';
+import { CourtHeader } from './CourtHeader';
+import { TimeColumn } from './TimeColumn';
+import { ViewToggle } from './ViewToggle';
+import { AvailabilityLegend } from './AvailabilityLegend';
 import { TimeSlotCell } from '../TimeSlotCell/TimeSlotCell';
 import { LoadingGrid } from '../LoadingGrid/LoadingGrid';
-import { useCourtGrid } from '../../../hooks/useCourtGrid';
-import type { TimeSlot } from '../../../types/reservation.types';
-
-export interface CourtGridProps {
-  courtId: string;
-  date: Date;
-  onSlotClick?: (slot: TimeSlot) => void;
-  isLoading?: boolean;
-}
+import type { CourtGridProps, GridCell, GridViewMode } from './CourtGrid.types';
+import type { TimeSlotState } from './CourtGrid.types';
 
 export function CourtGrid({
-  courtId,
-  date,
+  courts,
+  viewMode,
+  onViewModeChange,
   onSlotClick,
   isLoading = false,
-}: CourtGridProps) {
+  startDate = new Date(),
+}: CourtGridProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
-  const { timeSlots, handleSlotClick } = useCourtGrid({
-    courtId,
-    date,
-    onSlotClick,
-  });
-
-  const hours = Array.from({ length: 24 }, (_, i) => i);
 
   const containerVariants = {
     hidden: {},
@@ -48,6 +40,10 @@ export function CourtGrid({
     return <LoadingGrid />;
   }
 
+  const startHour = 6;
+  const endHour = 22;
+  const hours = Array.from({ length: endHour - startHour }, (_, i) => startHour + i);
+
   return (
     <motion.div
       initial="hidden"
@@ -55,44 +51,77 @@ export function CourtGrid({
       variants={containerVariants}
       className="bg-surface-container-lowest rounded-xl p-6 shadow-sm"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-headline text-headline-md font-semibold">
-          Disponibilité du jour
+      {/* Header with View Toggle */}
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-headline text-headline-md font-semibold text-on-surface">
+          {viewMode === 'today' ? 'Disponibilités du jour' : 'Disponibilités de la semaine'}
         </h3>
-        <div className="flex items-center gap-4 text-on-surface/60">
-          <div className="flex items-center gap-2">
-            <span className="w-4 h-4 bg-primary rounded-md" />
-            <span className="font-body text-body-sm">Confirmé Quick</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-4 h-4 bg-secondary rounded-md" />
-            <span className="font-body text-body-sm">Confirmé Terre</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-4 h-4 bg-surface-container-high rounded-md border border-surface-container-highest" />
-            <span className="font-body text-body-sm">Libre</span>
-          </div>
+        <ViewToggle mode={viewMode} onModeChange={onViewModeChange} />
+      </div>
+
+      {/* Legend */}
+      <div className="mb-6">
+        <AvailabilityLegend />
+      </div>
+
+      {/* Grid Container */}
+      <div className="overflow-x-auto">
+        <div className="min-w-max grid grid-cols-[80px_repeat(7,1fr)] gap-2">
+          {/* Time Column Header */}
+          <div className="col-start-1 row-start-1" />
+
+          {/* Court Headers */}
+          {courts.map((courtCells, courtIndex) => {
+            const firstCell = courtCells[0];
+            return (
+              <motion.div
+                key={firstCell.courtId}
+                variants={itemVariants}
+                className="col-start-2"
+                // Inline style required for dynamic grid-column positioning in CSS grid layout
+                style={{ gridColumnStart: courtIndex + 2 }}
+              >
+                <CourtHeader
+                  courtNumber={firstCell.courtNumber}
+                  courtName={`Court ${firstCell.courtNumber}`}
+                  courtType={firstCell.courtType}
+                  isActive={true}
+                />
+              </motion.div>
+            );
+          })}
+
+          {/* Time Rows */}
+          {hours.map((hour, rowIndex) => (
+            <motion.div
+              key={hour}
+              variants={itemVariants}
+              className="col-start-1 grid grid-cols-subgrid col-span-8 gap-2"
+              // Inline style required for dynamic grid-row positioning in CSS grid layout
+              style={{ gridRow: rowIndex + 2 }}
+            >
+              {/* Time Label */}
+              <TimeColumn startHour={startHour} endHour={endHour} />
+
+              {/* Court Cells for this hour */}
+              {courts.map((courtCells) => {
+                const cell = courtCells.find((c) => c.hour === hour);
+                return (
+                  <TimeSlotCell
+                    key={cell?.courtId || hour}
+                    hour={hour}
+                    state={cell?.state || 'available'}
+                    courtType={cell?.courtType}
+                    onClick={() => cell && onSlotClick?.(cell)}
+                  />
+                );
+              })}
+            </motion.div>
+          ))}
         </div>
       </div>
 
-      {/* Grid */}
-      <motion.div className="grid grid-cols-7 gap-2 overflow-x-auto" variants={containerVariants}>
-        {hours.map((hour) => {
-          const slot = timeSlots.find((s) => new Date(s.start).getHours() === hour);
-          return (
-            <motion.div key={hour} variants={itemVariants}>
-              <TimeSlotCell
-                hour={hour}
-                slot={slot}
-                onClick={() => slot && handleSlotClick(slot)}
-              />
-            </motion.div>
-          );
-        })}
-      </motion.div>
-
-      {/* Scroll hint */}
+      {/* Scroll hint for mobile */}
       <div className="flex items-center justify-center gap-2 mt-4 text-on-surface/40 lg:hidden">
         <span className="material-symbols-outlined text-sm">swipe</span>
         <span className="font-body text-body-sm">Faites défiler pour voir plus</span>

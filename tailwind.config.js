@@ -26,8 +26,17 @@ export default {
           containerLow: '#f0f5ee',
           containerLowest: '#ffffff',
           containerHighest: '#dee4dd',
+          high: '#e8ede7',
         },
         onSurface: '#171d19',
+        onSurfaceVariant: '#5d635e',
+        outline: '#949a95',
+        error: {
+          DEFAULT: '#ba1a1a',
+          container: '#ffdad6',
+          on: '#ffffff',
+          onContainer: '#410002',
+        },
       },
       fontFamily: {
         headline: ['Lexend', 'sans-serif'],

@@ -54,10 +54,25 @@ export function useReservations(): UseReservationsReturn {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const data = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Reservation[];
+        const data = snapshot.docs.map((doc) => {
+          const docData = doc.data();
+          return {
+            id: doc.id,
+            court_id: docData.court_id,
+            user_id: docData.user_id,
+            moniteur_id: docData.moniteur_id,
+            start_time: docData.start_time,
+            end_time: docData.end_time,
+            type: docData.type,
+            status: docData.status,
+            title: docData.title,
+            description: docData.description,
+            participants: docData.participants,
+            is_paid: docData.is_paid,
+            created_at: docData.created_at,
+            updated_at: docData.updated_at,
+          } as Reservation;
+        });
         setReservations(data);
         setIsLoading(false);
       },

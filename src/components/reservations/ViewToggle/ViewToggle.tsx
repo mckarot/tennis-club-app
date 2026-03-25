@@ -7,7 +7,7 @@ export interface ViewToggleProps {
   className?: string;
 }
 
-export function ViewToggle({ viewMode, onChange, className = '' }: ViewToggleProps) {
+export function ViewToggle({ viewMode, onChange, className = '' }: ViewToggleProps): JSX.Element {
   return (
     <div
       className={`inline-flex bg-surface-container-highest rounded-lg p-1 ${className}`}

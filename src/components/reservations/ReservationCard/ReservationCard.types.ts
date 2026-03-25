@@ -1,27 +1,103 @@
-import type { ReservationStatus as ReservationStatusType } from '../../../types/reservation.types';
-import type { BadgeVariant } from '../../ui/Badge/Badge.types';
-import type { ReservationType } from '../../../types/reservation.types';
+/**
+ * ReservationCard type definitions
+ */
 
-export interface StatusBadgeConfig {
-  label: string;
-  variant: BadgeVariant;
+import type { Reservation, ReservationStatus, ReservationType } from '../../../types/reservation.types';
+
+/**
+ * Reservation card props
+ */
+export interface ReservationCardProps {
+  reservation: Reservation;
+  onClick?: (reservation: Reservation) => void;
+  onCancel?: (reservation: Reservation) => void;
+  compact?: boolean;
+  className?: string;
+  showCourtName?: boolean;
 }
 
-export const statusBadgeConfig: Record<ReservationStatusType, StatusBadgeConfig> = {
-  confirmed: { label: 'Confirmé', variant: 'success' },
-  pending: { label: 'En attente', variant: 'warning' },
-  pending_payment: { label: 'Paiement en attente', variant: 'warning' },
-  cancelled: { label: 'Annulé', variant: 'danger' },
-  completed: { label: 'Terminé', variant: 'neutral' },
+/**
+ * Reservation status badge configuration
+ */
+export interface ReservationStatusConfig {
+  label: string;
+  colorClass: string;
+  icon: string;
+}
+
+/**
+ * Reservation status configurations
+ */
+export const reservationStatusConfig: Record<ReservationStatus, ReservationStatusConfig> = {
+  confirmed: {
+    label: 'Confirmé',
+    colorClass: 'bg-primary-fixed text-on-primary-fixed',
+    icon: 'check_circle',
+  },
+  pending: {
+    label: 'En attente',
+    colorClass: 'bg-secondary-fixed text-on-secondary-fixed',
+    icon: 'schedule',
+  },
+  pending_payment: {
+    label: 'Paiement en attente',
+    colorClass: 'bg-surface-container-high text-on-surface/60',
+    icon: 'payment',
+  },
+  cancelled: {
+    label: 'Annulé',
+    colorClass: 'bg-surface-container-high text-on-surface/60',
+    icon: 'cancel',
+  },
+  completed: {
+    label: 'Terminé',
+    colorClass: 'bg-surface-container-high text-on-surface/80',
+    icon: 'event_available',
+  },
 };
 
-export const typeLabels: Record<ReservationType, string> = {
-  location_libre: 'Location Libre',
-  cours_collectif: 'Cours Collectif',
-  cours_private: 'Cours Particulier',
-  individual: 'Simple',
-  doubles: 'Double',
-  training: 'Entraînement',
-  tournament: 'Tournoi',
-  maintenance: 'Maintenance',
+/**
+ * Reservation type configuration
+ */
+export interface ReservationTypeConfig {
+  label: string;
+  icon: string;
+}
+
+/**
+ * Reservation type configurations
+ */
+export const reservationTypeConfig: Record<ReservationType, ReservationTypeConfig> = {
+  location_libre: {
+    label: 'Location libre',
+    icon: 'sports_tennis',
+  },
+  cours_collectif: {
+    label: 'Cours collectif',
+    icon: 'groups',
+  },
+  cours_private: {
+    label: 'Cours particulier',
+    icon: 'person',
+  },
+  individual: {
+    label: 'Simple',
+    icon: 'tennis',
+  },
+  doubles: {
+    label: 'Double',
+    icon: 'groups',
+  },
+  training: {
+    label: 'Entraînement',
+    icon: 'fitness_center',
+  },
+  tournament: {
+    label: 'Tournoi',
+    icon: 'emoji_events',
+  },
+  maintenance: {
+    label: 'Maintenance',
+    icon: 'build',
+  },
 };

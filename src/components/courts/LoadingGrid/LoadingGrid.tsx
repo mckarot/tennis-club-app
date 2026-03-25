@@ -1,4 +1,4 @@
-export function LoadingGrid() {
+export function LoadingGrid(): JSX.Element {
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   return (
