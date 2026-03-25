@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Work+Sans:wght@400;500;600&display=swap');
+
+@import 'tailwindcss';
+
+@theme {
+  --color-primary: #006b3f;
+  --color-primary-container: #008751;
+  --color-primary-fixed: #8df8b7;
+  --color-primary-fixed-dim: #70db9d;
+  --color-secondary: #9d431b;
+  --color-secondary-container: #fe8c5e;
+  --color-secondary-fixed: #ffdbce;
+  --color-tertiary: #9d3d43;
+  --color-surface: #f5fbf3;
+  --color-surface-container-low: #f0f5ee;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-highest: #dee4dd;
+  --color-on-surface: #171d19;
+  --font-family-headline: 'Lexend', sans-serif;
+  --font-family-body: 'Work Sans', sans-serif;
+}
+
+@layer base {
+  html {
+    font-family: 'Work Sans', sans-serif;
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Lexend', sans-serif;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+  }
+}

@@ -1,0 +1,193 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ==========================================
+    // HELPER FUNCTIONS
+    // ==========================================
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Get user's role from users collection
+    function getUserRole() {
+      let userDoc = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return userDoc.role;
+    }
+
+    // Check if user has specific role
+    function hasRole(role) {
+      return isAuthenticated() &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    // Check if user is admin
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    // Check if user is moniteur
+    function isMoniteur() {
+      return hasRole('moniteur');
+    }
+
+    // Check if user is client
+    function isClient() {
+      return hasRole('client');
+    }
+
+    // Check if user owns the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Validate reservation data
+    function isValidReservation() {
+      return request.resource.data.keys().hasAll(['court_id', 'user_id', 'start_time', 'end_time', 'type', 'status'])
+             && request.resource.data.court_id is string
+             && request.resource.data.user_id is string
+             && request.resource.data.start_time is timestamp
+             && request.resource.data.end_time is timestamp
+             && request.resource.data.end_time > request.resource.data.start_time
+             && request.resource.data.type in ['location_libre', 'cours_collectif', 'cours_private',
+                                                'individual', 'doubles', 'training', 'tournament', 'maintenance']
+             && request.resource.data.status in ['confirmed', 'pending', 'pending_payment', 'cancelled', 'completed'];
+    }
+
+    // Validate user data
+    function isValidUserData() {
+      return request.resource.data.keys().hasAll(['name', 'email', 'role'])
+             && request.resource.data.name is string
+             && request.resource.data.email is string
+             && request.resource.data.role in ['admin', 'moniteur', 'client'];
+    }
+
+    // Validate court data
+    function isValidCourtData() {
+      return request.resource.data.keys().hasAll(['number', 'name', 'type', 'status', 'is_active'])
+             && request.resource.data.number is number
+             && request.resource.data.name is string
+             && request.resource.data.type in ['Quick', 'Terre']
+             && request.resource.data.status in ['active', 'maintenance', 'closed']
+             && request.resource.data.is_active is bool;
+    }
+
+    // Validate moniteur slot data
+    function isValidSlotData() {
+      return request.resource.data.keys().hasAll(['moniteur_id', 'date', 'start_time', 'end_time', 'type', 'status'])
+             && request.resource.data.moniteur_id is string
+             && request.resource.data.date is string
+             && request.resource.data.start_time is string
+             && request.resource.data.end_time is string
+             && request.resource.data.type in ['PRIVATE', 'GROUP']
+             && request.resource.data.status in ['available', 'booked', 'cancelled'];
+    }
+
+    // ==========================================
+    // USERS COLLECTION
+    // ==========================================
+
+    match /users/{userId} {
+      // Allow reading own profile or if admin
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+
+      // Allow creation only by admin
+      allow create: if isAdmin() && isValidUserData();
+
+      // Allow update only by admin (users can't change their own role)
+      allow update: if isAdmin() && isValidUserData();
+
+      // Allow delete only by admin
+      allow delete: if isAdmin();
+    }
+
+    // ==========================================
+    // COURTS COLLECTION
+    // ==========================================
+
+    match /courts/{courtId} {
+      // Anyone can read courts (public availability)
+      allow read: if true;
+
+      // Only admin can write courts
+      allow create, update, delete: if isAdmin() && isValidCourtData();
+    }
+
+    // ==========================================
+    // RESERVATIONS COLLECTION
+    // ==========================================
+
+    match /reservations/{reservationId} {
+      // Allow authenticated users to read all reservations (view schedule)
+      allow read: if isAuthenticated();
+
+      // Allow any authenticated user to create reservations
+      allow create: if isAuthenticated()
+                    && isValidReservation()
+                    && request.resource.data.user_id == request.auth.uid;
+
+      // Allow update if:
+      // - User is admin, OR
+      // - User owns the reservation
+      allow update: if isAuthenticated()
+                    && (isAdmin() || resource.data.user_id == request.auth.uid)
+                    && isValidReservation();
+
+      // Allow delete if:
+      // - User is admin, OR
+      // - User owns the reservation
+      allow delete: if isAuthenticated()
+                    && (isAdmin() || resource.data.user_id == request.auth.uid);
+    }
+
+    // ==========================================
+    // SLOTS_MONITEURS COLLECTION
+    // ==========================================
+
+    match /slots_moniteurs/{slotId} {
+      // Allow authenticated users to read all slots
+      allow read: if isAuthenticated();
+
+      // Allow moniteurs to create their own slots
+      allow create: if isAuthenticated()
+                    && (isMoniteur() || isAdmin())
+                    && isValidSlotData()
+                    && request.resource.data.moniteur_id == request.auth.uid;
+
+      // Allow update if:
+      // - User is admin, OR
+      // - User owns the slot (is the moniteur)
+      allow update: if isAuthenticated()
+                    && (isAdmin() || resource.data.moniteur_id == request.auth.uid)
+                    && isValidSlotData();
+
+      // Allow delete if:
+      // - User is admin, OR
+      // - User owns the slot
+      allow delete: if isAuthenticated()
+                    && (isAdmin() || resource.data.moniteur_id == request.auth.uid);
+    }
+
+    // ==========================================
+    // ADDITIONAL COLLECTIONS (Future)
+    // ==========================================
+
+    // Example: Payments collection
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated()
+                  && (isAdmin() || resource.data.user_id == request.auth.uid);
+      allow create: if isAuthenticated() && isValidPaymentData();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Example: Reviews collection
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidReviewData();
+      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.author_id == request.auth.uid);
+    }
+  }
+}
