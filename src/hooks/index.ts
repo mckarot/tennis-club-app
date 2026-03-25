@@ -30,3 +30,7 @@ export type { UseForgotPasswordReturn } from './useForgotPassword';
 
 export { useAuthForm } from './useAuthForm';
 export type { UseAuthFormReturn, UseAuthFormOptions, FormValues } from './useAuthForm';
+
+// Landing page hook (Phase 7.1)
+export { useLandingData } from './useLandingData';
+export type { UseLandingDataReturn } from './useLandingData';

@@ -12,10 +12,20 @@
   --color-secondary-fixed: #ffdbce;
   --color-tertiary: #9d3d43;
   --color-surface: #f5fbf3;
+  --color-surface-container: #e8efe7;
   --color-surface-container-low: #f0f5ee;
   --color-surface-container-lowest: #ffffff;
   --color-surface-container-highest: #dee4dd;
   --color-on-surface: #171d19;
+  --color-on-surface-variant: #4a4f48;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #410002;
+  --color-success: #006b3f;
+  --color-success-container: #8df8b7;
+  --color-on-success: #ffffff;
+  --color-on-success-container: #00210f;
   --font-family-headline: 'Lexend', sans-serif;
   --font-family-body: 'Work Sans', sans-serif;
 }
