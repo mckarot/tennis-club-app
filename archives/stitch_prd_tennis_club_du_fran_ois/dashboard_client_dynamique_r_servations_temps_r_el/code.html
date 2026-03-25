@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tennis Martinique | Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800&amp;family=Work+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-variant": "#dee4dd",
+              "surface-container": "#eaefe8",
+              "surface-tint": "#006d40",
+              "on-error": "#ffffff",
+              "primary-container": "#008751",
+              "secondary-fixed-dim": "#ffb599",
+              "on-surface-variant": "#3e4a41",
+              "on-primary": "#ffffff",
+              "primary-fixed": "#8df8b7",
+              "on-tertiary": "#ffffff",
+              "primary-fixed-dim": "#70db9d",
+              "background": "#f5fbf3",
+              "secondary-fixed": "#ffdbce",
+              "error-container": "#ffdad6",
+              "tertiary": "#9d3d43",
+              "on-secondary-container": "#732600",
+              "on-tertiary-fixed-variant": "#80272e",
+              "on-tertiary-fixed": "#40000a",
+              "tertiary-container": "#bd555a",
+              "outline-variant": "#bdcabe",
+              "on-primary-fixed": "#002110",
+              "surface-container-high": "#e4eae2",
+              "outline": "#6e7a70",
+              "on-tertiary-container": "#fffeff",
+              "surface-container-highest": "#dee4dd",
+              "tertiary-fixed-dim": "#ffb3b3",
+              "surface-container-lowest": "#ffffff",
+              "primary": "#006b3f",
+              "surface-container-low": "#f0f5ee",
+              "on-error-container": "#93000a",
+              "surface-bright": "#f5fbf3",
+              "tertiary-fixed": "#ffdad9",
+              "on-primary-container": "#fdfff9",
+              "surface": "#f5fbf3",
+              "on-primary-fixed-variant": "#00522f",
+              "inverse-primary": "#70db9d",
+              "on-surface": "#171d19",
+              "inverse-surface": "#2c322d",
+              "on-background": "#171d19",
+              "secondary": "#9d431b",
+              "on-secondary-fixed-variant": "#7e2c04",
+              "on-secondary": "#ffffff",
+              "error": "#ba1a1a",
+              "inverse-on-surface": "#edf2eb",
+              "on-secondary-fixed": "#370e00",
+              "surface-dim": "#d6dcd4",
+              "secondary-container": "#fe8c5e"
+            },
+            fontFamily: {
+              "headline": ["Lexend"],
+              "body": ["Work Sans"],
+              "label": ["Work Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-nav {
+        background: rgba(245, 251, 243, 0.8);
+        backdrop-filter: blur(12px);
+      }
+      .court-grid-scroll::-webkit-scrollbar {
+        height: 6px;
+      }
+      .court-grid-scroll::-webkit-scrollbar-thumb {
+        background: #bdcabe;
+        border-radius: 10px;
+      }
+      @keyframes pulse-soft {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+      .animate-pulse-soft {
+        animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body antialiased">
+<!-- TopNavBar -->
+<header class="fixed top-0 z-50 w-full glass-nav px-6 py-3 flex justify-between items-center">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold tracking-tight text-emerald-900 font-headline">Tennis Martinique</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-emerald-700 border-b-2 border-emerald-700 font-bold pb-1 font-label" href="#">Dashboard</a>
+<a class="text-slate-600 hover:text-emerald-600 transition-colors font-label" href="#">Reservations</a>
+<a class="text-slate-600 hover:text-emerald-600 transition-colors font-label" href="#">Tournaments</a>
+<a class="text-slate-600 hover:text-emerald-600 transition-colors font-label" href="#">Club News</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<span class="hidden lg:inline text-secondary font-semibold text-sm px-3 py-1 bg-secondary-fixed rounded-full font-label">Role: Admin</span>
+<button class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-5 py-2 rounded-md font-semibold text-sm transition-all active:scale-95 shadow-sm">Book a Court</button>
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined p-2 hover:bg-emerald-50 rounded-lg cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined p-2 hover:bg-emerald-50 rounded-lg cursor-pointer" data-icon="settings">settings</span>
+</div>
+<img alt="User Profile Avatar" class="w-10 h-10 rounded-full border-2 border-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQt_xJRUqtJo-0GkUkPtT6gGvOJq2lDF-9IkuG38wz8n7ZX5B8puL5gMQfoQbjVOe_elYFY-zRNN6dd5mpWthONH0JgnQXM7zE0m5De1AqB_B9nt3ZqjHf2zzEEkRyibHj6enRNqox1rhXCJy25B9uLaicrS-5arX_faBm_rU9t7GrMvEqkTlnPTYFgSieVOnzX90ogpa-LtusQtGI8nGHQb7fieyogfGQatBYvYwvPLs79m_CTu20RlYCUSZv_F-CUdsUEGMExLWd"/>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-64 bg-emerald-50 pt-20 flex flex-col border-r border-emerald-100/20 z-40">
+<div class="px-6 py-4 mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="sports_tennis" style="font-variation-settings: 'FILL' 1;">sports_tennis</span>
+</div>
+<div>
+<h2 class="font-headline font-bold text-emerald-800 leading-tight">Court Manager</h2>
+<p class="text-[10px] text-secondary font-semibold uppercase tracking-wider">America/Martinique</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1 pr-4">
+<div class="px-6 py-2">
+<span class="text-[10px] font-bold text-emerald-900/40 uppercase tracking-widest">Filters</span>
+</div>
+<div class="relative px-6 py-3">
+<input class="w-full bg-emerald-700 text-white rounded-md border-none focus:ring-2 focus:ring-primary-container text-sm font-semibold p-2 cursor-pointer" id="dateFilter" onchange="updateViewByDate(this.value)" type="date" value="2023-10-24"/>
+<label class="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none text-white/50" for="dateFilter">
+<span class="material-symbols-outlined text-sm" data-icon="calendar_today">calendar_today</span>
+</label>
+</div>
+<a class="flex items-center gap-3 px-6 py-3 text-emerald-900/70 hover:bg-emerald-100 rounded-r-full transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="sports_tennis">sports_tennis</span>
+<span class="font-label">Court Filter</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-emerald-900/70 hover:bg-emerald-100 rounded-r-full transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label">Moniteur</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-emerald-900/70 hover:bg-emerald-100 rounded-r-full transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="card_membership">card_membership</span>
+<span class="font-label">Membership Status</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-emerald-900/70 hover:bg-emerald-100 rounded-r-full transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+<span class="font-label">Equipment Hire</span>
+</a>
+</nav>
+<div class="mt-auto p-6 space-y-4">
+<button class="w-full bg-secondary text-white py-3 rounded-md font-bold text-sm shadow-sm hover:brightness-110 transition-all active:scale-95">Apply Filters</button>
+<div class="pt-4 border-t border-emerald-200/30 space-y-2">
+<a class="flex items-center gap-3 text-emerald-900/60 hover:text-emerald-900 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="help">help</span>
+<span class="text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center gap-3 text-emerald-900/60 hover:text-emerald-900 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="logout">logout</span>
+<span class="text-sm font-medium">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 pt-20 p-8 min-h-screen">
+<!-- Hero Section -->
+<section class="relative h-[320px] rounded-xl overflow-hidden mb-12 group">
+<div class="absolute inset-0 bg-gradient-to-r from-emerald-950/80 via-emerald-900/40 to-transparent z-10"></div>
+<img alt="Premium Tennis Court" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" data-alt="dramatic wide shot of a pristine green tennis court at sunrise with morning mist and palm trees in Martinique background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJAnUuVOYkW2VJtYVSI8sSg_xYfPX9WZ6zNxgI80A_vMRKpA_aD4VU20qEhnU4xCEew_Lb0A6pMvZeMoRceRXcXdD_uRRYt8WgT9Y8QcHbm-HZSf_HpTiow2x_uVkJU0SH5Sn_nudz6ug6euQlzBW3mhuU7-RSGpp8zxtg3OQbG5h76WZGpvBdn2UgkKoWy49cykM4kqPS2HyPwqLLLWh7m0uvXfL-POlp5rcCbD7qr5h7sAh9L7nx-Pz-MM5BIoi0zOh_zjCcVxM1"/>
+<div class="relative z-20 h-full flex flex-col justify-center px-12 max-w-2xl">
+<span class="text-secondary-fixed-dim font-headline font-bold tracking-[0.2em] mb-4 text-sm uppercase">Le Club Martinique</span>
+<h1 class="text-white text-5xl font-headline font-extrabold mb-4 leading-[1.1]">Elite Court Reservations</h1>
+<p class="text-white/80 text-lg font-light mb-8 max-w-md">Manage 6 professional courts under the Caribbean sun. Experience precision on our Quick and Terre Battue surfaces.</p>
+<div class="flex gap-4">
+<button class="bg-primary text-white px-8 py-3 rounded-md font-bold transition-all hover:bg-primary-container shadow-lg">New Booking</button>
+<button class="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-3 rounded-md font-bold hover:bg-white/20 transition-all">Tournaments</button>
+</div>
+</div>
+</section>
+<!-- Stats & Quick Actions Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<div class="bg-surface-container-low p-6 rounded-xl flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-emerald-800/50 uppercase tracking-widest mb-1">Active Bookings</p>
+<p class="text-3xl font-headline font-extrabold text-emerald-900" id="stat-active">--</p>
+</div>
+<div class="w-12 h-12 bg-primary-fixed-dim rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="event_available">event_available</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-emerald-800/50 uppercase tracking-widest mb-1">Maintenance</p>
+<p class="text-3xl font-headline font-extrabold text-secondary" id="stat-maintenance">01</p>
+</div>
+<div class="w-12 h-12 bg-secondary-fixed rounded-full flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="build">build</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-emerald-800/50 uppercase tracking-widest mb-1">Available Slots</p>
+<p class="text-3xl font-headline font-extrabold text-emerald-900" id="stat-available">--</p>
+</div>
+<div class="w-12 h-12 bg-primary-fixed rounded-full flex items-center justify-center text-on-primary-fixed-variant">
+<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+<!-- Reservation Time-Grid Calendar -->
+<div class="xl:col-span-3">
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+<div>
+<h3 class="text-2xl font-headline font-bold text-emerald-900">Interactive Court Grid</h3>
+<p class="text-secondary font-label font-medium text-sm" id="display-date-label">Today: Oct 24, 2023 • America/Martinique</p>
+</div>
+<div class="flex items-center bg-surface-container rounded-lg p-1">
+<button class="px-4 py-1.5 rounded-md bg-white shadow-sm text-sm font-bold text-emerald-900">Today</button>
+<button class="px-4 py-1.5 rounded-md text-sm font-medium text-emerald-900/60 hover:text-emerald-900">Weekly</button>
+</div>
+</div>
+<div class="overflow-x-auto court-grid-scroll">
+<div class="min-w-[800px]" id="court-grid-container">
+<!-- Grid Header (Times) -->
+<div class="grid grid-cols-7 border-b border-emerald-100/50 pb-4">
+<div class="font-headline font-bold text-sm text-emerald-900/40">TIME</div>
+<div class="font-headline font-bold text-sm text-center text-emerald-900">COURT 1 <span class="block text-[10px] font-normal opacity-60">QUICK</span></div>
+<div class="font-headline font-bold text-sm text-center text-emerald-900">COURT 2 <span class="block text-[10px] font-normal opacity-60">QUICK</span></div>
+<div class="font-headline font-bold text-sm text-center text-emerald-900">COURT 3 <span class="block text-[10px] font-normal opacity-60">QUICK</span></div>
+<div class="font-headline font-bold text-sm text-center text-emerald-900">COURT 4 <span class="block text-[10px] font-normal opacity-60">QUICK</span></div>
+<div class="font-headline font-bold text-sm text-center text-secondary">COURT 5 <span class="block text-[10px] font-normal opacity-60">TERRE</span></div>
+<div class="font-headline font-bold text-sm text-center text-secondary">COURT 6 <span class="block text-[10px] font-normal opacity-60">TERRE</span></div>
+</div>
+<!-- Initial Skeleton Loader -->
+<div class="space-y-2 mt-4" id="grid-loader">
+<script>
+                                    for(let i=0; i<8; i++) {
+                                        document.write(`
+                                            <div class="grid grid-cols-7 gap-2 h-16">
+                                                <div class="bg-surface-container h-4 w-8 rounded self-center"></div>
+                                                <div class="bg-surface-container-low rounded-md animate-pulse-soft"></div>
+                                                <div class="bg-surface-container-low rounded-md animate-pulse-soft"></div>
+                                                <div class="bg-surface-container-low rounded-md animate-pulse-soft"></div>
+                                                <div class="bg-surface-container-low rounded-md animate-pulse-soft"></div>
+                                                <div class="bg-surface-container-low rounded-md animate-pulse-soft"></div>
+                                                <div class="bg-surface-container-low rounded-md animate-pulse-soft"></div>
+                                            </div>
+                                        `);
+                                    }
+                                </script>
+</div>
+<!-- Real-time Grid Slots (Populated by JS) -->
+<div class="space-y-2 mt-4 hidden" id="realtime-grid"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Upcoming Reservations List -->
+<div class="xl:col-span-1">
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-col h-full">
+<div class="flex items-center justify-between mb-6">
+<h4 class="font-headline font-bold text-emerald-900">Upcoming Today</h4>
+<span class="material-symbols-outlined text-emerald-900/30" data-icon="more_vert">more_vert</span>
+</div>
+<div class="space-y-4" id="upcoming-list">
+<!-- Upcoming items populated by JS -->
+<div class="h-32 bg-surface-container-lowest rounded-lg animate-pulse-soft"></div>
+<div class="h-32 bg-surface-container-lowest rounded-lg animate-pulse-soft"></div>
+</div>
+<button class="mt-auto w-full border border-emerald-200 text-emerald-800 py-3 rounded-md font-bold text-sm hover:bg-emerald-50 transition-colors">View All Schedule</button>
+</div>
+</div>
+</div>
+<!-- Club Insights Section (Asymmetric) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+<div class="lg:col-span-2 bg-gradient-to-br from-emerald-800 to-primary-container p-8 rounded-xl text-white relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="text-2xl font-headline font-bold mb-2">Club Maintenance Note</h3>
+<p class="text-white/80 max-w-lg mb-6">Terre Battue courts (5 &amp; 6) will undergo deep cleaning and surface leveling tomorrow morning between 06:00 and 09:00. Please reschedule early morning practices.</p>
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-2 text-xs font-bold bg-white/10 px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-sm" data-icon="update">update</span>
+                            Effective: Tomorrow
+                        </span>
+<a class="text-xs font-bold underline" href="#">Read Announcement</a>
+</div>
+</div>
+<div class="absolute -right-20 -bottom-20 opacity-10">
+<span class="material-symbols-outlined text-[300px]" data-icon="sports_tennis">sports_tennis</span>
+</div>
+</div>
+<div class="bg-surface-container-highest p-8 rounded-xl">
+<h3 class="text-xl font-headline font-bold text-emerald-900 mb-4">Location</h3>
+<div class="w-full h-48 bg-emerald-200 rounded-lg mb-4 relative overflow-hidden">
+<img alt="Club Location Map" class="w-full h-full object-cover" data-alt="stylized satellite map view of a luxury coastal resort area in Martinique with lush tropical vegetation and blue coastline" data-location="Fort-de-France, Martinique" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTgXkBV7BoY2Xbj2RlBwCJINyEP2anQ-F9GwsLGVORXr_hAqEWpFS7mY-dEo_u8ImLrpuBtrfmQC71xWwPcbqD5ilq0Awf9U7Pndp-Df8vgYZdHnT1ev9f-WX28gWc0W3U8VuiCJ6EXVJr87AA5H52MLVNTQ81GsD3W9jLyac9XKkNqOdq5TxmTfmK7LH9m2CYGOyc7KxILAySr5WRbRMmEBlF4oJcSW9Lo3QQdDGb9UcC-0F9IxWPiJCsFSjGRujITIDP19V42jx9"/>
+<div class="absolute inset-0 bg-primary/20"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-secondary rounded-full border-4 border-white shadow-xl animate-bounce"></div>
+</div>
+<p class="text-sm font-bold text-emerald-900/60">Anse Mitan, Les Trois-Îlets</p>
+<p class="text-[10px] text-emerald-900/40 uppercase tracking-widest mt-1">America/Martinique Timezone</p>
+</div>
+</div>
+</main>
+<!-- Contextual FAB -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-secondary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined" data-icon="add" style="font-variation-settings: 'wght' 700;">add</span>
+</button>
+<!-- Firebase Integration Logic -->
+<script type="module">
+        // Simulated Firebase Logic for Demo Context
+        // In a real production app, you would import:
+        // import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        // import { getFirestore, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+        // Mocking Firebase SDK for the preview environment
+        const mockFirebase = {
+            db: {},
+            onSnapshot: (selectedDate, callback) => {
+                // Simulate data fetch delay
+                setTimeout(() => {
+                    const mockData = [
+                        { id: '1', name: 'D. Miller', court: 1, time: '08:00', date: '2023-10-24', status: 'Confirmed', type: 'Individual' },
+                        { id: '2', name: 'S. Chen', court: 3, time: '08:00', date: '2023-10-24', status: 'Confirmed', type: 'Doubles' },
+                        { id: '3', name: 'L. Dubois', court: 6, time: '08:00', date: '2023-10-24', status: 'Confirmed', type: 'Training' },
+                        { id: '4', name: 'M. Rossi', court: 4, time: '09:00', date: '2023-10-24', status: 'Confirmed', type: 'Individual' },
+                        { id: '5', name: 'G. Leclaire', court: 5, time: '09:00', date: '2023-10-24', status: 'Confirmed', type: 'Individual' },
+                        { id: '6', name: 'B. Smith', court: 4, time: '10:00', date: '2023-10-24', status: 'Confirmed', type: 'Training' },
+                        { id: '7', name: 'Jean-Pierre Belmondo', court: 5, time: '11:00', date: '2023-10-24', status: 'Confirmed', type: 'Training' },
+                        { id: '8', name: 'Elena Rodriguez', court: 1, time: '12:30', date: '2023-10-24', status: 'Confirmed', type: 'Doubles' },
+                        { id: '9', name: 'Marcus Aurelius', court: 3, time: '14:00', date: '2023-10-24', status: 'Pending', type: 'Tournament' },
+                    ];
+                    
+                    // Filter based on selected date
+                    const filtered = mockData.filter(d => d.date === selectedDate);
+                    callback(filtered);
+                }, 800);
+            }
+        };
+
+        const hours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00'];
+        const courts = [1, 2, 3, 4, 5, 6];
+        let currentSelectedDate = '2023-10-24';
+
+        function checkCourtAvailability(reservations, court, time) {
+            return reservations.find(r => r.court === court && r.time === time);
+        }
+
+        function renderGrid(reservations) {
+            const gridContainer = document.getElementById('realtime-grid');
+            const loader = document.getElementById('grid-loader');
+            
+            gridContainer.innerHTML = '';
+            
+            hours.forEach(hour => {
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-7 gap-2 h-16 group';
+                
+                // Time label
+                const timeLabel = document.createElement('div');
+                timeLabel.className = 'flex items-center text-xs font-bold text-emerald-900/40';
+                timeLabel.textContent = hour;
+                row.appendChild(timeLabel);
+                
+                courts.forEach(courtId => {
+                    const reservation = checkCourtAvailability(reservations, courtId, hour);
+                    const cell = document.createElement('div');
+                    
+                    if (reservation) {
+                        const isTerre = courtId >= 5;
+                        cell.className = `${isTerre ? 'bg-secondary' : 'bg-primary'} text-white rounded-md flex flex-col items-center justify-center p-2 text-[10px] font-semibold transition-transform hover:scale-[1.02] cursor-pointer`;
+                        cell.innerHTML = `
+                            <span>${reservation.name}</span>
+                            <span class="opacity-70">${reservation.status}</span>
+                        `;
+                    } else {
+                        // Maintenance mock for Court 2 at 10:00
+                        if (courtId === 2 && hour === '10:00') {
+                            cell.className = 'bg-surface-dim/40 border border-dashed border-outline-variant rounded-md flex flex-col items-center justify-center p-2 text-[9px] text-on-surface-variant font-bold';
+                            cell.innerHTML = `
+                                <span class="material-symbols-outlined text-sm">construction</span>
+                                <span>MAINTENANCE</span>
+                            `;
+                        } else {
+                            cell.className = 'bg-surface-container-high rounded-md flex flex-col items-center justify-center p-2 text-[10px] text-emerald-900/40 border-2 border-transparent hover:border-primary/30 transition-all cursor-pointer hover:bg-emerald-50';
+                            cell.innerHTML = `
+                                <span class="material-symbols-outlined text-sm">add</span>
+                                <span class="font-bold">Available</span>
+                            `;
+                        }
+                    }
+                    row.appendChild(cell);
+                });
+                
+                gridContainer.appendChild(row);
+            });
+
+            loader.classList.add('hidden');
+            gridContainer.classList.remove('hidden');
+            
+            // Update Stats
+            document.getElementById('stat-active').textContent = reservations.length;
+            document.getElementById('stat-available').textContent = (hours.length * courts.length) - reservations.length - 1;
+
+            // Render Upcoming Sidebar
+            renderUpcoming(reservations);
+        }
+
+        function renderUpcoming(reservations) {
+            const list = document.getElementById('upcoming-list');
+            list.innerHTML = '';
+            
+            const upcoming = reservations.slice(6, 9); // Mocking "next" reservations
+            
+            upcoming.forEach(res => {
+                const isTerre = res.court >= 5;
+                const card = document.createElement('div');
+                card.className = 'bg-surface-container-lowest p-4 rounded-lg shadow-sm group hover:ring-2 hover:ring-primary/20 transition-all';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[10px] font-bold ${isTerre ? 'text-secondary bg-secondary-fixed' : 'text-primary bg-primary-fixed'} px-2 py-0.5 rounded-full uppercase tracking-tighter">Court ${res.court} • ${isTerre ? 'Terre' : 'Quick'}</span>
+                        <span class="text-[10px] font-bold text-emerald-900/40">${res.time}</span>
+                    </div>
+                    <h5 class="font-headline font-bold text-emerald-950 mb-1">${res.name}</h5>
+                    <p class="text-xs text-emerald-900/60 mb-3">${res.type}</p>
+                    <div class="flex items-center justify-between pt-3 border-t border-emerald-50">
+                        <span class="flex items-center gap-1 text-[10px] font-bold ${res.status === 'Pending' ? 'text-secondary' : 'text-emerald-600'}">
+                            <span class="w-1.5 h-1.5 ${res.status === 'Pending' ? 'bg-secondary animate-pulse' : 'bg-emerald-600'} rounded-full"></span>
+                            ${res.status}
+                        </span>
+                        <button class="text-[10px] font-bold text-primary hover:underline">Details</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        window.updateViewByDate = function(date) {
+            currentSelectedDate = date;
+            const loader = document.getElementById('grid-loader');
+            const gridContainer = document.getElementById('realtime-grid');
+            const upcoming = document.getElementById('upcoming-list');
+            
+            loader.classList.remove('hidden');
+            gridContainer.classList.add('hidden');
+            upcoming.innerHTML = '<div class="h-32 bg-surface-container-lowest rounded-lg animate-pulse-soft"></div>';
+
+            // Format date label
+            const d = new Date(date);
+            const options = { month: 'short', day: 'numeric', year: 'numeric' };
+            document.getElementById('display-date-label').textContent = `Date: ${d.toLocaleDateString('en-US', options)} • America/Martinique`;
+            
+            // Listen for changes
+            mockFirebase.onSnapshot(date, renderGrid);
+        };
+
+        // Initialize with default date
+        mockFirebase.onSnapshot(currentSelectedDate, renderGrid);
+    </script>
+</body></html>

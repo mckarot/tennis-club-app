@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tennis Club du François</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "background": "#f5fbf3",
+              "on-tertiary-container": "#fffeff",
+              "on-primary": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "inverse-surface": "#2c322d",
+              "error-container": "#ffdad6",
+              "tertiary": "#9d3d43",
+              "surface-dim": "#d6dcd4",
+              "on-tertiary-fixed-variant": "#80272e",
+              "error": "#ba1a1a",
+              "on-surface-variant": "#3e4a41",
+              "on-secondary-fixed": "#370e00",
+              "inverse-on-surface": "#edf2eb",
+              "surface-tint": "#006d40",
+              "surface-variant": "#dee4dd",
+              "on-primary-fixed": "#002110",
+              "primary-fixed-dim": "#70db9d",
+              "tertiary-fixed": "#ffdad9",
+              "primary-container": "#008751",
+              "surface-container-highest": "#dee4dd",
+              "surface-container": "#eaefe8",
+              "outline": "#6e7a70",
+              "secondary-fixed-dim": "#ffb599",
+              "on-background": "#171d19",
+              "surface-container-low": "#f0f5ee",
+              "surface-bright": "#f5fbf3",
+              "on-surface": "#171d19",
+              "secondary-container": "#fe8c5e",
+              "on-error": "#ffffff",
+              "primary-fixed": "#8df8b7",
+              "on-primary-fixed-variant": "#00522f",
+              "inverse-primary": "#70db9d",
+              "on-secondary-container": "#732600",
+              "tertiary-fixed-dim": "#ffb3b3",
+              "surface": "#f5fbf3",
+              "on-tertiary-fixed": "#40000a",
+              "tertiary-container": "#bd555a",
+              "surface-container-high": "#e4eae2",
+              "secondary-fixed": "#ffdbce",
+              "surface-container-lowest": "#ffffff",
+              "on-primary-container": "#fdfff9",
+              "on-secondary-fixed-variant": "#7e2c04",
+              "outline-variant": "#bdcabe",
+              "secondary": "#9d431b",
+              "primary": "#006b3f",
+              "on-secondary": "#ffffff",
+              "on-error-container": "#93000a"
+            },
+            fontFamily: {
+              "headline": ["Lexend"],
+              "body": ["Work Sans"],
+              "label": ["Work Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body { font-family: 'Work Sans', sans-serif; }
+      h1, h2, h3, h4 { font-family: 'Lexend', sans-serif; }
+      .glass-nav {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased overflow-x-hidden">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#f5fbf3]/80 backdrop-blur-lg">
+<div class="flex items-center justify-between px-6 h-16 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tight text-[#006b3f]">Martinique Tennis Club</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-[#006b3f] font-bold border-b-2 border-[#006b3f]" href="#">Home</a>
+<a class="text-slate-600 font-medium hover:text-[#9d431b] transition-colors duration-200" href="#availability">Court Booking</a>
+<a class="text-slate-600 font-medium hover:text-[#9d431b] transition-colors duration-200" href="#pricing">Pricing</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#006b3f] cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-[#006b3f] cursor-pointer" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</nav>
+<main class="pt-16">
+<!-- Hero Section -->
+<section class="relative w-full h-[870px] flex items-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="Tennis Club du François" class="w-full h-full object-cover" data-alt="Luxurious tennis club with vibrant red clay courts surrounded by lush Martinique tropical greenery under a bright afternoon sun" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAq7fymogtk4S_PTwuIabk4RvT0PkbnOCJKm40IIy3jXiG3BXGZwPqc8IqoBpXxo2-3Ikh6pJ2slE7bSr1zhvQuwKhU3UGYIZGCTlCTzjpxnDoLkvydhCQbm_YKPUqhFAJyJNIAvvx_KPkM12pZjq_KS0CyC7I67WSsEkxTg1lDm-llgYYzovHn2zYYUGhpuUoFcqM2yRdS8Gx82DiI1q2lpiZo4WrPUaneKm4pcj_Lyy_0Av2M9yCmszUvVdTkOlKujWDN-zLG16Y7"/>
+<div class="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent"></div>
+</div>
+<div class="relative z-10 max-w-7xl mx-auto px-6 w-full">
+<div class="max-w-2xl">
+<span class="inline-block px-3 py-1 bg-secondary/10 text-secondary font-semibold text-sm rounded-full mb-6">AMERICA/MARTINIQUE</span>
+<h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter text-primary leading-tight mb-6">
+                        PRECISION<br/>ON THE CLAY.
+                    </h1>
+<p class="text-xl text-on-surface-variant mb-10 font-body leading-relaxed max-w-lg">
+                        Experience the prestige of professional-grade courts at Tennis Club du François. Designed for those who demand excellence in every serve.
+                    </p>
+<div class="flex flex-wrap gap-4">
+<button class="px-8 py-4 bg-gradient-to-br from-primary to-primary-container text-white font-bold rounded-md hover:scale-[1.02] active:scale-95 transition-all shadow-lg">
+                            Register now
+                        </button>
+<button class="px-8 py-4 bg-transparent border-2 border-secondary text-secondary font-bold rounded-md hover:bg-secondary/5 transition-all">
+                            View Brackets
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Availability Grid (6 Courts) -->
+<section class="py-24 bg-surface-container-low" id="availability">
+<div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+<div>
+<h2 class="text-4xl font-bold text-primary mb-2">Live Availability</h2>
+<p class="text-on-surface-variant">Real-time status for today's match scheduling.</p>
+</div>
+<div class="flex items-center gap-4 text-sm font-semibold text-secondary">
+<span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-primary"></span> Available</span>
+<span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-secondary"></span> Occupied</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Court 01 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border-l-4 border-primary">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-3xl font-black text-primary leading-none">COURT 01</h3>
+<p class="text-secondary font-medium mt-2">Premium Clay</p>
+</div>
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Open</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-sm py-2 border-b border-surface-variant/30">
+<span class="text-slate-500">Next Slot</span>
+<span class="font-bold">14:00 AST</span>
+</div>
+<div class="flex justify-between text-sm py-2">
+<span class="text-slate-500">Surface Type</span>
+<span class="font-medium">Red Clay</span>
+</div>
+</div>
+</div>
+<!-- Court 02 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border-l-4 border-secondary">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-3xl font-black text-primary leading-none">COURT 02</h3>
+<p class="text-secondary font-medium mt-2">Center Stage</p>
+</div>
+<span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">In Play</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-sm py-2 border-b border-surface-variant/30">
+<span class="text-slate-500">Match End</span>
+<span class="font-bold">15:30 AST</span>
+</div>
+<div class="flex justify-between text-sm py-2">
+<span class="text-slate-500">Surface Type</span>
+<span class="font-medium">Red Clay</span>
+</div>
+</div>
+</div>
+<!-- Court 03 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border-l-4 border-primary">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-3xl font-black text-primary leading-none">COURT 03</h3>
+<p class="text-secondary font-medium mt-2">Shadow View</p>
+</div>
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Open</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-sm py-2 border-b border-surface-variant/30">
+<span class="text-slate-500">Next Slot</span>
+<span class="font-bold">Now</span>
+</div>
+<div class="flex justify-between text-sm py-2">
+<span class="text-slate-500">Surface Type</span>
+<span class="font-medium">Green Hard</span>
+</div>
+</div>
+</div>
+<!-- Court 04 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border-l-4 border-primary">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-3xl font-black text-primary leading-none">COURT 04</h3>
+<p class="text-secondary font-medium mt-2">Training Zone</p>
+</div>
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Open</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-sm py-2 border-b border-surface-variant/30">
+<span class="text-slate-500">Next Slot</span>
+<span class="font-bold">16:00 AST</span>
+</div>
+<div class="flex justify-between text-sm py-2">
+<span class="text-slate-500">Surface Type</span>
+<span class="font-medium">Red Clay</span>
+</div>
+</div>
+</div>
+<!-- Court 05 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border-l-4 border-secondary">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-3xl font-black text-primary leading-none">COURT 05</h3>
+<p class="text-secondary font-medium mt-2">Junior Court</p>
+</div>
+<span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Reserved</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-sm py-2 border-b border-surface-variant/30">
+<span class="text-slate-500">Match End</span>
+<span class="font-bold">14:45 AST</span>
+</div>
+<div class="flex justify-between text-sm py-2">
+<span class="text-slate-500">Surface Type</span>
+<span class="font-medium">Red Clay</span>
+</div>
+</div>
+</div>
+<!-- Court 06 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border-l-4 border-primary">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-3xl font-black text-primary leading-none">COURT 06</h3>
+<p class="text-secondary font-medium mt-2">West End</p>
+</div>
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Open</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-sm py-2 border-b border-surface-variant/30">
+<span class="text-slate-500">Next Slot</span>
+<span class="font-bold">Now</span>
+</div>
+<div class="flex justify-between text-sm py-2">
+<span class="text-slate-500">Surface Type</span>
+<span class="font-medium">Red Clay</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Facilities Section: Bento Grid -->
+<section class="py-24 bg-background">
+<div class="max-w-7xl mx-auto px-6">
+<h2 class="text-4xl font-bold text-primary mb-12">Premier Facilities</h2>
+<div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 h-[800px] md:h-[600px]">
+<div class="md:col-span-2 md:row-span-2 relative rounded-2xl overflow-hidden group">
+<img alt="Clubhouse" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Modern tennis clubhouse with floor-to-ceiling glass windows overlooking green courts, sophisticated lounge area inside with neutral tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnX2txEgPzB-DmyoGWAdyiJOXG1ha0ULIx20DSMiNXMRfz8r1DA9Hf11HQxwwEejUzxvo8olHb_M5FLZ7Zg2ohyEH5rhOZLAOciKvGeqCmlFZ0A-AUUOBJUeh5FgCI0m_J8d2eRQE-QJKIcu_UVPTWObQii6cGOjCRasfIEm_gxJ9kXDfJgcA9IVAYIkEITDuI3efKkkb_Y2-VOCXlaoW_9JxGEi0OpiqCMqZfFj-ty9BHiW0kbQ85CvwR3A1YdgjQRXA_iB_42EYi"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 to-transparent flex flex-col justify-end p-8">
+<h3 class="text-2xl font-bold text-white mb-2">Panoramic Clubhouse</h3>
+<p class="text-primary-fixed leading-relaxed">Relax with a full view of the main courts. Our clubhouse features luxury locker rooms and a premium player lounge.</p>
+</div>
+</div>
+<div class="md:col-span-2 bg-surface-container p-8 rounded-2xl flex flex-col justify-center">
+<div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="restaurant">restaurant</span>
+</div>
+<h3 class="text-xl font-bold text-primary mb-2">The Baseline Bistro</h3>
+<p class="text-on-surface-variant">Chef-curated menu featuring local Martinique flavors and high-performance nutrition for athletes.</p>
+</div>
+<div class="md:col-span-1 bg-secondary/10 p-8 rounded-2xl">
+<span class="material-symbols-outlined text-secondary text-3xl mb-4" data-icon="lightbulb">lightbulb</span>
+<h3 class="text-lg font-bold text-secondary mb-2">Night Play</h3>
+<p class="text-sm text-on-surface-variant">LED broadcast-quality lighting on all 6 courts for perfect evening matches.</p>
+</div>
+<div class="md:col-span-1 bg-surface-container-highest p-8 rounded-2xl">
+<span class="material-symbols-outlined text-primary text-3xl mb-4" data-icon="school">school</span>
+<h3 class="text-lg font-bold text-primary mb-2">Pro Coaching</h3>
+<p class="text-sm text-on-surface-variant">Certified instructors available for private and group technical sessions.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Pricing Section -->
+<section class="py-24 bg-surface-container-low overflow-hidden relative" id="pricing">
+<div class="max-w-7xl mx-auto px-6 relative z-10">
+<div class="text-center max-w-3xl mx-auto mb-16">
+<h2 class="text-4xl md:text-5xl font-bold text-primary mb-6 tracking-tight">Court Rental Rates</h2>
+<p class="text-on-surface-variant text-lg">Standard rates for guest players and non-members. All times are America/Martinique AST.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-0 bg-surface-container-lowest rounded-3xl shadow-xl overflow-hidden">
+<!-- Weekday Morning -->
+<div class="p-10 border-r border-surface-variant/30 flex flex-col">
+<div class="mb-8">
+<span class="text-slate-500 font-semibold text-sm tracking-widest uppercase">Morning Sessions</span>
+<h3 class="text-2xl font-bold text-primary mt-2">Sunrise Rally</h3>
+<p class="text-slate-400 mt-2 text-sm">06:00 — 10:00 AST</p>
+</div>
+<div class="mb-10 flex items-baseline gap-1">
+<span class="text-4xl font-black text-primary">€25</span>
+<span class="text-slate-500 font-medium">/hour</span>
+</div>
+<ul class="space-y-4 mb-12 flex-grow">
+<li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle">check_circle</span> Any court type</li>
+<li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle">check_circle</span> Fresh towels provided</li>
+<li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle">check_circle</span> Gym access included</li>
+</ul>
+<button class="w-full py-4 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all">Select Slot</button>
+</div>
+<!-- Peak Hours -->
+<div class="p-10 bg-primary text-white flex flex-col relative">
+<div class="absolute top-0 right-0 bg-secondary px-4 py-1 text-xs font-bold uppercase tracking-widest transform translate-y-4 -translate-x-4 rounded-full">Popular</div>
+<div class="mb-8">
+<span class="text-primary-fixed font-semibold text-sm tracking-widest uppercase opacity-80">Peak Sessions</span>
+<h3 class="text-2xl font-bold mt-2">Prime Time</h3>
+<p class="text-primary-fixed mt-2 text-sm">16:00 — 22:00 AST</p>
+</div>
+<div class="mb-10 flex items-baseline gap-1">
+<span class="text-4xl font-black">€45</span>
+<span class="text-primary-fixed font-medium">/hour</span>
+</div>
+<ul class="space-y-4 mb-12 flex-grow">
+<li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-white text-lg" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span> Clay Court Priority</li>
+<li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-white text-lg" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span> Full Floodlight Support</li>
+<li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-white text-lg" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span> Pro-Shop Discount (10%)</li>
+<li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-white text-lg" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span> Valet Parking</li>
+</ul>
+<button class="w-full py-4 bg-white text-primary font-bold rounded-lg hover:bg-secondary hover:text-white transition-all shadow-lg">Select Slot</button>
+</div>
+<!-- Weekend -->
+<div class="p-10 flex flex-col">
+<div class="mb-8">
+<span class="text-slate-500 font-semibold text-sm tracking-widest uppercase">Weekend Pass</span>
+<h3 class="text-2xl font-bold text-primary mt-2">Club Guest</h3>
+<p class="text-slate-400 mt-2 text-sm">Sat — Sun All Day</p>
+</div>
+<div class="mb-10 flex items-baseline gap-1">
+<span class="text-4xl font-black text-primary">€35</span>
+<span class="text-slate-500 font-medium">/hour</span>
+</div>
+<ul class="space-y-4 mb-12 flex-grow">
+<li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle">check_circle</span> Tournament Viewing</li>
+<li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle">check_circle</span> Beverage Voucher</li>
+<li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle">check_circle</span> Locker Room Access</li>
+</ul>
+<button class="w-full py-4 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all">Select Slot</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full bg-[#f5fbf3] dark:bg-slate-950 py-12 border-t-0 mt-auto">
+<div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex flex-col items-center md:items-start gap-4">
+<span class="font-bold text-[#006b3f] text-xl">Martinique Tennis Club</span>
+<p class="text-slate-500 text-xs text-center md:text-left leading-relaxed">
+                    © 2024 Martinique Tennis Club. All match times in America/Martinique.<br/>
+                    Le François, Martinique.
+                </p>
+</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="text-slate-500 text-sm font-medium hover:text-[#9d431b] transition-colors" href="#">Privacy Policy</a>
+<a class="text-slate-500 text-sm font-medium hover:text-[#9d431b] transition-colors" href="#">Terms of Service</a>
+<a class="text-slate-500 text-sm font-medium hover:text-[#9d431b] transition-colors" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/90 backdrop-blur-xl rounded-t-3xl shadow-[0_-4px_20px_0_rgba(23,29,25,0.06)] md:hidden">
+<div class="flex flex-col items-center justify-center bg-[#006b3f] text-white rounded-2xl p-2 w-16 h-12 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 p-2 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="sports_tennis">sports_tennis</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 p-2 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 p-2 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+</nav>
+</body></html>

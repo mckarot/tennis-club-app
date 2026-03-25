@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tennis Martinique - Moniteur Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&amp;family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-variant": "#dee4dd",
+              "surface-container": "#eaefe8",
+              "surface-tint": "#006d40",
+              "on-error": "#ffffff",
+              "primary-container": "#008751",
+              "secondary-fixed-dim": "#ffb599",
+              "on-surface-variant": "#3e4a41",
+              "on-primary": "#ffffff",
+              "primary-fixed": "#8df8b7",
+              "on-tertiary": "#ffffff",
+              "primary-fixed-dim": "#70db9d",
+              "background": "#f5fbf3",
+              "secondary-fixed": "#ffdbce",
+              "error-container": "#ffdad6",
+              "tertiary": "#9d3d43",
+              "on-secondary-container": "#732600",
+              "on-tertiary-fixed-variant": "#80272e",
+              "on-tertiary-fixed": "#40000a",
+              "tertiary-container": "#bd555a",
+              "outline-variant": "#bdcabe",
+              "on-primary-fixed": "#002110",
+              "surface-container-high": "#e4eae2",
+              "outline": "#6e7a70",
+              "on-tertiary-container": "#fffeff",
+              "surface-container-highest": "#dee4dd",
+              "tertiary-fixed-dim": "#ffb3b3",
+              "surface-container-lowest": "#ffffff",
+              "primary": "#006b3f",
+              "surface-container-low": "#f0f5ee",
+              "on-error-container": "#93000a",
+              "surface-bright": "#f5fbf3",
+              "tertiary-fixed": "#ffdad9",
+              "on-primary-container": "#fdfff9",
+              "surface": "#f5fbf3",
+              "on-primary-fixed-variant": "#00522f",
+              "inverse-primary": "#70db9d",
+              "on-surface": "#171d19",
+              "inverse-surface": "#2c322d",
+              "on-background": "#171d19",
+              "secondary": "#9d431b",
+              "on-secondary-fixed-variant": "#7e2c04",
+              "on-secondary": "#ffffff",
+              "error": "#ba1a1a",
+              "inverse-on-surface": "#edf2eb",
+              "on-secondary-fixed": "#370e00",
+              "surface-dim": "#d6dcd4",
+              "secondary-container": "#fe8c5e"
+            },
+            fontFamily: {
+              "headline": ["Lexend"],
+              "body": ["Work Sans"],
+              "label": ["Work Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Work Sans', sans-serif; }
+        h1, h2, h3, .display-font { font-family: 'Lexend', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #bdcabe; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- TopNavBar -->
+<header class="fixed top-0 z-50 w-full glass-nav px-6 py-3 flex justify-between items-center transition-all duration-200">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold tracking-tight text-primary">Tennis Martinique</span>
+<nav class="hidden md:flex gap-6 items-center">
+<a class="text-primary border-b-2 border-primary font-bold pb-1 text-sm" href="#">Dashboard</a>
+<a class="text-slate-600 hover:text-primary transition-colors text-sm" href="#">Reservations</a>
+<a class="text-slate-600 hover:text-primary transition-colors text-sm" href="#">Tournaments</a>
+<a class="text-slate-600 hover:text-primary transition-colors text-sm" href="#">Club News</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<span class="hidden lg:inline text-xs font-medium text-secondary bg-secondary-fixed px-2 py-1 rounded">Role: Moniteur</span>
+<button class="bg-gradient-to-br from-primary to-primary-container text-white px-5 py-2 rounded-md font-medium text-sm shadow-sm hover:scale-[0.98] transition-all">
+                Book a Court
+            </button>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+</button>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="Professional tennis moniteur portrait with a friendly expression in outdoor club setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR1xDGq41O26-xcUxhCf2-Wn5aXVxRCUlghz-4CXSa5MNBJmDV4uovhQFv9hwznAfDcOMhFeRH7exp_fKvqb9Ln480EF4XVZsrNvo97AXoyikiIucpaZH_AaMMQHqa9Xqc5UIdHK5BpuztrilFn-tCK4u0Kmze0tBIg5gjgizgI3y4WTwjHnTDeqSRscpJUK9EdVs2JWWMqmDgRj_KiOu7motemwhZsG9UmHRYOMvedWvXhGe5Y21HnCXv5haUpVYL500dp_uLpQgV"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="hidden lg:flex flex-col h-screen w-64 fixed left-0 top-0 pt-24 pb-6 bg-surface-container-low border-r border-outline-variant/15 z-40">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-8 h-8 bg-primary rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">sports_tennis</span>
+</div>
+<div>
+<h3 class="font-bold text-on-surface text-sm leading-tight">Court Manager</h3>
+<p class="text-[10px] text-secondary font-medium tracking-wide">America/Martinique</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-6 py-3 text-sm text-on-surface-variant hover:bg-surface-container-high hover:translate-x-1 transition-all" href="#">
+<span class="material-symbols-outlined text-primary">calendar_today</span>
+<span>Date Selection</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-sm bg-primary text-white rounded-r-full font-semibold shadow-sm" href="#">
+<span class="material-symbols-outlined">sports_tennis</span>
+<span>Court Filter</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-sm text-on-surface-variant hover:bg-surface-container-high hover:translate-x-1 transition-all" href="#">
+<span class="material-symbols-outlined text-primary">person</span>
+<span>Moniteur</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-sm text-on-surface-variant hover:bg-surface-container-high hover:translate-x-1 transition-all" href="#">
+<span class="material-symbols-outlined text-primary">card_membership</span>
+<span>Membership Status</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-sm text-on-surface-variant hover:bg-surface-container-high hover:translate-x-1 transition-all" href="#">
+<span class="material-symbols-outlined text-primary">shopping_bag</span>
+<span>Equipment Hire</span>
+</a>
+</nav>
+<div class="px-6 mt-auto space-y-1">
+<button class="w-full bg-secondary text-white py-2.5 rounded-md font-semibold text-sm mb-6 shadow-sm">Apply Filters</button>
+<a class="flex items-center gap-3 py-2 text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">help</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-sm text-on-surface-variant hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="lg:ml-64 pt-24 px-6 pb-12">
+<div class="max-w-7xl mx-auto space-y-8">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<span class="text-secondary font-semibold text-xs tracking-[0.2em] uppercase">Moniteur Portal</span>
+<h1 class="text-4xl font-extrabold text-on-surface tracking-tight mt-1">Daily Schedule</h1>
+<p class="text-on-surface-variant mt-2 text-sm">Manage your training sessions for Friday, Oct 27th.</p>
+</div>
+<button class="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-md font-bold shadow-md hover:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">add_circle</span>
+                    Define New Slot
+                </button>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Weekly Calendar (Personal View) -->
+<section class="lg:col-span-8 space-y-6">
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">event_note</span>
+                                Weekly Availability
+                            </h2>
+<div class="flex items-center gap-1 bg-surface-container rounded-lg p-1">
+<button class="p-1.5 hover:bg-surface-container-lowest rounded-md transition-colors"><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+<span class="text-xs font-bold px-2">Oct 23 - Oct 29</span>
+<button class="p-1.5 hover:bg-surface-container-lowest rounded-md transition-colors"><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-2">
+<!-- Mon - Sun Headers -->
+<div class="text-center pb-2"><p class="text-[10px] font-bold text-outline uppercase tracking-wider">Mon</p><p class="text-lg font-headline font-bold">23</p></div>
+<div class="text-center pb-2"><p class="text-[10px] font-bold text-outline uppercase tracking-wider">Tue</p><p class="text-lg font-headline font-bold">24</p></div>
+<div class="text-center pb-2"><p class="text-[10px] font-bold text-outline uppercase tracking-wider">Wed</p><p class="text-lg font-headline font-bold">25</p></div>
+<div class="text-center pb-2"><p class="text-[10px] font-bold text-outline uppercase tracking-wider">Thu</p><p class="text-lg font-headline font-bold">26</p></div>
+<div class="text-center pb-2 bg-primary/5 rounded-t-lg"><p class="text-[10px] font-bold text-primary uppercase tracking-wider">Fri</p><p class="text-lg font-headline font-bold text-primary">27</p></div>
+<div class="text-center pb-2"><p class="text-[10px] font-bold text-outline uppercase tracking-wider">Sat</p><p class="text-lg font-headline font-bold">28</p></div>
+<div class="text-center pb-2"><p class="text-[10px] font-bold text-outline uppercase tracking-wider">Sun</p><p class="text-lg font-headline font-bold">29</p></div>
+<!-- Day Slots (Representational) -->
+<div class="space-y-1">
+<div class="h-12 bg-surface-container-low rounded-sm"></div>
+<div class="h-20 bg-primary/10 rounded-sm border-l-2 border-primary p-1 text-[10px] font-medium">9:00 - 11:00</div>
+</div>
+<div class="space-y-1">
+<div class="h-12 bg-surface-container-low rounded-sm"></div>
+<div class="h-12 bg-surface-container-low rounded-sm"></div>
+<div class="h-16 bg-secondary/10 rounded-sm border-l-2 border-secondary p-1 text-[10px] font-medium">14:00 - 15:30</div>
+</div>
+<div class="space-y-1">
+<div class="h-32 bg-primary/10 rounded-sm border-l-2 border-primary p-1 text-[10px] font-medium">10:00 - 13:00</div>
+</div>
+<div class="space-y-1">
+<div class="h-12 bg-surface-container-low rounded-sm"></div>
+<div class="h-20 bg-primary/10 rounded-sm border-l-2 border-primary p-1 text-[10px] font-medium">15:00 - 17:00</div>
+</div>
+<!-- Active Day -->
+<div class="space-y-1 bg-primary/5 p-1 rounded-b-lg min-h-[200px]">
+<div class="h-10 bg-primary text-white rounded-sm p-1 text-[9px] font-bold shadow-sm">08:00 PRO</div>
+<div class="h-16 bg-secondary text-white rounded-sm p-1 text-[9px] font-bold shadow-sm">10:00 GROUP</div>
+<div class="h-12 border border-primary/20 border-dashed rounded-sm flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xs">add</span>
+</div>
+</div>
+<div class="space-y-1">
+<div class="h-24 bg-primary/10 rounded-sm border-l-2 border-primary p-1 text-[10px] font-medium">09:00 - 11:30</div>
+</div>
+<div class="space-y-1">
+<div class="h-40 bg-surface-container-low/50 rounded-sm border border-dashed border-outline-variant flex items-center justify-center">
+<span class="text-[10px] text-outline-variant font-medium">OFF</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Upcoming Lessons List -->
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<h2 class="text-xl font-bold font-headline">Upcoming Today</h2>
+<a class="text-primary text-xs font-bold hover:underline" href="#">View Full Roster</a>
+</div>
+<!-- Lesson Card 1 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high transition-colors p-5 rounded-xl flex flex-wrap md:flex-nowrap gap-6 items-center border border-outline-variant/5">
+<div class="flex-shrink-0 w-24 text-center border-r border-outline-variant/20 pr-6">
+<p class="text-2xl font-black font-headline text-on-surface">10:00</p>
+<p class="text-[10px] font-bold text-secondary uppercase tracking-tighter">60 mins</p>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Group Lesson</span>
+<span class="text-[10px] text-on-surface-variant font-medium">Court 04 • Clay</span>
+</div>
+<h3 class="text-lg font-bold">Intermediate Backhand Masterclass</h3>
+<p class="text-xs text-on-surface-variant">Focusing on top-spin technique and court positioning.</p>
+</div>
+<div class="flex -space-x-3 overflow-hidden">
+<img alt="User 1" class="inline-block h-8 w-8 rounded-full ring-2 ring-white" data-alt="Portrait of a young active woman with sporty attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB23wX1Cc5Ttu7BR0Pi-Ysy4ptTkkTQ0AKUcJ7rpBIqRA9AXFa-wNa06Pj94yXeQRI4C44JGvb6CD5rPcuC0CXOIr4aoCu9XZs04OzfuM4ew0zRbgpfuhU8rIVeXlim_P0iduNy18NS0s9VOZFaMCEkFt2DeMdPpUkxWjDOFf24RB14zEd6wgPC4DDO-DbFl5_5wyVvbcuAl0UlIAcrKTVKvwM4EStiYwRsiNrOloSX-3GMn0sF5PvqtxBlxy5tN7D8p6rJBMuBUfDX"/>
+<img alt="User 2" class="inline-block h-8 w-8 rounded-full ring-2 ring-white" data-alt="Close up portrait of a male tennis player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBs-_KfMobFxlaoxV0hx1zGcghmSyJSTySpL_R2ZcWDNVRS--vQ7sODKSh0tEnEWrUB3Ix0ruSKp_4CXZNXOqxTWT3-Cy-si-_JIvdznm5HhmjNEonuLoP6tb8HFqhSEkCbYpWt24eYnEk0iF7XaEXkePcLvF4vovgFg4Nav56wQQOBkys6x5y8KJwLybgZpLxC0_VD4EcVEZnBolcuHypZcn1QhXrbXp22w04O1aV8ICcbizmvyR76DZ01QRNTjXrF7jGAfutj6Tct"/>
+<img alt="User 3" class="inline-block h-8 w-8 rounded-full ring-2 ring-white" data-alt="Profile of a mid-adult male athlete" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbbW5ph44Rk8IKmJBCMZQRZlkr56EH609MGZ78VNDgPM4wxYds3N7c3e4Xj3eWkGMc8ocNOUCYukNtPw8nTNut2z5uRTYujbV0hu9NQoIiY49GN3sIP5p8PX6JZiN8NQ8_3DwcxUOMWGBfHlWCuQvU0zwQitNHO6FBdXs4ed78kLcZ1cpFIn_Sva66DA1RMpSax29ZGA97ogXS9nGtcPFktpr5UoHXCdjurKFmsqH-mGGpWyqoMsM-NO-lBcHBYHQf6uu4MWEgY8xP"/>
+<div class="flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-white bg-surface-container-highest text-[10px] font-bold text-on-surface-variant">+2</div>
+</div>
+<button class="bg-white border border-outline-variant/30 px-4 py-2 rounded text-xs font-bold hover:bg-primary hover:text-white transition-colors">Details</button>
+</div>
+<!-- Lesson Card 2 (Private) -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high transition-colors p-5 rounded-xl flex flex-wrap md:flex-nowrap gap-6 items-center border border-outline-variant/5">
+<div class="flex-shrink-0 w-24 text-center border-r border-outline-variant/20 pr-6">
+<p class="text-2xl font-black font-headline text-on-surface">11:30</p>
+<p class="text-[10px] font-bold text-secondary uppercase tracking-tighter">90 mins</p>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="text-[10px] bg-secondary text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Private</span>
+<span class="text-[10px] text-on-surface-variant font-medium">Court 01 • Grass</span>
+</div>
+<h3 class="text-lg font-bold">1-on-1: Serve Precision</h3>
+<p class="text-xs text-on-surface-variant">Player: Marc Dupont (Advanced Ranking)</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold">Marc Dupont</p>
+<p class="text-[10px] text-on-surface-variant">Member since 2021</p>
+</div>
+<img alt="Marc Dupont" class="h-10 w-10 rounded-full border-2 border-secondary/20" data-alt="Portrait of a middle aged male in athletic gear" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzGx8WPDvXdOohLcM-Bc-lbuby4WtAPWXzus5e75Pjzcv-mhTbkvAHOFurEXzMTAr8NkYssXIzvZpqMFZhXOtcmneHAXg9BHwMkVEr0BotG-M_n8nA4hbqQU80B-YIQzy7K24bREOdfqsT0__1dGFMpgShIHxscJxBfKRmX03OpRpNH18uoL6raoYjWECWFmsPy6pyJZAet_v28ngj6cTZ97BQPXN2ADzf2g5siFZP0SGeLf0pbMuwvjiQRY0_N_S_srPTsaYPjj7U"/>
+</div>
+<button class="bg-white border border-outline-variant/30 px-4 py-2 rounded text-xs font-bold hover:bg-primary hover:text-white transition-colors">Details</button>
+</div>
+</div>
+</section>
+<!-- Sidebar Interactions -->
+<aside class="lg:col-span-4 space-y-6">
+<!-- Define Slot Interface -->
+<div class="bg-primary text-white rounded-xl p-6 shadow-xl relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary-container/30 rounded-full blur-2xl"></div>
+<h2 class="text-xl font-bold mb-4 font-headline relative z-10">Define New Slot</h2>
+<div class="space-y-4 relative z-10">
+<div>
+<label class="text-[10px] font-bold uppercase tracking-widest opacity-80 block mb-1">Time Range</label>
+<div class="grid grid-cols-2 gap-2">
+<div class="bg-white/10 rounded p-2 border border-white/20">
+<p class="text-[9px] opacity-70">Start</p>
+<p class="font-bold">14:00</p>
+</div>
+<div class="bg-white/10 rounded p-2 border border-white/20">
+<p class="text-[9px] opacity-70">End</p>
+<p class="font-bold">15:30</p>
+</div>
+</div>
+</div>
+<div>
+<label class="text-[10px] font-bold uppercase tracking-widest opacity-80 block mb-1">Session Type</label>
+<div class="flex gap-2">
+<button class="flex-1 bg-white text-primary text-[10px] font-bold py-2 rounded">PRIVATE</button>
+<button class="flex-1 border border-white/30 text-[10px] font-bold py-2 rounded hover:bg-white/10">GROUP</button>
+</div>
+</div>
+<div>
+<label class="text-[10px] font-bold uppercase tracking-widest opacity-80 block mb-1">Preferred Court</label>
+<select class="w-full bg-white/10 border border-white/20 rounded text-sm py-2 px-3 focus:ring-0 appearance-none">
+<option>No Preference</option>
+<option>Court 01 (Clay)</option>
+<option>Court 02 (Clay)</option>
+</select>
+</div>
+<button class="w-full bg-secondary hover:bg-secondary-container transition-colors py-3 rounded font-bold text-sm shadow-lg mt-2">Publish Availability</button>
+</div>
+</div>
+<!-- Participant Preview / Quick List -->
+<div class="bg-surface-container rounded-xl p-6">
+<h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">groups</span>
+                            Participants Next Session
+                        </h2>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="Portrait of a young smiling woman athlete" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCujIqSZ4fjNmdDmdM29kGTHvDE_ucaRbYjyLD0JCwigGbGa0tmySGcTypf1YCosx8DrzfwjtU0y7YvblfNHIZ6Jnn_KmHOtbdneX6mNtgTuDr5AxsbiwrrViEN7dTuuU7-n3PiYXvOuKiyjuCi0nc-xdZ_YPv-5t6MAxAUFApwzPsrYAuEcX9oZMqWqTfkyuxQIz2d1ymTbP9OCPi8gEJwtUK0AfZXthRR8Mb_EivhBFU7RblPDGRuOOHFYvIi06XTSGNGx2653cl1"/>
+<div>
+<p class="text-sm font-bold leading-none">Sarah Jenkins</p>
+<p class="text-[10px] text-on-surface-variant">Level: Intermediate</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="Candid portrait of an older man in athletic wear" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZ6IFLXMNSt8eG7BHTpOStCeH-GlxzHPDixso6OIKNk0djkjUmMLHzliFdrHZBk21TkVR4s3C_gqEMI6gVU1lPUb33kvTE_KFaKGXaauwlF3DxySIhHUKcH4UfbSrNHK1znbOQps6y_uLH8SmXFTunBLXIJdAWy0ECrh2pysZxqMX-nb4GKwywcmiqD6gbnrkIiODt5GaciGpbuAbckxi1hnKLQ2DtPG49TKKkVggbo2osraL4BrivtrzglTn9mdhzk3xylrTuAc20"/>
+<div>
+<p class="text-sm font-bold leading-none">Robert Chen</p>
+<p class="text-[10px] text-on-surface-variant">Level: Beginner</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-white/60 rounded-lg border border-dashed border-outline-variant">
+<div class="flex items-center gap-3 opacity-60">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-xs">person</span>
+</div>
+<div>
+<p class="text-sm font-bold leading-none">Empty Slot</p>
+<p class="text-[10px] text-on-surface-variant">Waiting for booking</p>
+</div>
+</div>
+</div>
+</div>
+<p class="mt-4 text-[10px] text-on-surface-variant italic text-center">Session auto-locks in 2 hours</p>
+</div>
+<!-- Club Stats / Newsletter -->
+<div class="bg-surface-container-high rounded-xl p-5 overflow-hidden group relative">
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="relative z-10">
+<h3 class="font-headline font-bold text-sm text-secondary uppercase tracking-widest mb-1">Club Efficiency</h3>
+<p class="text-2xl font-black text-primary">84% <span class="text-xs font-normal text-on-surface-variant">Occupancy</span></p>
+<div class="w-full bg-white/50 h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-primary h-full w-[84%]"></div>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-4">You have 12 active students this month. +15% from last period.</p>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</main>
+<!-- Mobile Navigation Shell -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-surface-variant/20 flex justify-around items-center py-3 px-4 z-50">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="text-[9px] font-bold">DASHBOARD</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="text-[9px] font-bold">CALENDAR</span>
+</button>
+<div class="-mt-8">
+<button class="bg-primary text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[9px] font-bold">STUDENTS</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[9px] font-bold">ACCOUNT</span>
+</button>
+</nav>
+</body></html>

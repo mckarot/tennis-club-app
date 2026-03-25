@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tennis Martinique | Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&amp;family=Work+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-variant": "#dee4dd",
+              "surface-container": "#eaefe8",
+              "surface-tint": "#006d40",
+              "on-error": "#ffffff",
+              "primary-container": "#008751",
+              "secondary-fixed-dim": "#ffb599",
+              "on-surface-variant": "#3e4a41",
+              "on-primary": "#ffffff",
+              "primary-fixed": "#8df8b7",
+              "on-tertiary": "#ffffff",
+              "primary-fixed-dim": "#70db9d",
+              "background": "#f5fbf3",
+              "secondary-fixed": "#ffdbce",
+              "error-container": "#ffdad6",
+              "tertiary": "#9d3d43",
+              "on-secondary-container": "#732600",
+              "on-tertiary-fixed-variant": "#80272e",
+              "on-tertiary-fixed": "#40000a",
+              "tertiary-container": "#bd555a",
+              "outline-variant": "#bdcabe",
+              "on-primary-fixed": "#002110",
+              "surface-container-high": "#e4eae2",
+              "outline": "#6e7a70",
+              "on-tertiary-container": "#fffeff",
+              "surface-container-highest": "#dee4dd",
+              "tertiary-fixed-dim": "#ffb3b3",
+              "surface-container-lowest": "#ffffff",
+              "primary": "#006b3f",
+              "surface-container-low": "#f0f5ee",
+              "on-error-container": "#93000a",
+              "surface-bright": "#f5fbf3",
+              "tertiary-fixed": "#ffdad9",
+              "on-primary-container": "#fdfff9",
+              "surface": "#f5fbf3",
+              "on-primary-fixed-variant": "#00522f",
+              "inverse-primary": "#70db9d",
+              "on-surface": "#171d19",
+              "inverse-surface": "#2c322d",
+              "on-background": "#171d19",
+              "secondary": "#9d431b",
+              "on-secondary-fixed-variant": "#7e2c04",
+              "on-secondary": "#ffffff",
+              "error": "#ba1a1a",
+              "inverse-on-surface": "#edf2eb",
+              "on-secondary-fixed": "#370e00",
+              "surface-dim": "#d6dcd4",
+              "secondary-container": "#fe8c5e"
+            },
+            fontFamily: {
+              "headline": ["Lexend", "sans-serif"],
+              "body": ["Work Sans", "sans-serif"],
+              "label": ["Work Sans", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Work Sans', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Lexend', sans-serif; }
+        .chart-bar { transition: height 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary/20">
+<!-- TopNavBar -->
+<header class="bg-white/80 dark:bg-emerald-950/80 backdrop-blur-md flex justify-between items-center w-full px-6 py-3 border-b border-emerald-100/10 docked full-width top-0 z-50 fixed">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold tracking-tight text-emerald-900 dark:text-emerald-100">Tennis Martinique</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-emerald-700 dark:text-emerald-300 border-b-2 border-emerald-700 font-bold pb-1 text-sm uppercase tracking-wider" href="#">Dashboard</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-emerald-600 transition-colors text-sm uppercase tracking-wider" href="#">Reservations</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-emerald-600 transition-colors text-sm uppercase tracking-wider" href="#">Tournaments</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-emerald-600 transition-colors text-sm uppercase tracking-wider" href="#">Club News</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-md font-medium text-sm transition-all active:scale-95 shadow-sm hover:shadow-md">Book a Court</button>
+<div class="flex items-center gap-2 border-l border-outline-variant/30 pl-4">
+<span class="text-xs font-semibold text-secondary uppercase tracking-widest">Role: Admin</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-emerald-50 p-1 rounded-full transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-emerald-50 p-1 rounded-full transition-colors" data-icon="settings">settings</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="professional portrait of a tennis club manager in their 40s wearing a polo shirt, clean lighting, clubhouse background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMjS-_XRxn8PtjtpYb0f_eZci0uGq-LI9a5B5vHZ81HZs-a-Ut3FGzxl2txPNbNE6Jpm_wyN5Xr02v9uOrVqtZyUV3fRCnN6hkvQwXCr9f8gkPMC4m_KEfr4-WPvZq53ra3fad4ZhWP3GhOMLTF6bTqZA8_sBGgVYkI5JiWxrBX99g4lFHuz4Iy1VBWhJkAc96VNzrOy1yfTvb1YOtjQYlWFhTNKZOPzeY4ACUVocQaMrrxV73rvQwg49KXrWTiUv0W0frwGovkn6b"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex pt-16 h-screen overflow-hidden">
+<!-- SideNavBar -->
+<aside class="bg-emerald-50 dark:bg-emerald-950 h-screen w-64 fixed left-0 top-0 pt-20 flex flex-col py-4 pr-4 border-r border-emerald-100/20 z-40">
+<div class="px-6 mb-8">
+<h3 class="text-lg font-bold text-emerald-800">Court Manager</h3>
+<p class="text-xs text-secondary/80 font-medium">America/Martinique</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-6 py-3 bg-emerald-700 text-white rounded-r-full font-semibold shadow-sm group" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="text-sm">Date Selection</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-emerald-900/70 dark:text-emerald-200/70 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded-r-full transition-transform duration-200 hover:translate-x-1 group" href="#">
+<span class="material-symbols-outlined" data-icon="sports_tennis">sports_tennis</span>
+<span class="text-sm">Court Filter</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-emerald-900/70 dark:text-emerald-200/70 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded-r-full transition-transform duration-200 hover:translate-x-1 group" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-sm">Moniteur</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-emerald-900/70 dark:text-emerald-200/70 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded-r-full transition-transform duration-200 hover:translate-x-1 group" href="#">
+<span class="material-symbols-outlined" data-icon="card_membership">card_membership</span>
+<span class="text-sm">Membership Status</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-emerald-900/70 dark:text-emerald-200/70 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded-r-full transition-transform duration-200 hover:translate-x-1 group" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+<span class="text-sm">Equipment Hire</span>
+</a>
+</nav>
+<div class="px-4 mb-6">
+<button class="w-full bg-secondary text-on-secondary py-3 rounded-md font-bold text-sm uppercase tracking-widest shadow-lg active:scale-95 transition-all">Apply Filters</button>
+</div>
+<div class="mt-auto pt-4 border-t border-emerald-100/20 space-y-1">
+<a class="flex items-center gap-3 px-6 py-2 text-emerald-900/70 hover:text-emerald-900 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="text-sm">Support</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2 text-tertiary hover:bg-tertiary/10 rounded-r-full transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="text-sm">Logout</span>
+</a>
+</div>
+</aside>
+<main class="ml-64 flex-1 overflow-y-auto bg-surface p-8">
+<!-- Dashboard Header -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<h1 class="text-4xl font-extrabold text-on-surface tracking-tight leading-none mb-2 uppercase">Command Center</h1>
+<div class="flex items-center gap-3 text-secondary font-medium">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span class="text-xs uppercase tracking-widest" id="live-time">Live Updates: America/Martinique • --:-- AM</span>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center gap-2 bg-surface-container-highest text-primary px-6 py-3 rounded-md font-bold text-xs uppercase tracking-widest transition-all hover:bg-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="person_add">person_add</span>
+                        Add User
+                    </button>
+<button class="flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-md font-bold text-xs uppercase tracking-widest shadow-xl transition-all hover:translate-y-[-2px] active:translate-y-0">
+<span class="material-symbols-outlined text-lg" data-icon="build">build</span>
+                        New Maintenance
+                    </button>
+</div>
+</div>
+<!-- Bento Grid: Stats & Management -->
+<div class="grid grid-cols-12 gap-6 mb-8">
+<!-- Real-time Court Usage Viz -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-low p-6 rounded-xl flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-xl font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+                            Court Utilization Trends
+                        </h2>
+<div class="flex gap-2">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-tighter" id="peak-hour">Peak: --:--</span>
+<span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-tighter" id="avg-usage">Usage: --%</span>
+</div>
+</div>
+<!-- Dynamic Chart Container -->
+<div class="flex-1 min-h-[220px] flex items-end gap-2 pb-2" id="usage-chart">
+<!-- Bars populated by JS -->
+</div>
+<div class="flex justify-between mt-4 text-[10px] font-bold text-outline uppercase tracking-widest">
+<span>06:00</span>
+<span>09:00</span>
+<span>12:00</span>
+<span>15:00</span>
+<span>18:00</span>
+<span>21:00</span>
+</div>
+</div>
+<!-- Block Court Form Card -->
+<div class="col-span-12 lg:col-span-4 bg-secondary text-white p-8 rounded-xl flex flex-col justify-between shadow-lg relative overflow-hidden group">
+<div class="relative z-10">
+<h2 class="text-2xl font-extrabold uppercase mb-2">Block Court</h2>
+<p class="text-sm opacity-80 font-medium mb-6">Schedule emergency maintenance or club events across multiple courts instantly.</p>
+<form class="space-y-3 mb-8" id="block-court-form">
+<select class="w-full bg-white/10 p-3 rounded-lg flex items-center gap-3 border-none text-white text-xs font-bold uppercase tracking-wider focus:ring-1 focus:ring-white" id="maintenance-court">
+<option class="text-on-surface" value="">Select Court</option>
+<option class="text-on-surface" value="court_1">Grand Court East (01)</option>
+<option class="text-on-surface" value="court_2">Grand Court West (02)</option>
+<option class="text-on-surface" value="court_3">Clay North (03)</option>
+<option class="text-on-surface" value="court_4">Practice Hub A (04)</option>
+<option class="text-on-surface" value="court_5">Practice Hub B (05)</option>
+<option class="text-on-surface" value="court_6">Center Clay (06)</option>
+</select>
+<input class="w-full bg-white/10 p-3 rounded-lg flex items-center gap-3 border-none text-white text-xs font-bold uppercase tracking-wider focus:ring-1 focus:ring-white" id="maintenance-end" placeholder="End Time" type="datetime-local"/>
+</form>
+</div>
+<button class="relative z-10 w-full bg-on-secondary text-secondary py-3 rounded font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-secondary-fixed transition-colors" id="confirm-lockout">Confirm Lockout</button>
+<span class="material-symbols-outlined absolute -right-8 -bottom-8 text-[12rem] opacity-10 rotate-12" data-icon="sports_tennis">sports_tennis</span>
+</div>
+</div>
+<!-- Court Status Toggles Section -->
+<div class="mb-12">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-black text-on-surface uppercase tracking-tight italic">Court Deployment</h2>
+<span class="text-xs font-bold text-outline-variant uppercase tracking-[0.3em]">Live Inventory: 6 Courts</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="courts-grid">
+<!-- Courts will be rendered dynamically -->
+</div>
+<!-- Secondary Courts List -->
+<div class="col-span-full mt-6 bg-surface-container-low p-4 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-4" id="secondary-courts-list">
+<!-- Smaller court items -->
+</div>
+</div>
+<!-- User Directory -->
+<div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm">
+<div class="px-8 py-6 flex justify-between items-center border-b border-outline-variant/10">
+<h2 class="text-xl font-bold text-primary uppercase">User Directory</h2>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-sm" data-icon="search">search</span>
+<input class="bg-surface-container-lowest border-none pl-10 pr-4 py-2 rounded-md text-xs font-medium focus:ring-1 focus:ring-primary w-64" placeholder="Search members..." type="text"/>
+</div>
+<button class="bg-surface-container-highest p-2 rounded-md hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-sm block" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-[10px] font-black text-outline uppercase tracking-[0.2em] bg-surface-container-high/50">
+<th class="px-8 py-4">Full Name</th>
+<th class="px-8 py-4">Email Address</th>
+<th class="px-8 py-4">Role</th>
+<th class="px-8 py-4">Status</th>
+<th class="px-8 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5" id="user-table-body">
+<!-- User data rows -->
+<tr class="hover:bg-surface-container-highest transition-colors group">
+<td class="px-8 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">JD</div>
+<span class="font-medium text-sm">Jean Dupont</span>
+</div>
+</td>
+<td class="px-8 py-4 text-sm text-outline-variant">j.dupont@tennis.mq</td>
+<td class="px-8 py-4"><span class="text-[10px] font-bold uppercase tracking-widest text-secondary px-2 py-1 bg-secondary/10 rounded">Admin</span></td>
+<td class="px-8 py-4">
+<div class="flex items-center gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+<span class="text-xs font-medium">Online</span>
+</div>
+</td>
+<td class="px-8 py-4 text-right">
+<button class="text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 bg-surface-container-high/30 flex justify-between items-center">
+<p class="text-[10px] font-bold text-outline uppercase tracking-widest">Showing 4 of 212 members</p>
+<div class="flex gap-2">
+<button class="px-3 py-1 bg-white border border-outline-variant/20 text-xs font-bold rounded hover:bg-emerald-50">Prev</button>
+<button class="px-3 py-1 bg-primary text-white text-xs font-bold rounded shadow-sm">Next</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Firebase Integration -->
+<script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, query, where, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Mock configuration - replace with actual credentials if needed
+        const firebaseConfig = {
+            apiKey: "AIzaSy...",
+            projectId: "tennis-martinique-demo",
+            appId: "1:..."
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Update Live Clock
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            document.getElementById('live-time').innerText = `Live Updates: America/Martinique • ${timeStr}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 1. Real-time Utilization Graph (from 'reservations')
+        onSnapshot(collection(db, 'reservations'), (snapshot) => {
+            const hourlyStats = Array(12).fill(0); // 06:00 to 21:00 roughly
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.startTime) {
+                    const hour = new Date(data.startTime.seconds * 1000).getHours();
+                    if (hour >= 6 && hour <= 21) {
+                        const idx = Math.floor((hour - 6) / 1.5); // Simplified buckets
+                        hourlyStats[Math.min(idx, 11)]++;
+                    }
+                }
+            });
+
+            const chartContainer = document.getElementById('usage-chart');
+            const maxVal = Math.max(...hourlyStats, 1);
+            const total = hourlyStats.reduce((a, b) => a + b, 0);
+            
+            chartContainer.innerHTML = hourlyStats.map((val, i) => {
+                const height = (val / maxVal) * 100;
+                const isPeak = val === maxVal && val > 0;
+                const colorClass = isPeak ? 'bg-primary' : (val > (maxVal * 0.6) ? 'bg-primary/40' : 'bg-surface-container-highest');
+                
+                return `
+                    <div class="flex-1 ${colorClass} rounded-t-sm chart-bar transition-all hover:bg-primary-container relative group" style="height: ${Math.max(height, 5)}%">
+                        ${isPeak ? '<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] py-1 px-2 rounded whitespace-nowrap">Current Peak</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('avg-usage').innerText = `Usage: ${Math.round((total / (snapshot.size || 1)) * 10)}%`;
+            document.getElementById('peak-hour').innerText = `Peak: ${6 + hourlyStats.indexOf(maxVal) * 1.5}:00`;
+        });
+
+        // 2. Real-time Court Deployment (from 'courts')
+        onSnapshot(collection(db, 'courts'), (snapshot) => {
+            const courtsGrid = document.getElementById('courts-grid');
+            const secondaryList = document.getElementById('secondary-courts-list');
+            let mainHtml = '';
+            let secondaryHtml = '';
+
+            const sortedCourts = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.number - b.number);
+
+            sortedCourts.forEach((court, idx) => {
+                const isActive = court.status === 'active';
+                const color = isActive ? 'primary' : 'secondary';
+                const statusLabel = court.status.charAt(0).toUpperCase() + court.status.slice(1);
+                
+                if (idx < 3) {
+                    mainHtml += `
+                        <div class="bg-surface-container-lowest p-6 rounded-xl border-l-4 border-${color} shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-3xl font-black text-${color} leading-none">${String(court.number).padStart(2, '0')}</h3>
+                                    <p class="text-[10px] font-bold text-outline-variant uppercase tracking-widest">${court.name}</p>
+                                </div>
+                                <span class="bg-${color}/10 text-${color} px-2 py-1 rounded text-[10px] font-black uppercase tracking-tighter">${statusLabel}</span>
+                            </div>
+                            <div class="h-32 w-full bg-emerald-50 rounded mb-4 overflow-hidden grayscale contrast-125 opacity-40">
+                                ${isActive ? `<img alt="Court" class="w-full h-full object-cover" src="${court.image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuBzcrusoN4JR-iSvf-QXF01jykimgdXBZ_d28QZnR07hfRKuaLuSURpJ3ErPugibvYg8aWXhjNVC2kcEWKoMhB--N5ImJnoUyLvty2HHW2jQzHJkDKeOi2M_yJ_j1iz4jgnHiV8SqrrUTRr3tbOtwNQWhzuNJ629WJnOMnIQp7sUld-TgPE76QT-VY98FWLgm0GbX6TXS1bkWk8Ik4cVr-PROXEyzoleLB8JdBBVGB-83OwPcrfF_Ku7Z4WmGpfCQthe4sF4rRHIOUg'}"/>` : 
+                                `<div class="w-full h-full flex items-center justify-center bg-secondary/5"><span class="material-symbols-outlined text-secondary/30 text-5xl">construction</span></div>`}
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-on-surface/60 uppercase">Maintenance State</span>
+                                <div onclick="window.toggleCourtStatus('${court.id}', '${court.status}')" class="w-12 h-6 bg-${color}/20 rounded-full p-1 cursor-pointer flex ${isActive ? 'justify-end' : 'justify-start'} transition-all">
+                                    <div class="w-4 h-4 bg-${color} rounded-full shadow-sm"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    secondaryHtml += `
+                        <div class="flex items-center justify-between p-4 bg-white rounded-lg border border-${isActive ? 'transparent' : 'secondary/20'}">
+                            <div class="flex items-center gap-4">
+                                <span class="text-xl font-bold text-${color}">${String(court.number).padStart(2, '0')}</span>
+                                <span class="text-[10px] font-bold text-outline uppercase tracking-widest">${court.name}</span>
+                            </div>
+                            <div onclick="window.toggleCourtStatus('${court.id}', '${court.status}')" class="w-10 h-5 bg-${color}/10 rounded-full p-1 flex ${isActive ? 'justify-end' : 'justify-start'} cursor-pointer">
+                                <div class="w-3 h-3 bg-${color} rounded-full"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            courtsGrid.innerHTML = mainHtml;
+            secondaryList.innerHTML = secondaryHtml;
+        });
+
+        // Toggle Status helper
+        window.toggleCourtStatus = async (courtId, currentStatus) => {
+            const newStatus = currentStatus === 'active' ? 'maintenance' : 'active';
+            await updateDoc(doc(db, 'courts', courtId), { status: newStatus });
+        };
+
+        // 3. Block Court Form logic
+        document.getElementById('confirm-lockout').addEventListener('click', async () => {
+            const courtId = document.getElementById('maintenance-court').value;
+            const endTime = document.getElementById('maintenance-end').value;
+
+            if (!courtId || !endTime) {
+                alert('Please select a court and end time.');
+                return;
+            }
+
+            try {
+                // Add maintenance reservation
+                await addDoc(collection(db, 'reservations'), {
+                    courtId: courtId,
+                    type: 'maintenance',
+                    startTime: Timestamp.now(),
+                    endTime: Timestamp.fromDate(new Date(endTime)),
+                    title: 'Emergency Maintenance',
+                    status: 'confirmed'
+                });
+
+                // Update court status to maintenance
+                const courtRef = doc(db, 'courts', courtId);
+                await updateDoc(courtRef, { status: 'maintenance' });
+
+                alert('Court locked out successfully.');
+                document.getElementById('block-court-form').reset();
+            } catch (error) {
+                console.error("Error blocking court:", error);
+                alert('An error occurred. Check console.');
+            }
+        });
+    </script>
+</body></html>

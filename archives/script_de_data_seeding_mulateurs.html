@@ -1,0 +1,91 @@
+# Script de Data Seeding - Tennis Club du François
+
+Ce script est conçu pour être exécuté dans votre environnement de développement pour peupler la **Firebase Emulator Suite** avec des données de test réalistes.
+
+---
+
+### 1. Script de Seeding (`src/scripts/seedData.js`)
+
+```javascript
+import { db } from '../firebase.config';
+import { collection, doc, writeBatch, timestamp } from "firebase/firestore";
+import dayjs from 'dayjs';
+
+export const seedDatabase = async () => {
+  const batch = writeBatch(db);
+
+  // --- 1. COURTS (6 Terrains) ---
+  const courts = [
+    { id: "1", name: "Court 01", type: "Quick", is_active: true, surface: "Hard" },
+    { id: "2", name: "Court 02", type: "Quick", is_active: true, surface: "Hard" },
+    { id: "3", name: "Court 03", type: "Quick", is_active: true, surface: "Hard" },
+    { id: "4", name: "Court 04", type: "Quick", is_active: true, surface: "Hard" },
+    { id: "5", name: "Court 05", type: "Terre", is_active: true, surface: "Clay" },
+    { id: "6", name: "Court 06", type: "Terre", is_active: true, surface: "Clay" },
+  ];
+
+  courts.forEach(court => {
+    const ref = doc(db, "courts", court.id);
+    batch.set(ref, court);
+  });
+
+  // --- 2. UTILISATEURS DE TEST ---
+  const users = [
+    { uid: "admin_1", name: "Admin Martinique", role: "admin", email: "admin@tennis.mq" },
+    { uid: "moniteur_1", name: "Jean Dupont", role: "moniteur", email: "j.dupont@tennis.mq" },
+    { uid: "client_1", name: "Julian Marc", role: "client", email: "julian@client.mq" }
+  ];
+
+  users.forEach(user => {
+    const ref = doc(db, "users", user.uid);
+    batch.set(ref, user);
+  });
+
+  // --- 3. RÉSERVATIONS DE TEST (Aujourd'hui) ---
+  const today = dayjs().startOf('day');
+  const reservations = [
+    {
+      court_id: "1",
+      user_id: "client_1",
+      start_time: today.add(10, 'hour').toISOString(), // 10:00
+      end_time: today.add(11, 'hour').toISOString(),
+      type: "location_libre",
+      status: "confirmed"
+    },
+    {
+      court_id: "5",
+      user_id: "moniteur_1",
+      start_time: today.add(14, 'hour').toISOString(), // 14:00
+      end_time: today.add(15, 'hour').toISOString(),
+      type: "cours_collectif",
+      status: "confirmed"
+    }
+  ];
+
+  reservations.forEach((res, index) => {
+    const ref = doc(collection(db, "reservations"));
+    batch.set(ref, { ...res, id: `res_test_${index}` });
+  });
+
+  try {
+    await batch.commit();
+    console.log("✅ Émulateurs peuplés avec succès !");
+    return true;
+  } catch (error) {
+    console.error("❌ Erreur lors du seeding :", error);
+    return false;
+  }
+};
+```
+
+---
+
+### 2. Comment l'utiliser ?
+Vous pouvez appeler cette fonction `seedDatabase()` dans un bouton caché de votre interface de développement ou via un script Node si vous utilisez l'admin SDK.
+
+---
+
+### 3. Schéma récapitulatif des collections
+- **`courts`** : Référence des 6 terrains.
+- **`users`** : Profils avec rôles pour la sécurité (Rules).
+- **`reservations`** : Le flux utilisé par `onSnapshot` dans vos composants UI.

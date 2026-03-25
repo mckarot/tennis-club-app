@@ -1,0 +1,123 @@
+# Spécifications Techniques Backend & Intégration Firebase
+## Tennis Club du François
+
+Ce document centralise toute la logique de données et de sécurité pour l'application.
+
+---
+
+### 1. Configuration SDK (`src/firebase.config.js`)
+Initialisation forcée vers la **Firebase Emulator Suite** pour le développement local.
+
+```javascript
+import { initializeApp } from "firebase/app";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+
+const firebaseConfig = {
+  apiKey: "VITE_FIREBASE_API_KEY",
+  authDomain: "tennis-francois.firebaseapp.com",
+  projectId: "tennis-francois",
+  storageBucket: "tennis-francois.appspot.com",
+  messagingSenderId: "VITE_SENDER_ID",
+  appId: "VITE_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// Connexion forcée aux émulateurs
+if (import.meta.env.VITE_USE_EMULATOR === 'true') {
+  connectFirestoreEmulator(db, 'localhost', 8080);
+  connectAuthEmulator(auth, "http://localhost:9099");
+  console.log("🛠️ Connecté aux Émulateurs Firebase");
+}
+
+export { db, auth };
+```
+
+---
+
+### 2. Services de Données (`src/services/`)
+
+#### A. `reservationService.js`
+Gère la création avec vérification de disponibilité atomique via Transaction Firestore.
+
+```javascript
+import { db } from '../firebase.config';
+import { collection, query, where, getDocs, runTransaction, doc, onSnapshot } from "firebase/firestore";
+
+// Vérification de disponibilité (Anti-conflit)
+export const checkCourtAvailability = async (courtId, startTime) => {
+  const q = query(
+    collection(db, "reservations"),
+    where("court_id", "==", courtId),
+    where("start_time", "==", startTime),
+    where("status", "==", "confirmed")
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.empty;
+};
+
+// Création d'une réservation sécurisée
+export const createReservation = async (data) => {
+  try {
+    await runTransaction(db, async (transaction) => {
+      const isAvailable = await checkCourtAvailability(data.court_id, data.start_time);
+      if (!isAvailable) throw new Error("Court déjà réservé !");
+      
+      const newRef = doc(collection(db, "reservations"));
+      transaction.set(newRef, { ...data, created_at: new Date().toISOString() });
+    });
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+};
+```
+
+#### B. `userService.js`
+Gestion des profils et synchronisation des rôles.
+
+```javascript
+import { db, auth } from '../firebase.config';
+import { doc, getDoc, setDoc } from "firebase/firestore";
+
+export const getUserProfile = async (uid) => {
+  const docRef = doc(db, "users", uid);
+  const docSnap = await getDoc(docRef);
+  return docSnap.exists() ? docSnap.data() : null;
+};
+```
+
+---
+
+### 3. Sécurité Firestore (`firestore.rules`)
+Protection stricte des données selon le rôle utilisateur.
+
+```javascript
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    match /courts/{courtId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /reservations/{resId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if isAdmin() || resource.data.user_id == request.auth.uid;
+    }
+  }
+}
+```
