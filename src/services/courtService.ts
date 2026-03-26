@@ -397,3 +397,58 @@ export async function deactivateCourt(courtId: string): Promise<ServiceResult<vo
     };
   }
 }
+
+/**
+ * Toggle court status (active/maintenance/closed)
+ *
+ * This function allows admin to quickly change court status
+ * for maintenance management or temporary closure.
+ *
+ * @param courtId - Court document ID
+ * @param status - New status to set
+ * @returns ServiceResult indicating success or failure
+ *
+ * @example
+ * ```typescript
+ * // Set court to maintenance
+ * await toggleCourtStatus('court_01', 'maintenance');
+ *
+ * // Reactivate court
+ * await toggleCourtStatus('court_01', 'active');
+ * ```
+ */
+export async function toggleCourtStatus(
+  courtId: string,
+  status: CourtStatus
+): Promise<ServiceResult<void>> {
+  try {
+    // Validate status
+    if (!VALID_COURT_STATUSES.includes(status)) {
+      return {
+        success: false,
+        error: `Invalid status: ${status}. Must be one of ${VALID_COURT_STATUSES.join(', ')}`,
+      };
+    }
+
+    const docRef = doc(db, COLLECTION_NAME, courtId);
+
+    // Determine is_active based on status
+    const isActive = status === 'active';
+
+    await updateDoc(docRef, {
+      status,
+      is_active: isActive,
+      updatedAt: Timestamp.now(),
+    });
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error('[toggleCourtStatus] Error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to toggle court status',
+    };
+  }
+}

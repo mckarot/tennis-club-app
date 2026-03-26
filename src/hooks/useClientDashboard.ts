@@ -16,6 +16,8 @@ import {
   Timestamp,
   type Query,
   type Unsubscribe,
+  type QuerySnapshot,
+  type DocumentData,
 } from 'firebase/firestore';
 import { getDbInstance } from '../../config/firebase.config';
 import { useAuth } from '../../hooks/useAuth';
@@ -28,7 +30,7 @@ import type {
   MaintenanceNote,
   LocationData,
 } from '../../types/client-dashboard.types';
-import type { Court, CourtType } from '../../types/court.types';
+import type { Court, CourtType, CourtStatus } from '../../types/court.types';
 import type { Reservation, ReservationStatus } from '../../types/reservation.types';
 
 // ==========================================
@@ -63,26 +65,28 @@ function getCourtType(courtNumber: number): CourtType {
 
 /**
  * Determine cell state based on reservations
+ * Returns 'confirmed-quick' or 'confirmed-terre' based on court type
  */
 function determineCellState(
   hour: number,
   reservations: Reservation[],
-  courtId: string
+  courtId: string,
+  courtType: CourtType
 ): CourtCellState {
   const courtReservations = reservations.filter((r) => r.court_id === courtId);
-  
+
   for (const reservation of courtReservations) {
     const reservationStartHour = reservation.start_time.toDate().getHours();
     const reservationEndHour = reservation.end_time.toDate().getHours();
-    
+
     if (hour >= reservationStartHour && hour < reservationEndHour) {
       switch (reservation.status) {
         case 'confirmed':
         case 'completed':
-          return 'confirmed';
+          return courtType === 'Quick' ? 'confirmed-quick' : 'confirmed-terre';
         case 'pending':
         case 'pending_payment':
-          return 'pending';
+          return 'available'; // Show as available until confirmed
         case 'cancelled':
           return 'available';
         default:
@@ -90,7 +94,7 @@ function determineCellState(
       }
     }
   }
-  
+
   return 'available';
 }
 
@@ -144,7 +148,7 @@ export function useClientDashboard(): UseClientDashboardReturn {
   const [error, setError] = useState<Error | null>(null);
   
   // Get current user ID
-  const userId = user?.id || '';
+  const userId: string = user?.id || '';
   
   // ==========================================
   // FETCH COURTS
@@ -167,7 +171,7 @@ export function useClientDashboard(): UseClientDashboardReturn {
         
         unsubscribeCourts = onSnapshot(
           courtsQuery,
-          (snapshot) => {
+          (snapshot: QuerySnapshot<DocumentData>) => {
             const courts: Court[] = snapshot.docs.map((doc) => {
               const data = doc.data();
               return {
@@ -188,7 +192,7 @@ export function useClientDashboard(): UseClientDashboardReturn {
             setCourtGrid(grid);
             setGridLoading(false);
           },
-          (err) => {
+          (err: Error) => {
             console.error('[useClientDashboard] Error fetching courts:', err);
             setError(err instanceof Error ? err : new Error('Failed to load courts'));
             setGridLoading(false);
@@ -234,7 +238,7 @@ export function useClientDashboard(): UseClientDashboardReturn {
       
       unsubscribeReservations = onSnapshot(
         reservationsQuery,
-        (snapshot) => {
+        (snapshot: QuerySnapshot<DocumentData>) => {
           const reservations: Reservation[] = snapshot.docs.map((doc) => {
             const data = doc.data();
             return {
@@ -257,7 +261,7 @@ export function useClientDashboard(): UseClientDashboardReturn {
           setUpcomingReservations(reservations);
           setReservationsLoading(false);
         },
-        (err) => {
+        (err: Error) => {
           console.error('[useClientDashboard] Error fetching reservations:', err);
           setError(err instanceof Error ? err : new Error('Failed to load reservations'));
           setReservationsLoading(false);
@@ -288,8 +292,8 @@ export function useClientDashboard(): UseClientDashboardReturn {
 
     const fetchDetails = async () => {
       try {
-        const details = await Promise.all(
-          upcomingReservations.map(async (reservation) => {
+        const details: UpcomingReservation[] = await Promise.all(
+          upcomingReservations.map(async (reservation): Promise<UpcomingReservation> => {
             const court = await fetchCourtDetails(reservation.court_id);
             const client = await fetchClientDetails(reservation.user_id);
 
@@ -297,6 +301,7 @@ export function useClientDashboard(): UseClientDashboardReturn {
               id: reservation.id,
               courtId: reservation.court_id,
               courtNumber: court?.number || 0,
+              courtName: court?.name || `Court ${court?.number || '?'}`,
               courtType: court?.type || 'Quick',
               userId: reservation.user_id,
               userName: client?.name || 'Client',
@@ -304,6 +309,10 @@ export function useClientDashboard(): UseClientDashboardReturn {
               endTime: reservation.end_time,
               status: reservation.status,
               type: reservation.type as 'location_libre' | 'cours_collectif' | 'cours_private',
+              notes: reservation.notes,
+              equipment_rented: reservation.equipment_rented,
+              total_price: reservation.total_price,
+              payment_status: reservation.payment_status,
             };
           })
         );
@@ -386,7 +395,7 @@ export function useClientDashboard(): UseClientDashboardReturn {
       
       unsubscribeMaintenance = onSnapshot(
         maintenanceQuery,
-        (snapshot) => {
+        (snapshot: QuerySnapshot<DocumentData>) => {
           if (!snapshot.empty) {
             const doc = snapshot.docs[0];
             const data = doc.data();
@@ -395,14 +404,16 @@ export function useClientDashboard(): UseClientDashboardReturn {
               title: data.title,
               message: data.message,
               severity: data.severity,
+              is_active: data.is_active ?? true,
               createdAt: data.createdAt,
               expiresAt: data.expiresAt,
+              affectedCourts: data.affectedCourts,
             });
           } else {
             setMaintenanceNote(null);
           }
         },
-        (err) => {
+        (err: Error) => {
           console.error('[useClientDashboard] Error fetching maintenance note:', err);
           // Non-critical error, don't set error state
         }
@@ -430,10 +441,20 @@ export function useClientDashboard(): UseClientDashboardReturn {
     // In real implementation, this would fetch reservations and build the grid
     return courts.map((court) => {
       const cells: CourtGridCell[] = [];
-      
+
       for (let row = 0; row < GRID_TOTAL_ROWS; row++) {
         const hour = GRID_START_HOUR + row * 2; // 6, 8, 10, 12, 14, 16, 18, 20
+
+        // Determine state based on court status and reservations
+        let state: CourtCellState = 'available';
         
+        if (court.status === 'maintenance') {
+          state = 'maintenance';
+        } else {
+          // Would check reservations here in full implementation
+          state = 'available';
+        }
+
         cells.push({
           id: `${court.id}-${hour}`,
           courtId: court.id,
@@ -442,10 +463,10 @@ export function useClientDashboard(): UseClientDashboardReturn {
           courtType: court.type,
           date: new Date(),
           hour,
-          state: 'available', // Will be updated by reservations
+          state,
         });
       }
-      
+
       return cells;
     });
   }
@@ -477,7 +498,8 @@ export function useClientDashboard(): UseClientDashboardReturn {
         };
       }
       return null;
-    } catch {
+    } catch (error: unknown) {
+      console.error('[fetchCourtDetails] Error:', error);
       return null;
     }
   }
@@ -502,7 +524,8 @@ export function useClientDashboard(): UseClientDashboardReturn {
         };
       }
       return null;
-    } catch {
+    } catch (error: unknown) {
+      console.error('[fetchClientDetails] Error:', error);
       return null;
     }
   }

@@ -5,8 +5,35 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "role", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" }
+      ],
+      "_justification": "CRITICAL (User Management) — Query: Get users filtered by role, sorted alphabetically by name. Used by searchUsers(query, { role: 'admin' }) in userService.ts for user directory with role filter. Composite index required for where(role) + orderBy(name)."
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "email", "order": "ASCENDING" }
+      ],
+      "_justification": "CRITICAL (User Management) — Query: Get users filtered by status (online/away/inactive), sorted by email. Used by searchUsers(query, { status: 'online' }) in userService.ts for user directory with status filter. Composite index required for where(status) + orderBy(email)."
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ],
+      "_justification": "CRITICAL (User Management) — Query: Get users sorted by creation date (newest first). Used by getAllUsers({ orderBy: 'createdAt', order: 'desc' }) in userService.ts for user directory showing recently added users. Single-field index required for orderBy(createdAt, desc)."
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "role", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" }
-      ]
+      ],
+      "_justification": "Query: Get users filtered by both role and status. Used by searchUsers(query, { role: 'moniteur', status: 'active' }) for combined filtering."
     },
     {
       "collectionGroup": "courts",
@@ -14,7 +41,8 @@
       "fields": [
         { "fieldPath": "is_active", "order": "ASCENDING" },
         { "fieldPath": "number", "order": "ASCENDING" }
-      ]
+      ],
+      "_justification": "Query: Get active courts sorted by number for court grid display. Used by getCourtsByFilter({ isActive: true }) in courtService.ts"
     },
     {
       "collectionGroup": "courts",
@@ -22,7 +50,8 @@
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "type", "order": "ASCENDING" }
-      ]
+      ],
+      "_justification": "Query: Get courts by status and type for filtering. Used by admin court management views."
     },
     {
       "collectionGroup": "reservations",
@@ -31,7 +60,8 @@
         { "fieldPath": "court_id", "order": "ASCENDING" },
         { "fieldPath": "start_time", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" }
-      ]
+      ],
+      "_justification": "CRITICAL (Phase 8.3 Court Management) — Query: Get reservations for a specific court on a date, filtered by status. Used by getCourtReservations() for court grid display. Composite index required for where(court_id) + where(status) + orderBy(start_time)."
     },
     {
       "collectionGroup": "reservations",
@@ -39,23 +69,28 @@
       "fields": [
         { "fieldPath": "user_id", "order": "ASCENDING" },
         { "fieldPath": "start_time", "order": "ASCENDING" }
-      ]
+      ],
+      "_justification": "CRITICAL (Client Dashboard) — Query: Get user's upcoming reservations sorted by date. Used by getUpcomingReservations(userId) in dashboardService.ts for Client Dashboard. Composite index required for where(user_id) + orderBy(start_time)."
     },
     {
       "collectionGroup": "reservations",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "moniteur_id", "order": "ASCENDING" },
-        { "fieldPath": "start_time", "order": "ASCENDING" }
-      ]
+        { "fieldPath": "start_time", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ],
+      "_justification": "CRITICAL (Phase 8.4 Reservations Management) — Query: Get instructor's upcoming lessons filtered by status. Used by getReservationsByFilter({ moniteurId, status }) for moniteur dashboard schedule view with status filtering. Composite index required for where(moniteur_id) + where(status) + orderBy(start_time)."
     },
     {
       "collectionGroup": "reservations",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "start_time", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
-      ]
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "type", "order": "ASCENDING" }
+      ],
+      "_justification": "CRITICAL (Phase 8.4 Reservations Management) — Query: Get today's active bookings for stats calculation. Used by getTodaysActiveBookings() to count confirmed/pending reservations for today, grouped by type. Composite index required for where(start_time range) + where(status) + orderBy(type)."
     },
     {
       "collectionGroup": "reservations",
@@ -64,7 +99,18 @@
         { "fieldPath": "court_id", "order": "ASCENDING" },
         { "fieldPath": "end_time", "order": "ASCENDING" },
         { "fieldPath": "start_time", "order": "ASCENDING" }
-      ]
+      ],
+      "_justification": "CRITICAL (Court Availability) — Query: Get reservations for conflict detection during booking. Used by checkCourtAvailability() with time range queries. Composite index required for where(court_id) + where(end_time) + orderBy(start_time)."
+    },
+    {
+      "collectionGroup": "reservations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moniteur_id", "order": "ASCENDING" },
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "start_time", "order": "ASCENDING" }
+      ],
+      "_justification": "CRITICAL (Moniteur Dashboard) — Query: Get instructor's lessons by type (PRIVATE vs GROUP) sorted by date. Used by getClubEfficiencyStats() to calculate stats per session type. Composite index required for where(moniteur_id) + where(type) + orderBy(start_time)."
     },
     {
       "collectionGroup": "slots_moniteurs",
@@ -72,7 +118,8 @@
       "fields": [
         { "fieldPath": "moniteur_id", "order": "ASCENDING" },
         { "fieldPath": "date", "order": "ASCENDING" }
-      ]
+      ],
+      "_justification": "Query: Get instructor's slots for a week. Used by moniteur slot management."
     },
     {
       "collectionGroup": "slots_moniteurs",
@@ -81,7 +128,8 @@
         { "fieldPath": "date", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "type", "order": "ASCENDING" }
-      ]
+      ],
+      "_justification": "Query: Get available group slots for a specific date. Used by client booking flow for lesson selection."
     },
     {
       "collectionGroup": "slots_moniteurs",
@@ -89,7 +137,57 @@
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "date", "order": "ASCENDING" }
-      ]
+      ],
+      "_justification": "Query: Get available slots sorted by date. Used by availability search."
+    },
+    {
+      "collectionGroup": "slots_moniteurs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moniteur_id", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "ASCENDING" },
+        { "fieldPath": "start_time", "order": "ASCENDING" }
+      ],
+      "_justification": "CRITICAL (Moniteur Dashboard) — Query: Get instructor's weekly slots sorted by date and time. Used by subscribeToMoniteurSlots() for real-time weekly schedule display. Composite index required for where(moniteur_id) + where(date) + orderBy(start_time)."
+    },
+    {
+      "collectionGroup": "slots_moniteurs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moniteur_id", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "ASCENDING" }
+      ],
+      "_justification": "CRITICAL (Moniteur Dashboard) — Query: Get instructor's available slots only, sorted by date. Used by getAvailableMoniteurSlots() to show only bookable sessions. Composite index required for where(moniteur_id) + where(status) + orderBy(date)."
+    },
+    {
+      "collectionGroup": "maintenance_notes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "is_active", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ],
+      "_justification": "CRITICAL — Query: Get active maintenance note (most recent first). Used by getActiveMaintenanceNote() in dashboardService.ts for Club Maintenance Note widget. Composite index required for where(is_active) + orderBy(created_at, desc)."
+    },
+    {
+      "collectionGroup": "reservations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "court_id", "order": "ASCENDING" },
+        { "fieldPath": "start_time", "order": "ASCENDING" },
+        { "fieldPath": "type", "order": "ASCENDING" }
+      ],
+      "_justification": "CRITICAL (Admin Dashboard) — Query: Get court utilization data for chart. Used by getCourtUtilizationData(date) to calculate bookings per court. Composite index required for where(court_id) + where(start_time) + orderBy(type)."
+    },
+    {
+      "collectionGroup": "reservations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "start_time", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ],
+      "_justification": "CRITICAL (Admin Dashboard) — Query: Get maintenance reservations tracking. Used by getMaintenanceCount() to count courts in maintenance. Composite index required for where(type) + where(start_time) + orderBy(status)."
     }
   ],
   "fieldOverrides": []

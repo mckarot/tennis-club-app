@@ -34,3 +34,34 @@ export type { UseAuthFormReturn, UseAuthFormOptions, FormValues } from './useAut
 // Landing page hook (Phase 7.1)
 export { useLandingData } from './useLandingData';
 export type { UseLandingDataReturn } from './useLandingData';
+
+// Moniteur dashboard hook (Phase 7.3)
+export { useMoniteurDashboard } from './useMoniteurDashboard';
+export type { UseMoniteurDashboardReturn } from './useMoniteurDashboard';
+
+// Admin dashboard hooks (Phase 8.1)
+export { useAdminDashboard } from './useAdminDashboard';
+export type {
+  DashboardStats,
+  UseAdminDashboardReturn,
+} from './useAdminDashboard';
+
+export { useCourtUtilization } from './useCourtUtilization';
+export type {
+  CourtUtilizationSlot,
+  UseCourtUtilizationReturn,
+} from './useCourtUtilization';
+
+export { useUserDirectory } from './useUserDirectory';
+export type {
+  UserDirectoryEntry,
+  UserFilters,
+  PaginationState,
+  UseUserDirectoryReturn,
+} from './useUserDirectory';
+
+export { useCourtDeployment } from './useCourtDeployment';
+export type {
+  CourtDeployment,
+  UseCourtDeploymentReturn,
+} from './useCourtDeployment';

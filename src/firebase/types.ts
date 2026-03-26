@@ -247,3 +247,78 @@ export interface UserProfileInput {
   avatar?: string;
   status?: UserStatus;
 }
+
+// ==========================================
+// CLIENT PROFILE TYPES
+// ==========================================
+
+/**
+ * Notification preferences for users
+ * Controls email and SMS notification settings
+ */
+export interface NotificationPreferences {
+  emailNotifications: boolean;
+  smsNotifications: boolean;
+}
+
+/**
+ * Client profile data
+ * Extended user information for profile management
+ */
+export interface ClientProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  avatar?: string;
+  status: UserStatus;
+  notifications: NotificationPreferences;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+/**
+ * Input for updating client profile
+ */
+export interface ClientProfileInput {
+  name: string;
+  phone?: string;
+  avatar?: string;
+  emailNotifications?: boolean;
+  smsNotifications?: boolean;
+}
+
+/**
+ * Input for changing password
+ */
+export interface PasswordChangeInput {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+/**
+ * Result of profile save operation
+ */
+export interface ProfileSaveResult {
+  success: boolean;
+  error?: string;
+}
+
+/**
+ * Result of password change operation
+ */
+export interface PasswordChangeResult {
+  success: boolean;
+  error?: string;
+  errorCode?: FirebaseAuthErrorCode;
+}
+
+/**
+ * Avatar upload result
+ */
+export interface AvatarUploadResult {
+  success: boolean;
+  avatarUrl?: string;
+  error?: string;
+}

@@ -56,7 +56,7 @@ export function useReservations(): UseReservationsReturn {
       (snapshot) => {
         const data = snapshot.docs.map((doc) => {
           const docData = doc.data();
-          return {
+          const reservation: Reservation = {
             id: doc.id,
             court_id: docData.court_id,
             user_id: docData.user_id,
@@ -71,7 +71,8 @@ export function useReservations(): UseReservationsReturn {
             is_paid: docData.is_paid,
             created_at: docData.created_at,
             updated_at: docData.updated_at,
-          } as Reservation;
+          };
+          return reservation;
         });
         setReservations(data);
         setIsLoading(false);

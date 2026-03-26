@@ -21,12 +21,23 @@ export default {
         tertiary: {
           DEFAULT: '#9d3d43',
         },
+        // PNG Audit colors - exact colors from design prototypes
+        mint: {
+          DEFAULT: '#E8F8F0',      // Sidebar background, cell borders
+        },
+        terracotta: {
+          DEFAULT: '#9E4B1D',      // Terre courts, FAB, Apply Filters button
+        },
+        coral: {
+          light: '#FCA5A5',        // Hero subtitle "LE CLUB MARTINIQUE"
+        },
         surface: {
           DEFAULT: '#f5fbf3',
           containerLow: '#f0f5ee',
           containerLowest: '#ffffff',
           containerHighest: '#dee4dd',
           high: '#e8ede7',
+          sidebar: '#E8F8F0',      // Sidebar background (alias for mint)
         },
         onSurface: '#171d19',
         onSurfaceVariant: '#5d635e',
@@ -36,6 +47,16 @@ export default {
           container: '#ffdad6',
           on: '#ffffff',
           onContainer: '#410002',
+        },
+        // Stats icon colors
+        stats: {
+          iconGreen: '#86EFAC',    // Active Bookings, Available Slots icons
+          iconOrange: '#FED7AA',   // Maintenance icon
+        },
+        // Court badge colors
+        court: {
+          terreBadge: '#FFE5D9',   // Terre court badge background
+          quickBadge: '#D1FAE5',   // Quick court badge background
         },
       },
       fontFamily: {

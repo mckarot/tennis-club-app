@@ -25,9 +25,18 @@ export interface User {
   phone?: string;
   status: UserStatus;
   avatar?: string;
+  notifications?: NotificationPreferences;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   lastLoginAt?: Timestamp;
+}
+
+/**
+ * Notification preferences interface
+ */
+export interface NotificationPreferences {
+  email: boolean;
+  sms: boolean;
 }
 
 /**
@@ -49,4 +58,5 @@ export interface UserUpdateInput {
   phone?: string;
   avatar?: string;
   status?: UserStatus;
+  notifications?: NotificationPreferences;
 }

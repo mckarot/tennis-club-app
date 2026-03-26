@@ -59,3 +59,18 @@ export {
   cancelSlot,
   deleteSlot,
 } from './slotService';
+
+// Admin Service (Phase 8.1 - Admin Dashboard)
+export * as adminService from './adminService';
+export {
+  getTodaysActiveBookings,
+  getMaintenanceCount,
+  getCourtUtilizationData,
+  getAllCourtsForDeployment,
+  searchUsers,
+  subscribeToTodaysReservations,
+  subscribeToCourtUtilization,
+  blockCourtForMaintenance,
+  unblockCourt,
+  getAdminDashboardStats,
+} from './adminService';

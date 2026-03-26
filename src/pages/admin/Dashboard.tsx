@@ -1,129 +1,173 @@
 /**
  * Admin Dashboard
  *
- * Main dashboard for admin users.
+ * Main command center dashboard for admin users.
+ * Assembles all admin dashboard components with real-time data.
+ *
+ * Features:
+ * - Real-time stats from useAdminDashboard
+ * - Court utilization chart from useCourtUtilization
+ * - Court deployment grid from useCourtDeployment
+ * - User directory from useUserDirectory
+ * - Block court panel
+ * - Live timestamp (America/Martinique)
+ * - Error boundary for error handling
+ * - Framer Motion animations
+ * - ARIA labels for accessibility
  *
  * @module @pages/admin/Dashboard
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { AdminErrorBoundary } from '../../components/ui/ErrorBoundary/AdminErrorBoundary';
+import { LiveTimestamp } from './components/AdminDashboard/LiveTimestamp';
+import { StatsCardsGrid } from './components/AdminDashboard/StatsCardsGrid';
+import { CourtUtilizationChart } from './components/AdminDashboard/CourtUtilizationChart';
+import { BlockCourtPanel } from './components/AdminDashboard/BlockCourtPanel';
+import { CourtDeploymentGrid } from './components/AdminDashboard/CourtDeploymentGrid';
+import { UserDirectoryTable } from './components/AdminDashboard/UserDirectoryTable';
+import { useAdminDashboard } from '../../hooks/useAdminDashboard';
+import { useCourtUtilization } from '../../hooks/useCourtUtilization';
+import { useCourtDeployment } from '../../hooks/useCourtDeployment';
+import { useUserDirectory } from '../../hooks/useUserDirectory';
+import type { BlockCourtFormData } from './components/AdminDashboard/BlockCourtPanel';
 
-export function Dashboard() {
+/**
+ * Dashboard component
+ */
+export function Dashboard(): JSX.Element {
+  // Hook: Admin Dashboard Stats
+  const { stats, isLoading: statsLoading, error: statsError } = useAdminDashboard();
+
+  // Hook: Court Utilization
+  const {
+    data: utilizationData,
+    isLoading: utilizationLoading,
+    error: utilizationError,
+  } = useCourtUtilization();
+
+  // Hook: Court Deployment
+  const {
+    courts,
+    isLoading: courtsLoading,
+    error: courtsError,
+    onToggleMaintenance,
+  } = useCourtDeployment();
+
+  // Hook: User Directory
+  const {
+    filteredUsers,
+    isLoading: usersLoading,
+    error: usersError,
+    searchQuery,
+    filters,
+    pagination,
+    onSearch,
+    onFilter,
+    onPageChange,
+  } = useUserDirectory();
+
+  /**
+   * Handle block court submission
+   */
+  const handleBlockCourt = useCallback(
+    async (data: BlockCourtFormData): Promise<void> => {
+      try {
+        console.log('[Dashboard] Block court submitted:', data);
+        // TODO: Implement court blocking logic with Firebase
+        // This would create a maintenance reservation
+      } catch (err) {
+        console.error('[Dashboard] handleBlockCourt error:', err);
+        throw err;
+      }
+    },
+    []
+  );
+
+  /**
+   * Handle error from ErrorBoundary
+   */
+  const handleError = useCallback((error: Error, errorInfo: React.ErrorInfo): void => {
+    console.error('[Dashboard] Error caught by boundary:', error, errorInfo);
+  }, []);
+
+  /**
+   * Handle reset from ErrorBoundary
+   */
+  const handleReset = useCallback((): void => {
+    window.location.reload();
+  }, []);
+
   return (
-    <div className="space-y-6">
-      <h1 className="font-headline text-2xl font-bold text-on-surface">Tableau de bord</h1>
+    <AdminErrorBoundary onError={handleError} onReset={handleReset}>
+      <div className="space-y-8">
+        {/* Header */}
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
+        >
+          <div>
+            <h1 className="font-headline text-2xl font-bold text-on-surface">
+              COMMAND CENTER
+            </h1>
+            <p className="font-body text-sm text-on-surface-variant">
+              Real-time club supervision and management
+            </p>
+          </div>
+          <LiveTimestamp />
+        </motion.header>
 
-      {/* Welcome Card */}
-      <div className="rounded-lg bg-tertiary-container p-6">
-        <h2 className="font-headline text-xl font-bold text-on-tertiary-container">
-          Bienvenue sur votre espace administrateur
-        </h2>
-        <p className="mt-2 font-body text-base text-on-tertiary-container">
-          Gérez les utilisateurs, courts, réservations et paramètres du club.
-        </p>
+        {/* Stats Cards */}
+        <StatsCardsGrid stats={stats} isLoading={statsLoading} />
+
+        {/* Court Utilization Chart */}
+        <CourtUtilizationChart
+          data={utilizationData}
+          isLoading={utilizationLoading}
+        />
+
+        {/* Court Management Section */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Block Court Panel */}
+          <BlockCourtPanel
+            courts={courts}
+            onSubmit={handleBlockCourt}
+            isLoading={courtsLoading}
+          />
+
+          {/* Court Deployment Grid */}
+          <div>
+            <div className="mb-4">
+              <h2 className="font-headline text-lg font-bold text-on-surface">
+                Court Deployment
+              </h2>
+              <p className="font-body text-sm text-on-surface-variant">
+                Toggle maintenance state for each court
+              </p>
+            </div>
+            <CourtDeploymentGrid
+              courts={courts}
+              onToggle={onToggleMaintenance}
+              isLoading={courtsLoading}
+            />
+          </div>
+        </div>
+
+        {/* User Directory */}
+        <UserDirectoryTable
+          users={filteredUsers}
+          isLoading={usersLoading}
+          searchQuery={searchQuery}
+          filters={filters}
+          pagination={pagination}
+          onSearch={onSearch}
+          onFilter={onFilter}
+          onPageChange={onPageChange}
+        />
       </div>
-
-      {/* Stats Overview */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg bg-surface-container p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-body text-sm font-medium text-on-surface-variant">Utilisateurs</p>
-              <p className="mt-1 font-headline text-3xl font-bold text-on-surface">0</p>
-            </div>
-            <span className="material-symbols-outlined text-4xl text-primary">people</span>
-          </div>
-        </div>
-
-        <div className="rounded-lg bg-surface-container p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-body text-sm font-medium text-on-surface-variant">Courts</p>
-              <p className="mt-1 font-headline text-3xl font-bold text-on-surface">6</p>
-            </div>
-            <span className="material-symbols-outlined text-4xl text-primary">sports_tennis</span>
-          </div>
-        </div>
-
-        <div className="rounded-lg bg-surface-container p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-body text-sm font-medium text-on-surface-variant">Réservations</p>
-              <p className="mt-1 font-headline text-3xl font-bold text-on-surface">0</p>
-            </div>
-            <span className="material-symbols-outlined text-4xl text-primary">event</span>
-          </div>
-        </div>
-
-        <div className="rounded-lg bg-surface-container p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-body text-sm font-medium text-on-surface-variant">Créneaux</p>
-              <p className="mt-1 font-headline text-3xl font-bold text-on-surface">0</p>
-            </div>
-            <span className="material-symbols-outlined text-4xl text-primary">schedule</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <a
-          href="/admin/users"
-          className="flex items-center gap-4 rounded-lg bg-surface-container p-4 transition-colors hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <span className="material-symbols-outlined text-3xl text-primary">people</span>
-          <div>
-            <p className="font-body text-sm font-medium text-on-surface">Gérer les utilisateurs</p>
-            <p className="font-body text-xs text-on-surface-variant">Admins, moniteurs, clients</p>
-          </div>
-        </a>
-
-        <a
-          href="/admin/courts"
-          className="flex items-center gap-4 rounded-lg bg-surface-container p-4 transition-colors hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <span className="material-symbols-outlined text-3xl text-primary">sports_tennis</span>
-          <div>
-            <p className="font-body text-sm font-medium text-on-surface">Gérer les courts</p>
-            <p className="font-body text-xs text-on-surface-variant">Ajouter, modifier, maintenir</p>
-          </div>
-        </a>
-
-        <a
-          href="/admin/reservations"
-          className="flex items-center gap-4 rounded-lg bg-surface-container p-4 transition-colors hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <span className="material-symbols-outlined text-3xl text-primary">event</span>
-          <div>
-            <p className="font-body text-sm font-medium text-on-surface">Réservations</p>
-            <p className="font-body text-xs text-on-surface-variant">Consulter et gérer</p>
-          </div>
-        </a>
-
-        <a
-          href="/admin/slots"
-          className="flex items-center gap-4 rounded-lg bg-surface-container p-4 transition-colors hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <span className="material-symbols-outlined text-3xl text-primary">schedule</span>
-          <div>
-            <p className="font-body text-sm font-medium text-on-surface">Créneaux moniteurs</p>
-            <p className="font-body text-xs text-on-surface-variant">Disponibilités et cours</p>
-          </div>
-        </a>
-
-        <a
-          href="/admin/settings"
-          className="flex items-center gap-4 rounded-lg bg-surface-container p-4 transition-colors hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <span className="material-symbols-outlined text-3xl text-primary">settings</span>
-          <div>
-            <p className="font-body text-sm font-medium text-on-surface">Paramètres</p>
-            <p className="font-body text-xs text-on-surface-variant">Configuration du club</p>
-          </div>
-        </a>
-      </div>
-    </div>
+    </AdminErrorBoundary>
   );
 }
 

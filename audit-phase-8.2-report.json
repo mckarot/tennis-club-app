@@ -1,0 +1,177 @@
+{
+  "status": "FAIL",
+  "critical": [
+    {
+      "file": "src/hooks/useUserDirectory.ts",
+      "line": 94,
+      "issue": "Function name shadowing: 'handleCreateUser' shadows the imported 'createUser' from userService, causing recursive call confusion and potential stack overflow",
+      "code": "const handleCreateUser = useCallback(async (input: CreateUserInput) => {\n  try {\n    const result = await createUser({",
+      "fix": "Rename the local function to avoid shadowing: 'handleCreateUserLocal' or use different import alias: 'import { createUser as createUserApi }'"
+    },
+    {
+      "file": "src/hooks/useUserDirectory.ts",
+      "line": 114,
+      "issue": "Function name shadowing: 'handleUpdateUser' shadows the imported 'updateUser' from userService",
+      "code": "const handleUpdateUser = useCallback(async (userId: string, data: Partial<User>) => {\n  try {\n    const result = await updateUser({",
+      "fix": "Rename the local function to avoid shadowing: 'handleUpdateUserLocal' or use different import alias"
+    },
+    {
+      "file": "src/hooks/useUserDirectory.ts",
+      "line": 134,
+      "issue": "Function name shadowing: 'handleDeleteUser' shadows the imported 'deleteUser' from userService",
+      "code": "const handleDeleteUser = useCallback(async (userId: string) => {\n  try {\n    const result = await deleteUser({",
+      "fix": "Rename the local function to avoid shadowing: 'handleDeleteUserLocal' or use different import alias"
+    },
+    {
+      "file": "src/components/users/UserCard/UserCard.tsx",
+      "line": 45,
+      "issue": "Dangerous type assertion on user.role.toUpperCase() - assumes the role will always be valid uppercase without runtime validation",
+      "code": "<RoleBadge role={user.role.toUpperCase() as 'ADMIN' | 'MONITEUR' | 'CLIENT'} />",
+      "fix": "Create a type guard function or use a helper: 'const safeRole = (user.role as UserRole).toUpperCase() as RoleType'"
+    },
+    {
+      "file": "src/components/users/UserDirectory/UserDirectory.tsx",
+      "line": 125,
+      "issue": "Dangerous type assertion on user.role.toUpperCase() - same issue as UserCard",
+      "code": "<RoleBadge role={user.role.toUpperCase() as 'ADMIN' | 'MONITEUR' | 'CLIENT'} />",
+      "fix": "Use a type-safe helper function to convert UserRole to RoleType"
+    }
+  ],
+  "major": [
+    {
+      "file": "src/pages/admin/AdminUsersPage/components/AddUserModal.tsx",
+      "line": 82,
+      "issue": "Missing error feedback to user - error is logged but user sees no indication of failure",
+      "code": "} catch (error) {\n  console.error('[AddUserModal] Error:', error);\n} finally {",
+      "fix": "Add error state and display error message to user: 'setError(error instanceof Error ? error.message : 'Failed to add user')'"
+    },
+    {
+      "file": "src/pages/admin/AdminUsersPage/components/EditUserModal.tsx",
+      "line": 79,
+      "issue": "Missing error feedback to user - error is logged but user sees no indication of failure",
+      "code": "} catch (error) {\n  console.error('[EditUserModal] Error:', error);\n} finally {",
+      "fix": "Add error state and display error message to user in the modal"
+    },
+    {
+      "file": "src/components/users/UserActionsMenu/UserActionsMenu.tsx",
+      "line": 1,
+      "issue": "Missing focus trap implementation - modal menu opens but focus is not trapped inside, violating WCAG 2.1 AA",
+      "code": "export const UserActionsMenu: FC<UserActionsMenuProps> = ({ onEdit, onDelete }) => {",
+      "fix": "Implement focus trap using refs and useEffect to cycle focus within menu when open"
+    },
+    {
+      "file": "src/components/users/UserDirectory/UserDirectory.tsx",
+      "line": 167,
+      "issue": "Pagination 'Prev' button uses bg-surface instead of white background as specified in PNG audit",
+      "code": "<button\n  onClick={() => onPageChange(currentPage - 1)}\n  disabled={currentPage === 1}\n  aria-label=\"Previous page\"\n  className=\"px-4 py-2 bg-surface text-on-surface rounded-lg",
+      "fix": "Change to 'bg-white' for Prev button as per PNG specification: 'Pagination: Prev white, Next primary'"
+    },
+    {
+      "file": "src/hooks/useUserDirectory.ts",
+      "line": 77,
+      "issue": "Missing try/catch around searchUsers call in useEffect - async operation without error boundary",
+      "code": "const results = await searchUsers(filter.search, userFilter);\nsetFilteredUsers(results);",
+      "fix": "Already has try/catch but error handling could be improved with user feedback"
+    },
+    {
+      "file": "src/pages/admin/AdminUsersPage/index.tsx",
+      "line": 66,
+      "issue": "Missing aria-label on 'Add User' button - has text content but should still have aria-label for screen readers",
+      "code": "<button\n  onClick={() => setIsAddOpen(true)}\n  className=\"px-6 py-3 bg-primary text-on-primary rounded-xl font-medium",
+      "fix": "Add aria-label: 'Add new user to directory'"
+    }
+  ],
+  "minor": [
+    {
+      "file": "src/components/users/RoleBadge/RoleBadge.tsx",
+      "line": 1,
+      "issue": "Component uses motion from framer-motion for a simple badge - may be over-engineering for static content",
+      "code": "import { motion } from 'framer-motion';",
+      "fix": "Consider using plain span without animation for better performance, or keep if animation adds value"
+    },
+    {
+      "file": "src/components/users/UserCard/UserCard.tsx",
+      "line": 1,
+      "issue": "Component exceeds 100 lines when including all imports and JSX - should be considered for decomposition",
+      "code": "export const UserCard: FC<UserCardProps> = ({ user, onEdit, onDelete }) => {",
+      "fix": "Extract avatar initials logic to separate utility function"
+    },
+    {
+      "file": "src/pages/admin/AdminUsersPage/components/DeleteConfirmDialog.tsx",
+      "line": 1,
+      "issue": "Missing focus trap implementation - dialog opens but focus management is not implemented",
+      "code": "export const DeleteConfirmDialog: FC<DeleteConfirmDialogProps> = ({",
+      "fix": "Add focus trap to keep focus within dialog while open"
+    },
+    {
+      "file": "src/hooks/useUserDirectory.ts",
+      "line": 150,
+      "issue": "Return statement creates new object reference on every render - could cause unnecessary re-renders in child components",
+      "code": "return {\n  users: paginatedUsers,\n  filteredUsers,",
+      "fix": "Use useMemo to memoize the return object"
+    },
+    {
+      "file": "src/components/users/UserDirectory/UserDirectory.tsx",
+      "line": 1,
+      "issue": "Component is large (200+ lines) - should be decomposed into smaller sub-components",
+      "code": "export const UserDirectory: FC<UserDirectoryProps> = ({",
+      "fix": "Extract Filters, Table, Pagination into separate components"
+    }
+  ],
+  "design_conformity": {
+    "score": 88,
+    "ecarts": [
+      {
+        "element": "RoleBadge ADMIN",
+        "expected": "Background #ffdbce (secondary-fixed), text #9d431b (secondary)",
+        "actual": "Uses bg-[#ffdbce] and text-[#9d431b] - CORRECT but hardcoded instead of using Tailwind tokens",
+        "severity": "minor"
+      },
+      {
+        "element": "Pagination Prev Button",
+        "expected": "White background as per PNG audit specification",
+        "actual": "Uses bg-surface (#f5fbf3) instead of bg-white",
+        "severity": "major"
+      },
+      {
+        "element": "Typography",
+        "expected": "Lexend for headlines, Work Sans for body (per DESIGN_SYSTEM.md)",
+        "actual": "Uses font-headline (Lexend) correctly but some elements use generic 'font-bold' without font-body",
+        "severity": "minor"
+      },
+      {
+        "element": "Avatar",
+        "expected": "Carré arrondi (rounded-lg) with initials",
+        "actual": "Correctly uses rounded-lg - COMPLIANT",
+        "severity": "minor"
+      },
+      {
+        "element": "Table Columns",
+        "expected": "5 columns: FULL NAME, EMAIL, ROLE, STATUS, ACTIONS",
+        "actual": "Correctly implements all 5 columns - COMPLIANT",
+        "severity": "minor"
+      },
+      {
+        "element": "Status Indicator",
+        "expected": "🟢 Online, 🟡 Away, ⚫ Inactive",
+        "actual": "Correctly implements all 3 statuses with correct emojis - COMPLIANT",
+        "severity": "minor"
+      }
+    ]
+  },
+  "firebase_audit": {
+    "singleton_pattern": true,
+    "emulators_configured_once": true,
+    "try_catch_on_mutations": true,
+    "onSnapshot_unsubscribe": true,
+    "firestore_rules_dev": true,
+    "timestamp_correct": true
+  },
+  "summary": {
+    "files_audited": 10,
+    "total_issues": 16,
+    "critical_count": 5,
+    "major_count": 6,
+    "minor_count": 5
+  }
+}

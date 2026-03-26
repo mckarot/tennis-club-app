@@ -1,169 +1,108 @@
 /**
  * CourtGridCell Component
- * 
- * Individual court grid cell with 4 states per PNG audit:
- * - available (green)
- * - confirmed (blue)
- * - maintenance (gray)
- * - pending (yellow)
- * 
- * Court badges: QUICK=primary-fixed, TERRE=secondary-fixed
+ *
+ * Atomic court grid cell with 4 states per PNG audit:
+ * - available: fond blanc, border mint #E8F8F0, texte "+"
+ * - confirmed-quick: fond vert #006B3F, texte blanc
+ * - confirmed-terre: fond terracotta #9E4B1D, texte blanc
+ * - maintenance: fond gris, border dashed, icône wrench
+ *
+ * @module @components/client/CourtGridCell
  */
 
-import { motion, useReducedMotion } from 'framer-motion';
-import type { CourtGridCellProps, CourtCellState, CourtType } from '../../../types/client-dashboard.types';
+import { motion } from 'framer-motion';
+import type { CourtGridCell as CourtGridCellType } from '../../../types/client-dashboard.types';
 
-// ==========================================
-// STYLE CONFIGURATION
-// ==========================================
+interface CourtGridCellProps {
+  cell: CourtGridCellType;
+  onClick?: (cell: CourtGridCellType) => void;
+}
 
-/**
- * Get cell style based on state
- */
-const getCellStyle = (state: CourtCellState): string => {
-  const styles: Record<CourtCellState, string> = {
-    available: `
-      bg-success-container/20
-      border-2 border-success-container
-      text-on-success-container
-      hover:bg-success-container/30
-    `,
-    confirmed: `
-      bg-primary-fixed/30
-      border-2 border-primary-fixed
-      text-on-surface
-      hover:bg-primary-fixed/40
-    `,
-    maintenance: `
-      bg-surface-container-highest
-      border-2 border-surface-container-highest
-      text-on-surface-variant
-      opacity-60
-    `,
-    pending: `
-      bg-secondary-container/30
-      border-2 border-secondary-container
-      text-on-surface
-      hover:bg-secondary-container/40
-    `,
+export function CourtGridCell({ cell, onClick }: CourtGridCellProps) {
+  const getStateStyles = () => {
+    switch (cell.state) {
+      case 'available':
+        return {
+          bg: 'bg-surface-container-lowest',
+          border: 'border-2 border-mint',
+          text: 'text-on-surface/40',
+          content: '+',
+        };
+      case 'confirmed-quick':
+        return {
+          bg: 'bg-primary',
+          border: 'border-0',
+          text: 'text-white',
+          content: cell.courtName,
+        };
+      case 'confirmed-terre':
+        return {
+          bg: 'bg-terracotta',
+          border: 'border-0',
+          text: 'text-white',
+          content: cell.courtName,
+        };
+      case 'maintenance':
+        return {
+          bg: 'bg-surface-container-highest',
+          border: 'border-2 border-dashed border-on-surface/30',
+          text: 'text-on-surface/60',
+          content: (
+            <span
+              className="material-symbols-outlined text-2xl"
+              aria-hidden="true"
+            >
+              build
+            </span>
+          ),
+        };
+      default:
+        return {
+          bg: 'bg-surface-container-lowest',
+          border: 'border-2 border-mint',
+          text: 'text-on-surface/40',
+          content: '+',
+        };
+    }
   };
 
-  return styles[state];
-};
+  const styles = getStateStyles();
 
-/**
- * Get icon for cell state
- */
-const getStateIcon = (state: CourtCellState): string => {
-  const icons: Record<CourtCellState, string> = {
-    available: 'check_circle',
-    confirmed: 'event_available',
-    maintenance: 'build',
-    pending: 'schedule',
+  const formatHour = (hour: number): string => {
+    return `${hour.toString().padStart(2, '0')}h`;
   };
 
-  return icons[state];
-};
-
-/**
- * Get court badge style
- */
-const getCourtBadgeStyle = (courtType: CourtType): string => {
-  const styles: Record<CourtType, string> = {
-    Quick: `
-      bg-primary-fixed
-      text-primary
-    `,
-    Terre: `
-      bg-secondary-fixed
-      text-secondary
-    `,
-  };
-
-  return styles[courtType];
-};
-
-/**
- * Format hour for display
- */
-const formatHour = (hour: number): string => {
-  return `${hour.toString().padStart(2, '0')}:00`;
-};
-
-// ==========================================
-// COMPONENT
-// ==========================================
-
-export function CourtGridCell({
-  cell,
-  onClick,
-}: CourtGridCellProps): JSX.Element {
-  const shouldReduceMotion = useReducedMotion();
-
-  const cellVariants = {
-    hidden: { opacity: shouldReduceMotion ? 1 : 0, scale: shouldReduceMotion ? 1 : 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: 'easeOut' },
-    },
-    hover: {
-      scale: shouldReduceMotion ? 1 : 1.02,
-      transition: { duration: 0.1 },
-    },
-    tap: {
-      scale: shouldReduceMotion ? 1 : 0.98,
-      transition: { duration: 0.1 },
-    },
-  };
-
-  const isInteractive = cell.state !== 'maintenance' && onClick !== undefined;
-  const baseStyle = getCellStyle(cell.state);
+  const ariaLabel = `${cell.courtName} - ${formatHour(cell.hour)} - ${
+    cell.state === 'available' ? 'Disponible' : cell.state === 'maintenance' ? 'Maintenance' : 'Réservé'
+  }`;
 
   return (
     <motion.button
-      initial="hidden"
-      animate="visible"
-      whileHover={isInteractive ? 'hover' : undefined}
-      whileTap={isInteractive ? 'tap' : undefined}
-      variants={cellVariants}
-      onClick={() => isInteractive && onClick?.(cell)}
-      disabled={!isInteractive}
-      aria-label={`Court ${cell.courtNumber} - ${formatHour(cell.hour)} - ${cell.state}`}
-      aria-pressed={cell.state === 'confirmed'}
-      className={`
-        h-16 rounded-lg
-        flex flex-col items-center justify-center
-        gap-1
-        transition-all duration-200
-        ${baseStyle}
-        ${isInteractive
-          ? 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-fixed/50'
-          : 'cursor-default'
-        }
-        ${cell.state === 'maintenance' ? 'pointer-events-none' : ''}
-      `}
+      className={`flex h-16 w-full flex-col items-center justify-center rounded-lg ${styles.bg} ${styles.border} ${styles.text} transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
+      whileHover={
+        cell.state !== 'maintenance'
+          ? { scale: 1.05, boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)' }
+          : {}
+      }
+      whileTap={cell.state !== 'maintenance' ? { scale: 0.98 } : {}}
+      onClick={() => cell.state !== 'maintenance' && onClick?.(cell)}
+      disabled={cell.state === 'maintenance'}
+      role="button"
+      aria-label={ariaLabel}
+      tabIndex={cell.state === 'maintenance' ? -1 : 0}
     >
-      {/* Court Badge */}
-      <span
-        className={`
-          font-body text-body-xs font-semibold
-          px-2 py-0.5 rounded-full
-          ${getCourtBadgeStyle(cell.courtType)}
-        `}
-      >
-        {cell.courtType}
-      </span>
-
-      {/* Hour */}
-      <span className="font-body text-label font-semibold">
-        {formatHour(cell.hour)}
-      </span>
-
-      {/* State Icon */}
-      <span className="material-symbols-outlined text-sm opacity-80">
-        {getStateIcon(cell.state)}
-      </span>
+      {typeof styles.content === 'string' ? (
+        <span className="font-body text-body-sm font-medium">{styles.content}</span>
+      ) : (
+        styles.content
+      )}
+      {cell.state === 'available' && (
+        <span className="mt-0.5 font-body text-label text-on-surface/60">
+          {formatHour(cell.hour)}
+        </span>
+      )}
     </motion.button>
   );
 }
+
+export default CourtGridCell;

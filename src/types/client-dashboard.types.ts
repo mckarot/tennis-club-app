@@ -39,8 +39,12 @@ export interface StatCardData {
 
 /**
  * Court grid cell state (4 states per PNG audit)
+ * - available: fond blanc, border mint #E8F8F0, texte "+"
+ * - confirmed-quick: fond vert #006B3F, texte blanc
+ * - confirmed-terre: fond terracotta #9E4B1D, texte blanc
+ * - maintenance: fond gris, border dashed, icône wrench
  */
-export type CourtCellState = 'available' | 'confirmed' | 'maintenance' | 'pending';
+export type CourtCellState = 'available' | 'confirmed-quick' | 'confirmed-terre' | 'maintenance';
 
 /**
  * Court grid cell data
@@ -86,6 +90,7 @@ export interface UpcomingReservation {
   id: string;
   courtId: string;
   courtNumber: number;
+  courtName: string;
   courtType: CourtType;
   userId: string;
   userName: string;
@@ -93,6 +98,10 @@ export interface UpcomingReservation {
   endTime: Timestamp;
   status: ReservationStatus;
   type: 'location_libre' | 'cours_collectif' | 'cours_private';
+  notes?: string;
+  equipment_rented?: boolean;
+  total_price?: number;
+  payment_status?: 'pending' | 'paid' | 'refunded';
 }
 
 /**
@@ -128,8 +137,10 @@ export interface MaintenanceNote {
   title: string;
   message: string;
   severity: 'info' | 'warning' | 'urgent';
+  is_active: boolean;
   createdAt: Timestamp;
   expiresAt?: Timestamp;
+  affectedCourts?: string[];
 }
 
 /**

@@ -64,6 +64,27 @@ service cloud.firestore {
              && request.resource.data.role in ['admin', 'moniteur', 'client'];
     }
 
+    // Validate user profile update (client-side)
+    function isValidUserProfileUpdate() {
+      return request.resource.data.keys().hasAll(['name', 'email'])
+             && request.resource.data.name is string
+             && request.resource.data.email is string
+             // Role must remain unchanged
+             && request.resource.data.role == resource.data.role
+             // Optional fields validation
+             && (request.resource.data.phone is string || !request.resource.data.keys().hasAny(['phone']))
+             && (request.resource.data.avatar is string || !request.resource.data.keys().hasAny(['avatar']))
+             && (request.resource.data.status in ['online', 'away', 'inactive'] || !request.resource.data.keys().hasAny(['status']))
+             && (request.resource.data.notifications is map || !request.resource.data.keys().hasAny(['notifications']));
+    }
+
+    // Validate notifications preferences
+    function isValidNotifications() {
+      return request.resource.data.notifications is map
+             && (request.resource.data.notifications.email is bool || !request.resource.data.notifications.keys().hasAny(['email']))
+             && (request.resource.data.notifications.sms is bool || !request.resource.data.notifications.keys().hasAny(['sms']));
+    }
+
     // Validate court data
     function isValidCourtData() {
       return request.resource.data.keys().hasAll(['number', 'name', 'type', 'status', 'is_active'])
@@ -85,61 +106,121 @@ service cloud.firestore {
              && request.resource.data.status in ['available', 'booked', 'cancelled'];
     }
 
+    // Validate maintenance note data
+    function isValidMaintenanceNote() {
+      return request.resource.data.keys().hasAll(['title', 'message', 'severity', 'is_active', 'created_at'])
+             && request.resource.data.title is string
+             && request.resource.data.message is string
+             && request.resource.data.severity in ['info', 'warning', 'urgent']
+             && request.resource.data.is_active is bool
+             && request.resource.data.created_at is timestamp;
+    }
+
     // ==========================================
     // USERS COLLECTION
     // ==========================================
+    // ADMIN DASHBOARD: Admin can read/write ALL users
+    // - read: admin can read ANY profile (for user directory)
+    // - create: admin only (create new users)
+    // - update: admin only (modify any user including role)
+    // - delete: admin only (remove users)
 
     match /users/{userId} {
-      // Allow reading own profile or if admin
-      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      // ADMIN DASHBOARD READ RULES:
+      // - Admin can read ANY user profile (user directory, supervision)
+      // - User can read THEIR OWN profile
+      allow read: if isAuthenticated() && (isAdmin() || isOwner(userId));
 
-      // Allow creation only by admin
+      // ADMIN DASHBOARD CREATE RULES:
+      // - Admin only (creation via admin dashboard or AuthContext)
       allow create: if isAdmin() && isValidUserData();
 
-      // Allow update only by admin (users can't change their own role)
-      allow update: if isAdmin() && isValidUserData();
+      // ADMIN DASHBOARD UPDATE RULES:
+      // - Admin can update ANY user profile (including role changes)
+      // - User can update THEIR OWN profile (with restrictions - cannot change role)
+      allow update: if isAuthenticated() && (
+        // Admin can update any user profile (including role)
+        isAdmin() && isValidUserData()
+        ||
+        // User can update own profile but CANNOT change role
+        (isOwner(userId) && isValidUserProfileUpdate())
+      );
 
-      // Allow delete only by admin
+      // ADMIN DASHBOARD DELETE RULES:
+      // - Admin only (users cannot delete their own accounts)
       allow delete: if isAdmin();
     }
 
     // ==========================================
     // COURTS COLLECTION
     // ==========================================
+    // COURT MANAGEMENT (Phase 8.3):
+    // - read: PUBLIC (anyone can read courts for availability view)
+    // - create: admin only (add new courts)
+    // - update: admin only (modify court status, maintenance blocks)
+    // - delete: admin only (remove courts)
 
     match /courts/{courtId} {
-      // Anyone can read courts (public availability)
+      // PUBLIC READ RULES:
+      // - Anyone can read courts (clients need to see availability)
+      // - No authentication required for reading
       allow read: if true;
 
-      // Only admin can write courts
+      // ADMIN WRITE RULES:
+      // - Admin only (court management, maintenance blocks)
       allow create, update, delete: if isAdmin() && isValidCourtData();
     }
 
     // ==========================================
     // RESERVATIONS COLLECTION
     // ==========================================
+    // ADMIN DASHBOARD: Admin can read/write ALL reservations
+    // - read: admin can read ANY reservation (supervision, stats)
+    // - create: admin can create (maintenance blocks, admin bookings)
+    // - update: admin can update ANY reservation (modify, cancel)
+    // - delete: admin can delete ANY reservation (remove bookings)
 
     match /reservations/{reservationId} {
-      // Allow authenticated users to read all reservations (view schedule)
-      allow read: if isAuthenticated();
+      // ADMIN DASHBOARD READ RULES:
+      // - Admin can read ALL reservations (supervision, stats, utilization charts)
+      // - User can read THEIR OWN reservations
+      // - Moniteur can read reservations with THEIR moniteur_id
+      // - Anyone can read CONFIRMED reservations (for court grid view)
+      allow read: if isAuthenticated() && (
+        // Admin reading any reservation
+        isAdmin() ||
+        // User reading their own reservation
+        isOwner(resource.data.user_id) ||
+        // Moniteur reading reservations they are assigned to
+        (isMoniteur() && resource.data.moniteur_id == request.auth.uid) ||
+        // Anyone reading confirmed reservations (for grid display)
+        resource.data.status == 'confirmed'
+      );
 
-      // Allow any authenticated user to create reservations
+      // ADMIN DASHBOARD CREATE RULES:
+      // - Admin can create any reservation (maintenance blocks, admin bookings)
+      // - Any authenticated user can create their own reservation
       allow create: if isAuthenticated()
                     && isValidReservation()
-                    && request.resource.data.user_id == request.auth.uid;
+                    && (isAdmin() || request.resource.data.user_id == request.auth.uid);
 
-      // Allow update if:
-      // - User is admin, OR
-      // - User owns the reservation
+      // ADMIN DASHBOARD UPDATE RULES:
+      // - Admin can update ANY reservation (modify, cancel, confirm)
+      // - User can update their own reservation
+      // - Moniteur can update their confirmed lesson reservation
       allow update: if isAuthenticated()
-                    && (isAdmin() || resource.data.user_id == request.auth.uid)
-                    && isValidReservation();
+                    && isValidReservation()
+                    && (
+                      isAdmin() ||
+                      isOwner(resource.data.user_id) ||
+                      (isMoniteur() && resource.data.moniteur_id == request.auth.uid && resource.data.status == 'confirmed')
+                    );
 
-      // Allow delete if:
-      // - User is admin, OR
-      // - User owns the reservation
+      // ADMIN DASHBOARD DELETE RULES:
+      // - Admin can delete ANY reservation
+      // - User can delete their own reservation
       allow delete: if isAuthenticated()
-                    && (isAdmin() || resource.data.user_id == request.auth.uid);
+                    && (isAdmin() || isOwner(resource.data.user_id));
     }
 
     // ==========================================
@@ -147,8 +228,18 @@ service cloud.firestore {
     // ==========================================
 
     match /slots_moniteurs/{slotId} {
-      // Allow authenticated users to read all slots
-      allow read: if isAuthenticated();
+      // MONITEUR DASHBOARD READ RULES:
+      // - Moniteur can read THEIR OWN slots
+      // - Admin can read ALL slots
+      // - Other authenticated users can read all slots (for client booking view)
+      allow read: if isAuthenticated() && (
+        // Moniteur reading their own slots
+        resource.data.moniteur_id == request.auth.uid ||
+        // Admin reading any slot
+        isAdmin() ||
+        // Any authenticated user can read available slots (for booking)
+        resource.data.status == 'available'
+      );
 
       // Allow moniteurs to create their own slots
       allow create: if isAuthenticated()
@@ -157,17 +248,35 @@ service cloud.firestore {
                     && request.resource.data.moniteur_id == request.auth.uid;
 
       // Allow update if:
-      // - User is admin, OR
+      // - User is admin (can update any slot), OR
       // - User owns the slot (is the moniteur)
       allow update: if isAuthenticated()
                     && (isAdmin() || resource.data.moniteur_id == request.auth.uid)
                     && isValidSlotData();
 
       // Allow delete if:
-      // - User is admin, OR
+      // - User is admin (can delete any slot), OR
       // - User owns the slot
       allow delete: if isAuthenticated()
                     && (isAdmin() || resource.data.moniteur_id == request.auth.uid);
+    }
+
+    // ==========================================
+    // MAINTENANCE_NOTES COLLECTION
+    // ==========================================
+
+    match /maintenance_notes/{noteId} {
+      // CLIENT DASHBOARD: Allow authenticated users to read active maintenance notes
+      // This enables the Club Maintenance Note widget
+      allow read: if isAuthenticated() && (
+        // Anyone can read active notes
+        resource.data.is_active == true ||
+        // Admin can read all notes (including inactive)
+        isAdmin()
+      );
+
+      // Only admin can write maintenance notes
+      allow create, update, delete: if isAdmin() && isValidMaintenanceNote();
     }
 
     // ==========================================
@@ -178,15 +287,14 @@ service cloud.firestore {
     match /payments/{paymentId} {
       allow read: if isAuthenticated()
                   && (isAdmin() || resource.data.user_id == request.auth.uid);
-      allow create: if isAuthenticated() && isValidPaymentData();
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
+      allow create: if isAuthenticated() && request.resource.data.user_id == request.auth.uid;
+      allow update, delete: if isAdmin();
     }
 
     // Example: Reviews collection
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if isAuthenticated() && isValidReviewData();
+      allow create: if isAuthenticated();
       allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.author_id == request.auth.uid);
     }
   }

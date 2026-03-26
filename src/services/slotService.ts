@@ -129,6 +129,7 @@ function mapToMoniteurSlot(docId: string, data: Record<string, unknown>): Monite
 
 /**
  * Subscribe to moniteur's slots with real-time updates
+ * CRITICAL: Uses composite index (moniteur_id, date, start_time)
  */
 export function subscribeToMoniteurSlots(
   moniteurId: string,
@@ -163,6 +164,80 @@ export function subscribeToMoniteurSlots(
     return unsubscribe;
   } catch (error) {
     console.error('[subscribeToMoniteurSlots] Setup error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Interface for reservation data from Firestore
+ */
+interface ReservationData {
+  id?: string;
+  court_id: string;
+  user_id: string;
+  moniteur_id: string;
+  start_time: Timestamp;
+  end_time: Timestamp;
+  type: string;
+  status: string;
+  title?: string;
+  participants?: number;
+  created_at?: Timestamp;
+  updated_at?: Timestamp;
+}
+
+/**
+ * Subscribe to moniteur's reservations with real-time updates
+ * CRITICAL: Uses composite index (moniteur_id, start_time, status)
+ * Returns reservations where moniteur is assigned
+ */
+export function subscribeToMoniteurReservations(
+  moniteurId: string,
+  callback: (reservations: ReservationData[]) => void,
+  errorCallback?: (error: Error) => void
+): Unsubscribe {
+  try {
+    const q = query(
+      collection(db, 'reservations'),
+      where('moniteur_id', '==', moniteurId),
+      orderBy('start_time', 'asc')
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const reservations = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            court_id: data.court_id as string,
+            user_id: data.user_id as string,
+            moniteur_id: data.moniteur_id as string,
+            start_time: data.start_time as Timestamp,
+            end_time: data.end_time as Timestamp,
+            type: data.type as string,
+            status: data.status as string,
+            title: data.title as string | undefined,
+            description: data.description as string | undefined,
+            participants: data.participants as number | undefined,
+            is_paid: data.is_paid as boolean | undefined,
+            created_at: data.created_at as Timestamp,
+            updated_at: data.updated_at as Timestamp | undefined,
+          };
+        });
+        callback(reservations);
+      },
+      (error) => {
+        console.error('[subscribeToMoniteurReservations] Error:', error);
+        if (errorCallback) {
+          errorCallback(error instanceof Error ? error : new Error('Failed to fetch moniteur reservations'));
+        }
+      }
+    );
+
+    return unsubscribe;
+  } catch (error) {
+    console.error('[subscribeToMoniteurReservations] Setup error:', error);
     throw error;
   }
 }
@@ -635,6 +710,160 @@ export async function deleteSlot(slotId: string): Promise<ServiceResult<void>> {
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to delete slot',
+    };
+  }
+}
+
+// ==========================================
+// STATS AND ANALYTICS
+// ==========================================
+
+/**
+ * Get available slots for a specific moniteur
+ * CRITICAL: Uses composite index (moniteur_id, status, date)
+ */
+export async function getAvailableMoniteurSlots(
+  moniteurId: string,
+  startDate?: string,
+  endDate?: string
+): Promise<MoniteurSlot[]> {
+  try {
+    const constraints: QueryConstraint[] = [
+      where('moniteur_id', '==', moniteurId),
+      where('status', '==', 'available'),
+      orderBy('date', 'asc'),
+      orderBy('start_time', 'asc'),
+    ];
+
+    if (startDate) {
+      constraints.splice(2, 0, where('date', '>=', startDate));
+    }
+
+    if (endDate) {
+      constraints.splice(3, 0, where('date', '<=', endDate));
+    }
+
+    const q = query(collection(db, COLLECTION_NAME), ...constraints);
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return mapToMoniteurSlot(doc.id, data as Record<string, unknown>);
+    });
+  } catch (error) {
+    console.error('[getAvailableMoniteurSlots] Error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Club efficiency stats for moniteur dashboard
+ * Calculates statistics based on slots and reservations
+ *
+ * Stats include:
+ * - Total slots (PRIVATE and GROUP)
+ * - Booked slots count
+ * - Available slots count
+ * - Total reservations
+ * - Reservations by type (PRIVATE vs GROUP)
+ * - Total participants
+ * - Occupancy rate
+ *
+ * CRITICAL: Uses composite index (moniteur_id, type, start_time)
+ */
+export async function getClubEfficiencyStats(
+  moniteurId: string,
+  startDate: string,
+  endDate: string
+): Promise<SlotServiceResult<{
+  totalSlots: number;
+  bookedSlots: number;
+  availableSlots: number;
+  totalReservations: number;
+  privateReservations: number;
+  groupReservations: number;
+  totalParticipants: number;
+  occupancyRate: number;
+  revenueEstimate: number;
+}>> {
+  try {
+    // Get slots for date range
+    const slotsQuery = query(
+      collection(db, COLLECTION_NAME),
+      where('moniteur_id', '==', moniteurId),
+      where('date', '>=', startDate),
+      where('date', '<=', endDate)
+    );
+
+    const slotsSnapshot = await getDocs(slotsQuery);
+    const slots = slotsSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return mapToMoniteurSlot(doc.id, data as Record<string, unknown>);
+    });
+
+    // Get reservations for date range
+    const reservationsQuery = query(
+      collection(db, 'reservations'),
+      where('moniteur_id', '==', moniteurId),
+      where('start_time', '>=', Timestamp.fromDate(dayjs(startDate).tz(TIMEZONE).startOf('day').toDate())),
+      where('start_time', '<=', Timestamp.fromDate(dayjs(endDate).tz(TIMEZONE).endOf('day').toDate()))
+    );
+
+    const reservationsSnapshot = await getDocs(reservationsQuery);
+    const reservations = reservationsSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        type: data.type as string,
+        status: data.status as string,
+        participants: data.participants as number | undefined,
+      };
+    });
+
+    // Calculate stats
+    const totalSlots = slots.length;
+    const bookedSlots = slots.filter((s) => s.status === 'booked').length;
+    const availableSlots = slots.filter((s) => s.status === 'available').length;
+
+    const totalReservations = reservations.filter((r) => r.status !== 'cancelled').length;
+    const privateReservations = reservations.filter(
+      (r) => r.type === 'cours_private' && r.status !== 'cancelled'
+    ).length;
+    const groupReservations = reservations.filter(
+      (r) => r.type === 'cours_collectif' && r.status !== 'cancelled'
+    ).length;
+
+    const totalParticipants = reservations
+      .filter((r) => r.status !== 'cancelled')
+      .reduce((sum, r) => sum + (r.participants || 0), 0);
+
+    const occupancyRate = totalSlots > 0 ? (bookedSlots / totalSlots) * 100 : 0;
+
+    // Estimate revenue (simplified calculation)
+    const PRIVATE_RATE = 50; // € per private session
+    const GROUP_RATE = 20; // € per person in group
+    const revenueEstimate =
+      privateReservations * PRIVATE_RATE + groupReservations * GROUP_RATE * 4; // Average 4 participants per group
+
+    return {
+      success: true,
+      data: {
+        totalSlots,
+        bookedSlots,
+        availableSlots,
+        totalReservations,
+        privateReservations,
+        groupReservations,
+        totalParticipants,
+        occupancyRate: Math.round(occupancyRate * 100) / 100,
+        revenueEstimate,
+      },
+    };
+  } catch (error) {
+    console.error('[getClubEfficiencyStats] Error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to calculate efficiency stats',
     };
   }
 }

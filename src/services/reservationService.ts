@@ -39,6 +39,41 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 /**
+ * Input for canceling a reservation
+ */
+export interface CancelReservationInput {
+  reservationId: string;
+  reason?: string;
+}
+
+/**
+ * Input for completing a reservation
+ */
+export interface CompleteReservationInput {
+  reservationId: string;
+  notes?: string;
+  isPaid?: boolean;
+}
+
+/**
+ * Input for editing a reservation (admin)
+ */
+export interface EditReservationInput {
+  reservationId: string;
+  court_id?: string;
+  user_id?: string;
+  moniteur_id?: string;
+  start_time?: Date;
+  end_time?: Date;
+  type?: ReservationType;
+  status?: ReservationStatus;
+  title?: string;
+  description?: string;
+  participants?: number;
+  is_paid?: boolean;
+}
+
+/**
  * Valid ReservationType values
  */
 const VALID_RESERVATION_TYPES: ReservationType[] = [
@@ -642,20 +677,309 @@ export async function updateReservation(
 }
 
 // ==========================================
-// CANCEL OPERATION
+// GET OPERATIONS (ADMIN)
 // ==========================================
 
 /**
- * Cancel a reservation (soft delete - sets status to cancelled)
+ * Get all reservations (Admin only)
+ *
+ * Query: Get all reservations sorted by start_time (descending)
+ * Index used: reservations:start_time+status (existing index)
+ *
+ * WARNING: This query can be expensive on large collections.
+ * Use with pagination or date range filters in production.
+ *
+ * @param limit - Maximum number of reservations to return (default: 100)
+ * @returns Promise resolving to array of reservations
  */
-export async function cancelReservation(reservationId: string): Promise<ServiceResult<void>> {
+export async function getAllReservations(limit: number = 100): Promise<Reservation[]> {
   try {
-    const docRef = doc(db, COLLECTION_NAME, reservationId);
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      orderBy('start_time', 'desc'),
+      orderBy('__name__', 'desc')
+    );
 
-    await updateDoc(docRef, {
+    const snapshot = await getDocs(q);
+    return snapshot.docs.slice(0, limit).map((doc) => {
+      const data = doc.data();
+      return mapToReservation(doc.id, data as Record<string, unknown>);
+    });
+  } catch (error) {
+    console.error('[getAllReservations] Error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get reservations by date range
+ *
+ * Query: Get reservations within a date range, optionally filtered by court
+ * Index used: reservations:court_id+start_time+status OR reservations:start_time+status+type
+ *
+ * @param startDate - Start of date range (inclusive)
+ * @param endDate - End of date range (inclusive)
+ * @param courtId - Optional court ID filter
+ * @returns Promise resolving to array of reservations
+ */
+export async function getReservationsByDateRange(
+  startDate: Date,
+  endDate: Date,
+  courtId?: string
+): Promise<Reservation[]> {
+  try {
+    const startTimestamp = Timestamp.fromDate(dayjs(startDate).tz(TIMEZONE).startOf('day').toDate());
+    const endTimestamp = Timestamp.fromDate(dayjs(endDate).tz(TIMEZONE).endOf('day').toDate());
+
+    const constraints: QueryConstraint[] = [
+      where('start_time', '>=', startTimestamp),
+      where('start_time', '<=', endTimestamp),
+      orderBy('start_time', 'asc'),
+    ];
+
+    if (courtId) {
+      constraints.unshift(where('court_id', '==', courtId));
+    }
+
+    const q = query(collection(db, COLLECTION_NAME), ...constraints);
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return mapToReservation(doc.id, data as Record<string, unknown>);
+    });
+  } catch (error) {
+    console.error('[getReservationsByDateRange] Error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get today's active bookings for stats
+ *
+ * Query: Get all reservations for today with active statuses
+ * Index used: reservations:start_time+status+type (CRITICAL for Phase 8.4)
+ *
+ * @returns Promise resolving to stats object with booking counts
+ */
+export async function getTodaysActiveBookings(): Promise<ServiceResult<{
+  totalBookings: number;
+  confirmedBookings: number;
+  pendingBookings: number;
+  maintenanceBlocks: number;
+  utilizationRate: number;
+}>> {
+  try {
+    const today = new Date();
+    const startTimestamp = Timestamp.fromDate(dayjs(today).tz(TIMEZONE).startOf('day').toDate());
+    const endTimestamp = Timestamp.fromDate(dayjs(today).tz(TIMEZONE).endOf('day').toDate());
+
+    // Query: Get all reservations for today
+    const constraints: QueryConstraint[] = [
+      where('start_time', '>=', startTimestamp),
+      where('start_time', '<=', endTimestamp),
+      where('status', 'in', ['confirmed', 'pending', 'pending_payment']),
+      orderBy('start_time', 'asc'),
+    ];
+
+    const q = query(collection(db, COLLECTION_NAME), ...constraints);
+    const snapshot = await getDocs(q);
+
+    let totalBookings = 0;
+    let confirmedBookings = 0;
+    let pendingBookings = 0;
+    let maintenanceBlocks = 0;
+
+    snapshot.docs.forEach((docSnap) => {
+      const reservation = mapToReservation(docSnap.id, docSnap.data() as Record<string, unknown>);
+      totalBookings++;
+
+      if (reservation.type === 'maintenance') {
+        maintenanceBlocks++;
+      } else if (reservation.status === 'confirmed') {
+        confirmedBookings++;
+      } else if (reservation.status === 'pending' || reservation.status === 'pending_payment') {
+        pendingBookings++;
+      }
+    });
+
+    // Calculate utilization rate (booked slots / total available slots)
+    // Assuming 12 hours (7:00-19:00) × 6 courts = 72 slots per day
+    const totalSlots = 12 * 6; // 72 slots
+    const bookedSlots = confirmedBookings + pendingBookings;
+    const utilizationRate = totalSlots > 0 ? Math.round((bookedSlots / totalSlots) * 100) : 0;
+
+    return {
+      success: true,
+      data: {
+        totalBookings,
+        confirmedBookings,
+        pendingBookings,
+        maintenanceBlocks,
+        utilizationRate,
+      },
+    };
+  } catch (error) {
+    console.error('[getTodaysActiveBookings] Error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch today\'s active bookings',
+    };
+  }
+}
+
+// ==========================================
+// UPDATE OPERATIONS (ADMIN)
+// ==========================================
+
+/**
+ * Edit a reservation (Admin)
+ *
+ * Uses transaction to check for conflicts if time or court is changed.
+ *
+ * @param input - EditReservationInput with reservationId and fields to update
+ * @returns ServiceResult indicating success or failure
+ */
+export async function editReservation(input: EditReservationInput): Promise<ServiceResult<void>> {
+  try {
+    const docRef = doc(db, COLLECTION_NAME, input.reservationId);
+
+    await runTransaction(db, async (transaction) => {
+      const existingDoc = await getDoc(docRef);
+
+      if (!existingDoc.exists()) {
+        throw new Error('Reservation not found');
+      }
+
+      const existing = existingDoc.data() as Reservation;
+
+      // Validate time range if being updated
+      const newStartTime = input.start_time
+        ? Timestamp.fromDate(input.start_time)
+        : existing.start_time;
+      const newEndTime = input.end_time
+        ? Timestamp.fromDate(input.end_time)
+        : existing.end_time;
+
+      if (newStartTime >= newEndTime) {
+        throw new Error('End time must be after start time');
+      }
+
+      // Check for conflicts if time or court is changed
+      const courtChanged = input.court_id && input.court_id !== existing.court_id;
+      const timeChanged = input.start_time || input.end_time;
+
+      if (courtChanged || timeChanged) {
+        const checkCourtId = input.court_id || existing.court_id;
+
+        const q = query(
+          collection(db, COLLECTION_NAME),
+          where('court_id', '==', checkCourtId),
+          where('status', 'in', ['confirmed', 'pending']),
+          where('start_time', '<=', newEndTime),
+          where('end_time', '>=', newStartTime)
+        );
+
+        const snapshot = await getDocs(q);
+
+        const hasConflict = snapshot.docs.some((doc) => {
+          return doc.id !== input.reservationId && doc.data().status !== 'cancelled';
+        });
+
+        if (hasConflict) {
+          throw new Error('New time slot or court conflicts with existing reservation');
+        }
+      }
+
+      // Build update data
+      const updateData: Record<string, unknown> = {
+        updated_at: Timestamp.now(),
+      };
+
+      if (input.court_id !== undefined) updateData.court_id = input.court_id;
+      if (input.user_id !== undefined) updateData.user_id = input.user_id;
+      if (input.moniteur_id !== undefined) updateData.moniteur_id = input.moniteur_id;
+      if (input.start_time !== undefined) updateData.start_time = Timestamp.fromDate(input.start_time);
+      if (input.end_time !== undefined) updateData.end_time = Timestamp.fromDate(input.end_time);
+      if (input.type !== undefined) updateData.type = input.type;
+      if (input.status !== undefined) updateData.status = input.status;
+      if (input.title !== undefined) updateData.title = input.title;
+      if (input.description !== undefined) updateData.description = input.description;
+      if (input.participants !== undefined) updateData.participants = input.participants;
+      if (input.is_paid !== undefined) updateData.is_paid = input.is_paid;
+
+      transaction.update(docRef, updateData);
+    });
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error('[editReservation] Error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to edit reservation',
+    };
+  }
+}
+
+/**
+ * Complete a reservation (mark as completed)
+ *
+ * @param input - CompleteReservationInput with reservationId and optional notes/payment status
+ * @returns ServiceResult indicating success or failure
+ */
+export async function completeReservation(input: CompleteReservationInput): Promise<ServiceResult<void>> {
+  try {
+    const docRef = doc(db, COLLECTION_NAME, input.reservationId);
+
+    const updateData: Record<string, unknown> = {
+      status: 'completed' as ReservationStatus,
+      updated_at: Timestamp.now(),
+    };
+
+    if (input.notes !== undefined) {
+      updateData.description = input.notes;
+    }
+
+    if (input.isPaid !== undefined) {
+      updateData.is_paid = input.isPaid;
+    }
+
+    await updateDoc(docRef, updateData);
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error('[completeReservation] Error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to complete reservation',
+    };
+  }
+}
+
+/**
+ * Cancel a reservation (soft delete - sets status to cancelled)
+ *
+ * @param input - CancelReservationInput with reservationId and optional reason
+ * @returns ServiceResult indicating success or failure
+ */
+export async function cancelReservation(input: CancelReservationInput): Promise<ServiceResult<void>> {
+  try {
+    const docRef = doc(db, COLLECTION_NAME, input.reservationId);
+
+    const updateData: Record<string, unknown> = {
       status: 'cancelled' as ReservationStatus,
       updated_at: Timestamp.now(),
-    });
+    };
+
+    if (input.reason !== undefined) {
+      updateData.description = (updateData.description || '') + ' [Cancelled: ' + input.reason + ']';
+    }
+
+    await updateDoc(docRef, updateData);
 
     return {
       success: true,

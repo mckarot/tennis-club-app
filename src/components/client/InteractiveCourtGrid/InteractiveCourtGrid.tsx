@@ -1,136 +1,153 @@
 /**
  * InteractiveCourtGrid Component
- * 
- * Responsive court grid: 7 columns × 8 rows
- * PNG spec: h-16 cells, gap-2
+ *
+ * Grid 7×8 displaying court availability in real-time.
+ * Header: 7 courts with name + surface.
+ * Rows: 8 time slots (6h, 8h, 10h, 12h, 14h, 16h, 18h, 20h).
+ *
+ * @module @components/client/InteractiveCourtGrid
  */
 
-import { motion, useReducedMotion } from 'framer-motion';
 import { CourtGridCell } from '../CourtGridCell/CourtGridCell';
 import type { CourtGridCell as CourtGridCellType } from '../../../types/client-dashboard.types';
 
-export interface InteractiveCourtGridProps {
-  grid: CourtGridCellType[][];
-  isLoading?: boolean;
+interface InteractiveCourtGridProps {
+  cells: CourtGridCellType[][];
+  loading?: boolean;
   onCellClick?: (cell: CourtGridCellType) => void;
 }
 
+const GRID_TOTAL_ROWS = 8;
+const GRID_START_HOUR = 6;
+
 export function InteractiveCourtGrid({
-  grid,
-  isLoading = false,
+  cells,
+  loading = false,
   onCellClick,
-}: InteractiveCourtGridProps): JSX.Element {
-  const shouldReduceMotion = useReducedMotion();
-
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: shouldReduceMotion ? 0 : 0.02,
-      },
-    },
+}: InteractiveCourtGridProps) {
+  const formatHour = (hour: number): string => {
+    return `${hour.toString().padStart(2, '0')}h`;
   };
 
-  const cellVariants = {
-    hidden: { opacity: shouldReduceMotion ? 1 : 0, y: shouldReduceMotion ? 0 : 8 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: 'easeOut' },
-    },
+  const getCourtTypeLabel = (type: string): string => {
+    return type === 'Quick' ? 'Quick' : 'Terre';
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
-      <div
-        className="bg-surface-container-lowest rounded-xl p-6 shadow-sm"
+      <section
+        className="space-y-4"
+        aria-label="Grille des courts"
+        role="region"
         aria-busy="true"
-        aria-label="Chargement du grille des courts"
       >
-        <div className="grid grid-cols-7 gap-2">
-          {Array.from({ length: 56 }).map((_, i) => (
+        {/* Header Skeleton */}
+        <div className="grid grid-cols-8 gap-2">
+          <div className="h-12" />
+          {Array.from({ length: 7 }).map((_, i) => (
             <div
               key={i}
-              className="h-16 bg-surface-container-highest rounded-lg animate-pulse"
+              className="h-12 animate-pulse rounded-lg bg-surface-container-highest"
             />
           ))}
         </div>
-      </div>
+
+        {/* Grid Skeleton */}
+        {Array.from({ length: GRID_TOTAL_ROWS }).map((_, rowIndex) => (
+          <div key={rowIndex} className="grid grid-cols-8 gap-2">
+            <div className="h-16 animate-pulse rounded-lg bg-surface-container-highest" />
+            {Array.from({ length: 7 }).map((_, colIndex) => (
+              <div
+                key={colIndex}
+                className="h-16 animate-pulse rounded-lg bg-surface-container-highest"
+              />
+            ))}
+          </div>
+        ))}
+      </section>
+    );
+  }
+
+  if (cells.length === 0) {
+    return (
+      <section
+        className="flex h-64 items-center justify-center rounded-xl bg-surface-container-low p-8"
+        aria-label="Grille des courts"
+        role="region"
+      >
+        <div className="text-center">
+          <span
+            className="material-symbols-outlined text-4xl text-on-surface/40"
+            aria-hidden="true"
+          >
+            sports_tennis
+          </span>
+          <p className="mt-4 font-body text-body-lg text-on-surface/70">
+            Aucun court disponible pour le moment
+          </p>
+        </div>
+      </section>
     );
   }
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="bg-surface-container-lowest rounded-xl p-6 shadow-sm"
-      role="grid"
-      aria-label="Grille interactive des courts"
+    <section
+      className="space-y-4 overflow-x-auto"
+      aria-label="Grille des courts"
+      role="region"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-headline text-headline-md font-semibold text-on-surface">
-          Disponibilité des courts
-        </h2>
-        <div className="flex items-center gap-4">
-          {/* Legend */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-success-container/20 border border-success-container" />
-              <span className="font-body text-body-xs text-on-surface-variant">Libre</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-primary-fixed/30 border border-primary-fixed" />
-              <span className="font-body text-body-xs text-on-surface-variant">Réservé</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-surface-container-highest border border-surface-container-highest opacity-60" />
-              <span className="font-body text-body-xs text-on-surface-variant">Maintenance</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-secondary-container/30 border border-secondary-container" />
-              <span className="font-body text-body-xs text-on-surface-variant">En attente</span>
-            </div>
+      {/* Header: Court Names */}
+      <div className="grid min-w-[800px] grid-cols-8 gap-2">
+        {/* Empty corner */}
+        <div className="h-12" aria-hidden="true" />
+
+        {/* Court Headers */}
+        {cells.map((courtCells) => (
+          <div
+            key={courtCells[0]?.courtId}
+            className="flex flex-col items-center justify-center rounded-lg bg-surface-container-highest p-2"
+          >
+            <span className="font-headline text-headline-sm font-bold text-on-surface">
+              Court {courtCells[0]?.courtNumber}
+            </span>
+            <span className="font-body text-body-sm text-on-surface/60">
+              {getCourtTypeLabel(courtCells[0]?.courtType || 'Quick')}
+            </span>
           </div>
-        </div>
+        ))}
       </div>
 
-      {/* Grid */}
-      <div className="overflow-x-auto">
-        <div className="min-w-max grid grid-cols-7 gap-2">
-          {grid.map((courtCells, courtIndex) => (
-            <motion.div
-              key={courtCells[0]?.courtId || `court-${courtIndex}`}
-              variants={cellVariants}
-              className="flex flex-col gap-2"
-              role="row"
-            >
-              {/* Court Header */}
-              <div className="text-center mb-1">
-                <span className="font-headline text-body-sm font-bold text-on-surface">
-                  Court {courtCells[0]?.courtNumber || courtIndex + 1}
-                </span>
-              </div>
+      {/* Grid: Time Slots */}
+      {Array.from({ length: GRID_TOTAL_ROWS }).map((_, rowIndex) => {
+        const hour = GRID_START_HOUR + rowIndex * 2;
 
-              {/* Cells */}
-              {courtCells.map((cell) => (
+        return (
+          <div key={rowIndex} className="grid min-w-[800px] grid-cols-8 gap-2">
+            {/* Time Label */}
+            <div className="flex items-center justify-center">
+              <span className="font-body text-body-sm font-medium text-on-surface/70">
+                {formatHour(hour)}
+              </span>
+            </div>
+
+            {/* Court Cells */}
+            {cells.map((courtCells) => {
+              const cell = courtCells[rowIndex];
+              if (!cell) return null;
+
+              return (
                 <CourtGridCell
                   key={cell.id}
                   cell={cell}
                   onClick={onCellClick}
                 />
-              ))}
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      {/* Mobile scroll hint */}
-      <div className="flex items-center justify-center gap-2 mt-4 text-on-surface-variant lg:hidden">
-        <span className="material-symbols-outlined text-sm">swipe</span>
-        <span className="font-body text-body-xs">Faites défiler pour voir plus</span>
-      </div>
-    </motion.div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </section>
   );
 }
+
+export default InteractiveCourtGrid;

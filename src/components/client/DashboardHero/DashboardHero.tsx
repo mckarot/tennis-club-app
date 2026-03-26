@@ -1,118 +1,104 @@
 /**
  * DashboardHero Component
- * 
- * Hero section with gradient overlay, welcome message, and 2 CTAs
- * Height: h-[320px] per PNG audit
- * Gradient: emerald-950/80 → emerald-900/40
+ *
+ * Hero section with gradient overlay and welcome message.
+ * Primary CTA: "Réserver un court" (gradient primary → primary-container).
+ * Secondary CTA: "Voir planning" (optional).
+ *
+ * @module @components/client/DashboardHero
  */
 
-import { motion, useReducedMotion } from 'framer-motion';
-import type { DashboardHeroProps } from '../../types/client-dashboard.types';
+import { motion } from 'framer-motion';
+
+interface DashboardHeroProps {
+  userName: string;
+  onBookNowClick?: () => void;
+  onViewScheduleClick?: () => void;
+}
 
 export function DashboardHero({
   userName,
   onBookNowClick,
   onViewScheduleClick,
-}: DashboardHeroProps): JSX.Element {
-  const shouldReduceMotion = useReducedMotion();
-
-  const containerVariants = {
-    hidden: { opacity: shouldReduceMotion ? 1 : 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: shouldReduceMotion ? 0 : 0.4,
-        staggerChildren: shouldReduceMotion ? 0 : 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: shouldReduceMotion ? 1 : 0, y: shouldReduceMotion ? 0 : 16 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: shouldReduceMotion ? 0 : 0.3, ease: 'easeOut' },
-    },
-  };
-
+}: DashboardHeroProps) {
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="relative h-[320px] w-full overflow-hidden rounded-2xl"
+    <section
+      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary-container p-8 sm:p-12"
+      aria-label="Section de bienvenue"
+      role="banner"
     >
-      {/* Background Image */}
+      {/* Background Pattern (decorative) - Inline SVG as background */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: "url('/images/tennis-court-hero.jpg')",
-        }}
+        className="absolute inset-0 opacity-10"
         aria-hidden="true"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}
       />
-
-      {/* Gradient Overlay - Design System: primary colors */}
-      <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary-container/60 to-primary-fixed/40" />
 
       {/* Content */}
-      <div className="relative z-10 flex h-full flex-col justify-end p-8">
-        <motion.div variants={itemVariants} className="mb-6">
-          <h1 className="font-headline text-headline-lg font-bold text-white">
-            Bonjour, {userName}
-          </h1>
-          <p className="font-body text-body-lg text-on-surface-variant mt-2">
-            Prêt à jouer aujourd'hui ?
-          </p>
-        </motion.div>
-
-        <motion.div
-          variants={itemVariants}
-          className="flex flex-wrap gap-4"
+      <div className="relative z-10">
+        {/* Welcome Text */}
+        <motion.h1
+          className="font-headline text-display-md font-bold text-white"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          {/* Book Now CTA */}
+          Bonjour, {userName}
+        </motion.h1>
+
+        <motion.p
+          className="mt-2 font-body text-body-lg text-white/90"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          Réservez vos courts en toute simplicité
+        </motion.p>
+
+        {/* CTAs */}
+        <motion.div
+          className="mt-6 flex flex-wrap gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          {/* Primary CTA: Book Now */}
           <button
+            className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 font-body text-body font-semibold text-primary transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary"
             onClick={onBookNowClick}
             aria-label="Réserver un court maintenant"
-            className="
-              inline-flex items-center gap-2
-              bg-primary-container hover:bg-primary
-              text-on-primary-container hover:text-on-primary
-              font-headline text-body-lg font-semibold
-              px-6 py-3 rounded-lg
-              transition-colors duration-200
-              focus:outline-none focus:ring-2 focus:ring-primary-fixed
-            "
           >
-            <span className="material-symbols-outlined">calendar_add_on</span>
-            Réserver
+            <span
+              className="material-symbols-outlined text-lg"
+              aria-hidden="true"
+            >
+              add_circle
+            </span>
+            Réserver un court
           </button>
 
-          {/* View Schedule CTA */}
-          <button
-            onClick={onViewScheduleClick}
-            aria-label="Voir mon emploi du temps"
-            className="
-              inline-flex items-center gap-2
-              bg-surface-container-highest hover:bg-surface-container
-              text-on-surface
-              font-headline text-body-lg font-semibold
-              px-6 py-3 rounded-lg
-              transition-colors duration-200
-              focus:outline-none focus:ring-2 focus:ring-primary-fixed
-            "
-          >
-            <span className="material-symbols-outlined">event_note</span>
-            Voir l'emploi du temps
-          </button>
+          {/* Secondary CTA: View Schedule */}
+          {onViewScheduleClick && (
+            <button
+              className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-6 py-3 font-body text-body font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary"
+              onClick={onViewScheduleClick}
+              aria-label="Voir le planning des courts"
+            >
+              <span
+                className="material-symbols-outlined text-lg"
+                aria-hidden="true"
+              >
+                calendar_month
+              </span>
+              Voir planning
+            </button>
+          )}
         </motion.div>
       </div>
-
-      {/* Decorative Elements */}
-      <div
-        className="absolute top-0 right-0 w-64 h-64 bg-primary-fixed/10 rounded-full blur-3xl"
-        aria-hidden="true"
-      />
-    </motion.div>
+    </section>
   );
 }
+
+export default DashboardHero;

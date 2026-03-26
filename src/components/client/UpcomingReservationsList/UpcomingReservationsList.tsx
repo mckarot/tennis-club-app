@@ -1,132 +1,125 @@
 /**
  * UpcomingReservationsList Component
- * 
- * Right sidebar with list of upcoming reservations
- * PNG spec: Right sidebar, court badge, time, client name, status dot
+ *
+ * Scrollable list of upcoming reservations (max 5 displayed).
+ * Shows "+N autres" if more than 5 reservations.
+ * Empty state if no reservations.
+ * Skeleton cards if loading.
+ *
+ * @module @components/client/UpcomingReservationsList
  */
 
-import { motion, useReducedMotion } from 'framer-motion';
 import { ReservationCard } from '../ReservationCard/ReservationCard';
 import type { UpcomingReservation } from '../../../types/client-dashboard.types';
 
-export interface UpcomingReservationsListProps {
+interface UpcomingReservationsListProps {
   reservations: UpcomingReservation[];
-  isLoading?: boolean;
+  loading?: boolean;
   onReservationClick?: (reservation: UpcomingReservation) => void;
+  onReservationCancel?: (reservationId: string) => void;
 }
+
+const MAX_DISPLAYED_RESERVATIONS = 5;
 
 export function UpcomingReservationsList({
   reservations,
-  isLoading = false,
+  loading = false,
   onReservationClick,
-}: UpcomingReservationsListProps): JSX.Element {
-  const shouldReduceMotion = useReducedMotion();
+  onReservationCancel,
+}: UpcomingReservationsListProps) {
+  const displayedReservations = reservations.slice(0, MAX_DISPLAYED_RESERVATIONS);
+  const remainingCount = reservations.length - MAX_DISPLAYED_RESERVATIONS;
 
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: shouldReduceMotion ? 0 : 0.05,
-      },
-    },
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div
-        className="bg-surface-container-lowest rounded-xl p-6 shadow-sm"
+      <section
+        className="space-y-4"
+        aria-label="Prochaines réservations"
+        role="region"
         aria-busy="true"
-        aria-label="Chargement des réservations à venir"
       >
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-6 h-6 bg-surface-container-highest rounded-full animate-pulse" />
-          <div className="w-32 h-6 bg-surface-container-highest rounded animate-pulse" />
-        </div>
-        <div className="space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-surface-container-low rounded-lg p-4 animate-pulse"
-            >
-              <div className="w-20 h-6 bg-surface-container-highest rounded mb-3" />
-              <div className="w-24 h-5 bg-surface-container-highest rounded mb-2" />
-              <div className="w-16 h-4 bg-surface-container-highest rounded" />
+        <h2 className="font-headline text-headline-md font-bold text-on-surface">
+          Prochaines réservations
+        </h2>
+
+        {/* Skeleton Cards */}
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-4 rounded-xl bg-surface-container-lowest p-4"
+          >
+            <div className="h-12 w-12 animate-pulse rounded-full bg-surface-container-highest" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-32 animate-pulse rounded bg-surface-container-highest" />
+              <div className="h-3 w-48 animate-pulse rounded bg-surface-container-highest" />
             </div>
-          ))}
+          </div>
+        ))}
+      </section>
+    );
+  }
+
+  if (reservations.length === 0) {
+    return (
+      <section
+        className="rounded-xl bg-surface-container-low p-8"
+        aria-label="Prochaines réservations"
+        role="region"
+      >
+        <h2 className="font-headline text-headline-md font-bold text-on-surface">
+          Prochaines réservations
+        </h2>
+
+        <div className="mt-6 flex flex-col items-center justify-center py-8">
+          <span
+            className="material-symbols-outlined text-4xl text-on-surface/40"
+            aria-hidden="true"
+          >
+            event_busy
+          </span>
+          <p className="mt-4 font-body text-body-lg text-on-surface/70">
+            Aucune réservation à venir
+          </p>
+          <p className="mt-2 font-body text-body-sm text-on-surface/60">
+            Réservez un court pour commencer
+          </p>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <motion.aside
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="bg-surface-container-lowest rounded-xl p-6 shadow-sm"
-      role="complementary"
-      aria-label="Réservations à venir"
+    <section
+      className="space-y-4"
+      aria-label="Prochaines réservations"
+      role="region"
     >
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <span className="material-symbols-outlined text-primary">
-          event_upcoming
-        </span>
-        <h2 className="font-headline text-headline-sm font-semibold text-on-surface">
-          Réservations à venir
-        </h2>
+      <h2 className="font-headline text-headline-md font-bold text-on-surface">
+        Prochaines réservations
+      </h2>
+
+      {/* Reservations List */}
+      <div className="space-y-3">
+        {displayedReservations.map((reservation) => (
+          <ReservationCard
+            key={reservation.id}
+            reservation={reservation}
+            onClick={onReservationClick}
+            onCancel={onReservationCancel}
+          />
+        ))}
       </div>
 
-      {/* List */}
-      {reservations.length === 0 ? (
-        <div
-          className="text-center py-8"
-          role="status"
-          aria-label="Aucune réservation à venir"
-        >
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-container-low flex items-center justify-center">
-            <span className="material-symbols-outlined text-3xl text-on-surface-variant">
-              event_busy
-            </span>
-          </div>
-          <p className="font-body text-body-md text-on-surface-variant">
-            Aucune réservation à venir
-          </p>
-          <p className="font-body text-body-sm text-on-surface-variant mt-1">
-            Réservez un court pour commencer
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3" role="list">
-          {reservations.map((reservation) => (
-            <ReservationCard
-              key={reservation.id}
-              reservation={reservation}
-              onClick={onReservationClick}
-            />
-          ))}
+      {/* "+N autres" indicator */}
+      {remainingCount > 0 && (
+        <div className="flex items-center justify-center rounded-lg bg-surface-container-highest py-3">
+          <span className="font-body text-body-sm font-medium text-on-surface">
+            +{remainingCount} autre{remainingCount > 1 ? 's' : ''}
+          </span>
         </div>
       )}
-
-      {/* View All Link */}
-      {reservations.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-surface-container-highest">
-          <button
-            type="button"
-            aria-label="Voir toutes les réservations"
-            className="
-              w-full inline-flex items-center justify-center gap-2
-              font-body text-body-sm font-medium text-primary
-              hover:text-primary-container
-              transition-colors duration-200
-              focus:outline-none focus:ring-2 focus:ring-primary-fixed
-            "
-          >
-            Voir toutes les réservations
-            <span className="material-symbols-outlined text-sm">arrow_forward</span>
-          </button>
-        </div>
-      )}
-    </motion.aside>
+    </section>
   );
 }
+
+export default UpcomingReservationsList;
