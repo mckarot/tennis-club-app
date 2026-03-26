@@ -153,9 +153,17 @@ export function LoginPage() {
   const handleDemoLogin = useCallback(
     async (email: string, password: string) => {
       setFormError(null);
-      await login(email, password, true);
+      const result = await login(email, password, true);
+      
+      if (result.success && result.user) {
+        // Redirect based on role
+        const route = ROLE_ROUTES[result.user.role] || '/client';
+        navigate(route, { replace: true });
+      } else if (result.error) {
+        setFormError(result.error);
+      }
     },
-    [login]
+    [login, navigate]
   );
 
   /**
