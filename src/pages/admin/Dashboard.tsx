@@ -20,6 +20,7 @@
 
 import React, { useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { DashboardLayout } from '../../components/layout';
 import { AdminErrorBoundary } from '../../components/ui/ErrorBoundary/AdminErrorBoundary';
 import { LiveTimestamp } from './components/AdminDashboard/LiveTimestamp';
 import { StatsCardsGrid } from './components/AdminDashboard/StatsCardsGrid';
@@ -128,25 +129,26 @@ export function Dashboard(): JSX.Element {
 
   return (
     <AdminErrorBoundary onError={handleError} onReset={handleReset}>
-      <div className="space-y-8">
-        {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
-        >
-          <div>
-            <h1 className="font-headline text-2xl font-bold text-on-surface">
-              COMMAND CENTER
-            </h1>
-            <p className="font-body text-sm text-on-surface-variant">
-              Real-time club supervision and management
-            </p>
-          </div>
-          <LiveTimestamp />
-        </motion.header>
+      <DashboardLayout role="admin">
+        <div className="space-y-8">
+          {/* Header */}
+          <motion.header
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
+          >
+            <div>
+              <h1 className="font-headline text-4xl font-extrabold tracking-tight text-on-surface">
+                COMMAND CENTER
+              </h1>
+              <p className="font-body text-sm text-on-surface-variant">
+                Real-time club supervision and management
+              </p>
+            </div>
+            <LiveTimestamp />
+          </motion.header>
 
-        {/* Stats Cards */}
+          {/* Stats Cards */}
         <StatsCardsGrid stats={stats} isLoading={statsLoading} />
 
         {/* Court Utilization Chart */}
@@ -194,6 +196,7 @@ export function Dashboard(): JSX.Element {
           onPageChange={onPageChange}
         />
       </div>
+      </DashboardLayout>
     </AdminErrorBoundary>
   );
 }

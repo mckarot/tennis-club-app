@@ -23,6 +23,7 @@ import { LiveAvailabilityGrid } from '../components/landing/LiveAvailabilityGrid
 import { PricingSection } from '../components/landing/PricingSection/PricingSection';
 import { FacilitiesBentoGrid } from '../components/landing/FacilitiesBentoGrid/FacilitiesBentoGrid';
 import { Footer } from '../components/landing/Footer/Footer';
+import { SeedDataButton } from '../components/SeedDataButton/SeedDataButton';
 import type { PricingTier } from '../components/landing/PricingCard/PricingCard';
 
 export function LandingPage(): JSX.Element {
@@ -183,6 +184,13 @@ export function LandingPage(): JSX.Element {
 
       {/* Footer */}
       <Footer />
+
+      {/* Seed Data Button (Development Only) */}
+      {import.meta.env.DEV && (
+        <div className="fixed bottom-24 right-8 z-40">
+          <SeedDataButton />
+        </div>
+      )}
 
       {/* Scroll to top button */}
       <motion.button

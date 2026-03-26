@@ -20,21 +20,21 @@ export function StatsCardsGrid({ stats, loading = false }: StatsCardsGridProps) 
   const statCards: StatCardData[] = [
     {
       id: 'active-bookings',
-      label: 'Réservations actives',
+      label: 'ACTIVE BOOKINGS',
       value: stats.activeBookings,
       icon: 'event',
       trend: 'neutral',
     },
     {
       id: 'maintenance',
-      label: 'Courts en maintenance',
+      label: 'MAINTENANCE',
       value: stats.maintenanceCount,
       icon: 'construction',
       trend: 'neutral',
     },
     {
       id: 'available-slots',
-      label: 'Créneaux disponibles',
+      label: 'AVAILABLE SLOTS',
       value: stats.availableSlots,
       icon: 'schedule',
       trend: 'up',

@@ -1,3 +1,6 @@
-export { RegisterForm } from './RegisterForm';
-export type { RegisterFormProps } from './RegisterForm';
+import RegisterForm from './RegisterForm';
+import type { RegisterFormProps } from './RegisterForm';
+
+export { RegisterForm };
+export type { RegisterFormProps };
 export default RegisterForm;

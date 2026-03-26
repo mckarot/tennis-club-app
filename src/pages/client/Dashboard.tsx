@@ -9,6 +9,7 @@
 
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DashboardLayout } from '../../components/layout';
 import { useClientDashboard } from '../../hooks/useClientDashboard';
 import { DashboardHero } from '../../components/client/DashboardHero/DashboardHero';
 import { StatsCardsGrid } from '../../components/client/StatsCardsGrid/StatsCardsGrid';
@@ -115,58 +116,60 @@ export function Dashboard() {
 
   return (
     <ClientDashboardErrorBoundary onRetry={onRetry}>
-      <div className="space-y-6 p-6">
-        {/* Hero Section */}
-        <DashboardHero
-          userName={userName}
-          onBookNowClick={onBookNowClick}
-          onViewScheduleClick={onViewScheduleClick}
-        />
-
-        {/* Stats Cards Grid */}
-        <StatsCardsGrid stats={stats} loading={statsLoading} />
-
-        {/* Interactive Court Grid */}
-        <section aria-label="Disponibilité des courts" role="region">
-          <h2 className="mb-4 font-headline text-headline-md font-bold text-on-surface">
-            Disponibilité des courts
-          </h2>
-          <InteractiveCourtGrid
-            cells={courtGrid}
-            loading={gridLoading}
-            onCellClick={onCellClick}
+      <DashboardLayout role="client">
+        <div className="space-y-6">
+          {/* Hero Section */}
+          <DashboardHero
+            userName={userName}
+            onBookNowClick={onBookNowClick}
+            onViewScheduleClick={onViewScheduleClick}
           />
-        </section>
 
-        {/* Upcoming Reservations */}
-        <UpcomingReservationsList
-          reservations={upcomingReservations}
-          loading={reservationsLoading}
-          onReservationClick={onReservationClick}
-          onReservationCancel={onReservationCancel}
-        />
+          {/* Stats Cards Grid */}
+          <StatsCardsGrid stats={stats} loading={statsLoading} />
 
-        {/* Maintenance Note (if active and not dismissed) */}
-        {maintenanceNote && !isMaintenanceDismissed && (
-          <ClubMaintenanceNote note={maintenanceNote} onDismiss={onMaintenanceDismiss} />
-        )}
+          {/* Interactive Court Grid */}
+          <section aria-label="Disponibilité des courts" role="region">
+            <h2 className="mb-4 font-headline text-headline-md font-bold text-on-surface">
+              Disponibilité des courts
+            </h2>
+            <InteractiveCourtGrid
+              cells={courtGrid}
+              loading={gridLoading}
+              onCellClick={onCellClick}
+            />
+          </section>
 
-        {/* Location Widget */}
-        <LocationWidget location={location} />
+          {/* Upcoming Reservations */}
+          <UpcomingReservationsList
+            reservations={upcomingReservations}
+            loading={reservationsLoading}
+            onReservationClick={onReservationClick}
+            onReservationCancel={onReservationCancel}
+          />
 
-        {/* Error Display (if any) */}
-        {error && (
-          <div
-            className="rounded-xl bg-tertiary/10 p-4 text-tertiary"
-            role="alert"
-            aria-live="polite"
-          >
-            <p className="font-body text-body-sm">
-              Une erreur est survenue : {error.message}
-            </p>
-          </div>
-        )}
-      </div>
+          {/* Maintenance Note (if active and not dismissed) */}
+          {maintenanceNote && !isMaintenanceDismissed && (
+            <ClubMaintenanceNote note={maintenanceNote} onDismiss={onMaintenanceDismiss} />
+          )}
+
+          {/* Location Widget */}
+          <LocationWidget location={location} />
+
+          {/* Error Display (if any) */}
+          {error && (
+            <div
+              className="rounded-xl bg-tertiary/10 p-4 text-tertiary"
+              role="alert"
+              aria-live="polite"
+            >
+              <p className="font-body text-body-sm">
+                Une erreur est survenue : {error.message}
+              </p>
+            </div>
+          )}
+        </div>
+      </DashboardLayout>
     </ClientDashboardErrorBoundary>
   );
 }

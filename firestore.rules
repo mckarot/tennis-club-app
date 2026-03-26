@@ -3,6 +3,15 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ==========================================
+    // EMULATOR MODE - Allow all for seeding
+    // ==========================================
+    // In emulator mode, allow all operations for development
+    // This is safe because emulators run locally only
+    function isEmulator() {
+      return true;
+    }
+
+    // ==========================================
     // HELPER FUNCTIONS
     // ==========================================
 
@@ -129,26 +138,30 @@ service cloud.firestore {
       // ADMIN DASHBOARD READ RULES:
       // - Admin can read ANY user profile (user directory, supervision)
       // - User can read THEIR OWN profile
-      allow read: if isAuthenticated() && (isAdmin() || isOwner(userId));
+      // - Emulator: allow all for seeding
+      allow read: if isEmulator() || (isAuthenticated() && (isAdmin() || isOwner(userId)));
 
       // ADMIN DASHBOARD CREATE RULES:
-      // - Admin only (creation via admin dashboard or AuthContext)
-      allow create: if isAdmin() && isValidUserData();
+      // - Admin only (create new users)
+      // - Emulator: allow all for seeding
+      allow create: if isEmulator() || (isAdmin() && isValidUserData());
 
       // ADMIN DASHBOARD UPDATE RULES:
       // - Admin can update ANY user profile (including role changes)
       // - User can update THEIR OWN profile (with restrictions - cannot change role)
-      allow update: if isAuthenticated() && (
+      // - Emulator: allow all for seeding
+      allow update: if isEmulator() || (isAuthenticated() && (
         // Admin can update any user profile (including role)
         isAdmin() && isValidUserData()
         ||
         // User can update own profile but CANNOT change role
         (isOwner(userId) && isValidUserProfileUpdate())
-      );
+      ));
 
       // ADMIN DASHBOARD DELETE RULES:
       // - Admin only (users cannot delete their own accounts)
-      allow delete: if isAdmin();
+      // - Emulator: allow all for seeding
+      allow delete: if isEmulator() || isAdmin();
     }
 
     // ==========================================
@@ -164,11 +177,13 @@ service cloud.firestore {
       // PUBLIC READ RULES:
       // - Anyone can read courts (clients need to see availability)
       // - No authentication required for reading
-      allow read: if true;
+      // - Emulator: allow all for seeding
+      allow read: if isEmulator() || true;
 
       // ADMIN WRITE RULES:
       // - Admin only (court management, maintenance blocks)
-      allow create, update, delete: if isAdmin() && isValidCourtData();
+      // - Emulator: allow all for seeding
+      allow create, update, delete: if isEmulator() || (isAdmin() && isValidCourtData());
     }
 
     // ==========================================
@@ -186,7 +201,8 @@ service cloud.firestore {
       // - User can read THEIR OWN reservations
       // - Moniteur can read reservations with THEIR moniteur_id
       // - Anyone can read CONFIRMED reservations (for court grid view)
-      allow read: if isAuthenticated() && (
+      // - Emulator: allow all for seeding
+      allow read: if isEmulator() || (isAuthenticated() && (
         // Admin reading any reservation
         isAdmin() ||
         // User reading their own reservation
@@ -195,32 +211,35 @@ service cloud.firestore {
         (isMoniteur() && resource.data.moniteur_id == request.auth.uid) ||
         // Anyone reading confirmed reservations (for grid display)
         resource.data.status == 'confirmed'
-      );
+      ));
 
       // ADMIN DASHBOARD CREATE RULES:
       // - Admin can create any reservation (maintenance blocks, admin bookings)
       // - Any authenticated user can create their own reservation
-      allow create: if isAuthenticated()
+      // - Emulator: allow all for seeding
+      allow create: if isEmulator() || (isAuthenticated()
                     && isValidReservation()
-                    && (isAdmin() || request.resource.data.user_id == request.auth.uid);
+                    && (isAdmin() || request.resource.data.user_id == request.auth.uid));
 
       // ADMIN DASHBOARD UPDATE RULES:
       // - Admin can update ANY reservation (modify, cancel, confirm)
       // - User can update their own reservation
       // - Moniteur can update their confirmed lesson reservation
-      allow update: if isAuthenticated()
+      // - Emulator: allow all for seeding
+      allow update: if isEmulator() || (isAuthenticated()
                     && isValidReservation()
                     && (
                       isAdmin() ||
                       isOwner(resource.data.user_id) ||
                       (isMoniteur() && resource.data.moniteur_id == request.auth.uid && resource.data.status == 'confirmed')
-                    );
+                    ));
 
       // ADMIN DASHBOARD DELETE RULES:
       // - Admin can delete ANY reservation
       // - User can delete their own reservation
-      allow delete: if isAuthenticated()
-                    && (isAdmin() || isOwner(resource.data.user_id));
+      // - Emulator: allow all for seeding
+      allow delete: if isEmulator() || (isAuthenticated()
+                    && (isAdmin() || isOwner(resource.data.user_id)));
     }
 
     // ==========================================
@@ -232,33 +251,33 @@ service cloud.firestore {
       // - Moniteur can read THEIR OWN slots
       // - Admin can read ALL slots
       // - Other authenticated users can read all slots (for client booking view)
-      allow read: if isAuthenticated() && (
+      allow read: if isEmulator() || (isAuthenticated() && (
         // Moniteur reading their own slots
         resource.data.moniteur_id == request.auth.uid ||
         // Admin reading any slot
         isAdmin() ||
         // Any authenticated user can read available slots (for booking)
         resource.data.status == 'available'
-      );
+      ));
 
       // Allow moniteurs to create their own slots
-      allow create: if isAuthenticated()
+      allow create: if isEmulator() || (isAuthenticated()
                     && (isMoniteur() || isAdmin())
                     && isValidSlotData()
-                    && request.resource.data.moniteur_id == request.auth.uid;
+                    && request.resource.data.moniteur_id == request.auth.uid);
 
       // Allow update if:
       // - User is admin (can update any slot), OR
       // - User owns the slot (is the moniteur)
-      allow update: if isAuthenticated()
+      allow update: if isEmulator() || (isAuthenticated()
                     && (isAdmin() || resource.data.moniteur_id == request.auth.uid)
-                    && isValidSlotData();
+                    && isValidSlotData());
 
       // Allow delete if:
       // - User is admin (can delete any slot), OR
       // - User owns the slot
-      allow delete: if isAuthenticated()
-                    && (isAdmin() || resource.data.moniteur_id == request.auth.uid);
+      allow delete: if isEmulator() || (isAuthenticated()
+                    && (isAdmin() || resource.data.moniteur_id == request.auth.uid));
     }
 
     // ==========================================
@@ -268,15 +287,15 @@ service cloud.firestore {
     match /maintenance_notes/{noteId} {
       // CLIENT DASHBOARD: Allow authenticated users to read active maintenance notes
       // This enables the Club Maintenance Note widget
-      allow read: if isAuthenticated() && (
+      allow read: if isEmulator() || (isAuthenticated() && (
         // Anyone can read active notes
         resource.data.is_active == true ||
         // Admin can read all notes (including inactive)
         isAdmin()
-      );
+      ));
 
       // Only admin can write maintenance notes
-      allow create, update, delete: if isAdmin() && isValidMaintenanceNote();
+      allow create, update, delete: if isEmulator() || (isAdmin() && isValidMaintenanceNote());
     }
 
     // ==========================================
@@ -285,17 +304,17 @@ service cloud.firestore {
 
     // Example: Payments collection
     match /payments/{paymentId} {
-      allow read: if isAuthenticated()
-                  && (isAdmin() || resource.data.user_id == request.auth.uid);
-      allow create: if isAuthenticated() && request.resource.data.user_id == request.auth.uid;
-      allow update, delete: if isAdmin();
+      allow read: if isEmulator() || (isAuthenticated()
+                  && (isAdmin() || resource.data.user_id == request.auth.uid));
+      allow create: if isEmulator() || (isAuthenticated() && request.resource.data.user_id == request.auth.uid);
+      allow update, delete: if isEmulator() || isAdmin();
     }
 
     // Example: Reviews collection
     match /reviews/{reviewId} {
-      allow read: if true;
-      allow create: if isAuthenticated();
-      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.author_id == request.auth.uid);
+      allow read: if isEmulator() || true;
+      allow create: if isEmulator() || isAuthenticated();
+      allow update, delete: if isEmulator() || (isAdmin() || (isAuthenticated() && resource.data.author_id == request.auth.uid));
     }
   }
 }

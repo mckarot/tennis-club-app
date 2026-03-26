@@ -2,13 +2,19 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 
-// Placeholder components - will be implemented in next phases
-const LandingPage = () => <div className="p-8"><h1 className="text-headline-lg">Tennis Club du François</h1></div>;
-const LoginPage = () => <div className="p-8"><h1 className="text-headline-lg">Login</h1></div>;
-const RegisterPage = () => <div className="p-8"><h1 className="text-headline-lg">Register</h1></div>;
-const AdminDashboard = () => <div className="p-8"><h1 className="text-headline-lg">Admin Dashboard</h1></div>;
-const ClientDashboard = () => <div className="p-8"><h1 className="text-headline-lg">Client Dashboard</h1></div>;
-const MoniteurDashboard = () => <div className="p-8"><h1 className="text-headline-lg">Moniteur Dashboard</h1></div>;
+// Import the real Landing Page component
+import LandingPage from './pages/LandingPage';
+
+// Import real Auth pages
+import { LoginPage } from './pages/auth/LoginPage';
+import { RegisterPage } from './pages/auth/RegisterPage';
+
+// Import real Dashboard pages
+import AdminDashboard from './pages/admin/Dashboard';
+import ClientDashboard from './pages/client/Dashboard';
+import MoniteurDashboard from './pages/moniteur/Dashboard';
+
+// Fallback 404 component
 const NotFoundPage = () => <div className="p-8"><h1 className="text-headline-lg">404 - Page Not Found</h1></div>;
 
 function App() {

@@ -13,8 +13,8 @@
  */
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { PricingCard } from './PricingCard/PricingCard';
-import type { PricingTier } from './PricingCard/PricingCard';
+import { PricingCard } from '../PricingCard/PricingCard';
+import type { PricingTier } from '../PricingCard/PricingCard';
 
 export interface PricingSectionProps {
   /** Pricing tiers data */

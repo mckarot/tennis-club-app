@@ -23,6 +23,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { DashboardLayout } from '../../components/layout';
 import { useMoniteurDashboard } from '../../hooks/useMoniteurDashboard';
 import { WeeklyCalendar } from '../../components/moniteur/WeeklyCalendar/WeeklyCalendar';
 import { DefineSlotPanel } from '../../components/moniteur/DefineSlotPanel/DefineSlotPanel';
@@ -112,22 +113,23 @@ export function Dashboard() {
   };
 
   return (
-    <div className="space-y-6 pb-8">
-      {/* Header */}
-      <motion.header
-        className="flex items-center justify-between"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-      >
-        <div>
-          <h1 className="font-headline text-2xl font-bold text-on-surface">
-            Tableau de bord
-          </h1>
-          <p className="font-body text-sm text-on-surface/60 mt-1">
-            Gérez vos créneaux et consultez vos cours
-          </p>
-        </div>
+    <DashboardLayout role="moniteur">
+      <div className="space-y-6">
+        {/* Header */}
+        <motion.header
+          className="flex items-center justify-between"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div>
+            <h1 className="font-headline text-4xl font-extrabold tracking-tight text-on-surface">
+              MONITEUR PORTAL
+            </h1>
+            <p className="font-body text-sm text-on-surface/60 mt-1">
+              Daily Schedule & Management
+            </p>
+          </div>
 
         <motion.button
           onClick={openDefineSlotPanel}
@@ -307,7 +309,8 @@ export function Dashboard() {
           console.log('[Dashboard] Remove participant:', participantId)
         }
       />
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }
 

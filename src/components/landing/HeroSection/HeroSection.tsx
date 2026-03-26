@@ -41,13 +41,13 @@ export interface HeroSectionProps {
  * HeroSection component for landing page
  */
 export function HeroSection({
-  title = 'Tennis Club du François',
-  subtitle = 'Réservez vos courts et cours de tennis en toute simplicité',
+  title = 'PRECISION ON THE CLAY.',
+  subtitle = 'Experience the prestige of professional-grade courts at Tennis Club du François. Designed for those who demand excellence in every serve.',
   backgroundImage = 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=1920&q=80',
-  primaryCtaText = 'Réserver un court',
-  primaryCtaHref = '/courts',
-  secondaryCtaText = 'En savoir plus',
-  secondaryCtaHref = '/about',
+  primaryCtaText = 'Register now',
+  primaryCtaHref = '/register',
+  secondaryCtaText = 'View Brackets',
+  secondaryCtaHref = '/courts',
   timezoneLabel = 'America/Martinique',
   className = '',
 }: HeroSectionProps): JSX.Element {
@@ -111,14 +111,14 @@ export function HeroSection({
             ease: 'easeOut',
             delay: shouldReduceMotion ? 0 : 0.2,
           }}
-          className="mb-6 inline-flex items-center gap-2 rounded-full bg-surface/90 px-4 py-2 backdrop-blur-md"
+          className="mb-6 inline-flex items-center gap-2 rounded-full bg-secondary/10 px-3 py-1 backdrop-blur-md"
           role="status"
           aria-label={`Local timezone: ${timezoneLabel}`}
         >
-          <span className="material-symbols-outlined text-sm text-primary">
+          <span className="material-symbols-outlined text-sm text-secondary">
             schedule
           </span>
-          <span className="font-body text-body-sm font-medium text-on-surface">
+          <span className="font-body text-sm font-semibold text-secondary">
             {timezoneLabel}
           </span>
         </motion.div>
@@ -132,7 +132,7 @@ export function HeroSection({
             ease: 'easeOut',
             delay: shouldReduceMotion ? 0 : 0.3,
           }}
-          className="font-headline text-display-lg font-bold text-on-surface md:text-display-xl"
+          className="font-headline text-6xl font-extrabold tracking-tighter text-on-surface md:text-8xl"
         >
           {title}
         </motion.h1>
@@ -165,12 +165,9 @@ export function HeroSection({
           {/* Primary CTA */}
           <a
             href={primaryCtaHref}
-            className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 font-body text-body font-semibold text-on-primary shadow-lg shadow-primary/30 transition-all duration-200 hover:bg-primary-container hover:shadow-xl hover:shadow-primary/40 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
+            className="group inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-br from-primary to-primary-container px-8 py-4 font-body font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
             aria-label={primaryCtaText}
           >
-            <span className="material-symbols-outlined text-lg">
-              calendar_today
-            </span>
             <span>{primaryCtaText}</span>
             <span className="material-symbols-outlined text-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100">
               arrow_forward
@@ -180,14 +177,11 @@ export function HeroSection({
           {/* Secondary CTA */}
           <a
             href={secondaryCtaHref}
-            className="group inline-flex items-center justify-center gap-2 rounded-xl bg-surface-container-high px-8 py-4 font-body text-body font-semibold text-on-surface shadow-lg transition-all duration-200 hover:bg-surface-container-highest hover:shadow-xl hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
+            className="group inline-flex items-center justify-center gap-2 rounded-md border-2 border-secondary bg-transparent px-8 py-4 font-body font-bold text-secondary shadow-lg transition-all duration-200 hover:bg-secondary/5 hover:scale-[1.02] active:scale-95 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
             aria-label={secondaryCtaText}
           >
-            <span className="material-symbols-outlined text-lg text-primary">
-              info
-            </span>
             <span>{secondaryCtaText}</span>
-            <span className="material-symbols-outlined text-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100 text-primary">
+            <span className="material-symbols-outlined text-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100">
               arrow_forward
             </span>
           </a>

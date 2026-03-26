@@ -19,8 +19,8 @@ import {
   type QuerySnapshot,
   type DocumentData,
 } from 'firebase/firestore';
-import { getDbInstance } from '../../config/firebase.config';
-import { useAuth } from '../../hooks/useAuth';
+import { getDbInstance } from '../config/firebase.config';
+import { useAuth } from '../hooks/useAuth';
 import type {
   UseClientDashboardReturn,
   DashboardStats,

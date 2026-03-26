@@ -57,7 +57,7 @@ export function StatCard({ stat, loading = false }: StatCardProps) {
 
   return (
     <motion.div
-      className="rounded-xl bg-surface-container-lowest p-6 shadow-sm transition-shadow hover:shadow-md"
+      className="rounded-xl bg-surface-container-low p-6 shadow-sm transition-shadow hover:shadow-md"
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
       role="article"
@@ -78,8 +78,8 @@ export function StatCard({ stat, loading = false }: StatCardProps) {
 
         {/* Content */}
         <div className="flex-1">
-          <p className="font-body text-body-sm text-on-surface/70">{stat.label}</p>
-          <p className="font-headline text-headline-lg font-bold text-on-surface">
+          <p className="font-body text-xs font-bold uppercase tracking-widest text-on-surface/70">{stat.label}</p>
+          <p className="mt-2 font-headline text-3xl font-extrabold text-on-surface">
             {stat.value}
           </p>
 

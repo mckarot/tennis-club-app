@@ -15,7 +15,7 @@
  */
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { CourtCard } from './CourtCard/CourtCard';
+import { CourtCard } from '../CourtCard/CourtCard';
 import type { LandingCourt } from '../../../utils/courtAvailability';
 
 export interface LiveAvailabilityGridProps {
@@ -126,7 +126,7 @@ export function LiveAvailabilityGrid({
             Unable to load courts
           </h3>
           <p className="mt-2 font-body text-body text-on-surface/70">
-            {error}
+            {error instanceof Error ? error.message : String(error)}
           </p>
         </div>
       </section>
