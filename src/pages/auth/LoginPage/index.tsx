@@ -17,7 +17,7 @@
  * @module @pages/auth/LoginPage
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { LoginForm } from '../../../components/auth/LoginForm';
@@ -31,6 +31,31 @@ const ROLE_ROUTES: Record<string, string> = {
   moniteur: '/moniteur',
   client: '/client',
 };
+
+// ==========================================
+// DEMO ACCOUNTS (Development Only)
+// ==========================================
+
+const DEMO_ACCOUNTS = [
+  {
+    role: 'Admin',
+    email: 'admin@tennis-club.com',
+    password: 'Admin123!',
+    color: 'text-primary',
+  },
+  {
+    role: 'Moniteur',
+    email: 'moniteur@tennis-club.com',
+    password: 'Moniteur123!',
+    color: 'text-secondary',
+  },
+  {
+    role: 'Client',
+    email: 'client@tennis-club.com',
+    password: 'Client123!',
+    color: 'text-tertiary',
+  },
+];
 
 // ==========================================
 // MAIN COMPONENT
@@ -55,6 +80,16 @@ export function LoginPage() {
       // Error is handled by useAuth hook and passed to form
     },
     [login, navigate]
+  );
+
+  /**
+   * Handle demo account quick login
+   */
+  const handleDemoLogin = useCallback(
+    async (email: string, password: string) => {
+      await handleLogin(email, password, true);
+    },
+    [handleLogin]
   );
 
   /**
@@ -95,21 +130,57 @@ export function LoginPage() {
 
         {/* Demo Credentials (Development Only) */}
         {import.meta.env.DEV && (
-          <div className="mt-8 rounded-lg bg-surface-container-high p-4">
-            <p className="font-body text-xs font-medium text-on-surface">
-              Comptes de démo (Dev only):
-            </p>
-            <ul className="mt-2 space-y-1 font-body text-xs text-on-surface-variant">
-              <li>
-                <strong>Admin:</strong> admin@tennis.mq / Admin123!
-              </li>
-              <li>
-                <strong>Moniteur:</strong> jean.philippe@tennis.mq / Moniteur123!
-              </li>
-              <li>
-                <strong>Client:</strong> jean.dupont@email.mq / Client123!
-              </li>
-            </ul>
+          <div className="mt-8 space-y-3">
+            <div className="text-center">
+              <p className="font-body text-xs font-medium text-on-surface">
+                Connexion rapide (Dev only):
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              {DEMO_ACCOUNTS.map((account) => (
+                <button
+                  key={account.role}
+                  onClick={() => handleDemoLogin(account.email, account.password)}
+                  disabled={isLoading}
+                  className={`group relative flex flex-col items-center justify-center gap-1 rounded-lg border-2 bg-surface-container-lowest p-3 transition-all duration-200 hover:scale-105 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    account.role === 'Admin'
+                      ? 'border-primary focus:ring-primary'
+                      : account.role === 'Moniteur'
+                      ? 'border-secondary focus:ring-secondary'
+                      : 'border-tertiary focus:ring-tertiary'
+                  }`}
+                  aria-label={`Connexion rapide avec compte ${account.role}`}
+                >
+                  <span className={`material-symbols-outlined text-2xl ${account.color}`}>
+                    {account.role === 'Admin' ? 'admin_panel_settings' : account.role === 'Moniteur' ? 'sports_tennis' : 'person'}
+                  </span>
+                  <span className={`font-body text-xs font-bold ${account.color}`}>
+                    {account.role}
+                  </span>
+                  <span className="font-body text-[10px] text-on-surface-variant opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                    Click to login
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            <div className="rounded-lg bg-surface-container-high p-4">
+              <p className="font-body text-xs font-medium text-on-surface">
+                Ou utilisez ces identifiants:
+              </p>
+              <ul className="mt-2 space-y-1 font-body text-xs text-on-surface-variant">
+                <li>
+                  <strong>Admin:</strong> admin@tennis-club.com / Admin123!
+                </li>
+                <li>
+                  <strong>Moniteur:</strong> moniteur@tennis-club.com / Moniteur123!
+                </li>
+                <li>
+                  <strong>Client:</strong> client@tennis-club.com / Client123!
+                </li>
+              </ul>
+            </div>
           </div>
         )}
       </div>

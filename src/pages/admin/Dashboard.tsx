@@ -169,8 +169,8 @@ export function Dashboard(): JSX.Element {
           {/* Court Deployment Grid */}
           <div>
             <div className="mb-4">
-              <h2 className="font-headline text-lg font-bold text-on-surface">
-                Court Deployment
+              <h2 className="font-headline text-lg font-bold italic uppercase text-on-surface">
+                COURT DEPLOYMENT
               </h2>
               <p className="font-body text-sm text-on-surface-variant">
                 Toggle maintenance state for each court

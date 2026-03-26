@@ -56,6 +56,14 @@ export function CourtUtilizationChart({
 }: CourtUtilizationChartProps): JSX.Element {
   const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
 
+  // Find the highest bar for peak indicator
+  const highestBarIndex = data.length > 0
+    ? data.reduce((maxIdx, slot, idx) => 
+        slot.utilization > data[maxIdx].utilization ? idx : maxIdx, 0)
+    : null;
+
+  const showPeakIndicator = highestBarIndex !== null && data[highestBarIndex].utilization >= 70;
+
   if (isLoading) {
     return (
       <div
@@ -130,6 +138,19 @@ export function CourtUtilizationChart({
         role="img"
         aria-label="Bar chart showing court utilization by time slot"
       >
+        {/* Current Peak Indicator */}
+        {showPeakIndicator && highestBarIndex !== null && (
+          <div 
+            className="absolute -top-8 z-10"
+            style={{ left: `${(highestBarIndex / data.length) * 100}%` }}
+          >
+            <div className="bg-surface text-white px-3 py-1 rounded text-xs font-bold whitespace-nowrap">
+              Current Peak
+            </div>
+            <div className="w-0 h-0 border-l-4 border-r-4 border-t-8 border-l-transparent border-r-transparent border-t-surface mx-auto mt-1" />
+          </div>
+        )}
+
         {data.map((slot, index) => {
           const height = getBarHeight(slot.utilization);
           const isHovered = hoveredSlot === index;

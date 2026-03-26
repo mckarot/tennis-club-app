@@ -6,8 +6,8 @@
  *
  * Specifications:
  * - grid-cols-1 md:grid-cols-2 lg:grid-cols-3
- * - gap-8
- * - Section header with icon
+ * - gap-6
+ * - Section header with legend (top right)
  * - Loading skeleton state
  * - Empty state handling
  *
@@ -51,24 +51,30 @@ export function LiveAvailabilityGrid({
         className={className}
       >
         {/* Section header */}
-        <div className="mb-12 text-center">
-          <div className="mb-4 flex justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-fixed">
-              <span className="material-symbols-outlined text-3xl text-primary">
-                sports_tennis
-              </span>
+        <div className="mb-10 flex items-end justify-between">
+          <div>
+            <h2 className="font-headline text-2xl font-bold text-on-surface">
+              Live Availability
+            </h2>
+            <p className="mt-2 font-body text-body text-on-surface/70">
+              Real-time status for today's match scheduling.
+            </p>
+          </div>
+          {/* Legend */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-success" />
+              <span className="font-body text-body-xs text-on-surface/70">Available</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-error" />
+              <span className="font-body text-body-xs text-on-surface/70">Occupied</span>
             </div>
           </div>
-          <h2 className="font-headline text-headline-xl font-bold text-on-surface">
-            Live Court Availability
-          </h2>
-          <p className="mt-3 font-body text-body-lg text-on-surface/70">
-            Real-time status of all courts
-          </p>
         </div>
 
         {/* Loading grid */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[...Array(6)].map((_, index) => (
             <motion.div
               key={index}
@@ -78,7 +84,7 @@ export function LiveAvailabilityGrid({
                 duration: shouldReduceMotion ? 0 : 0.3,
                 delay: shouldReduceMotion ? 0 : index * 0.1,
               }}
-              className="rounded-xl bg-surface-container-lowest p-8"
+              className="rounded-xl bg-surface-container-lowest p-6"
               aria-hidden="true"
             >
               {/* Skeleton header */}
@@ -90,13 +96,10 @@ export function LiveAvailabilityGrid({
                 <div className="h-8 w-24 animate-pulse rounded-full bg-surface-container-highest" />
               </div>
 
-              {/* Skeleton image */}
-              <div className="mb-6 h-48 animate-pulse rounded-xl bg-surface-container-highest" />
-
               {/* Skeleton info */}
-              <div className="mb-6 flex gap-4">
-                <div className="h-5 w-20 animate-pulse rounded bg-surface-container-highest" />
-                <div className="h-5 w-20 animate-pulse rounded bg-surface-container-highest" />
+              <div className="mb-6 space-y-3">
+                <div className="h-4 w-28 animate-pulse rounded bg-surface-container-highest" />
+                <div className="h-4 w-28 animate-pulse rounded bg-surface-container-highest" />
               </div>
 
               {/* Skeleton footer */}
@@ -166,25 +169,31 @@ export function LiveAvailabilityGrid({
         initial={{ opacity: shouldReduceMotion ? 1 : 0, y: shouldReduceMotion ? 0 : 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: shouldReduceMotion ? 0 : 0.5 }}
-        className="mb-12 text-center"
+        className="mb-10 flex items-end justify-between"
       >
-        <div className="mb-4 flex justify-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-fixed">
-            <span className="material-symbols-outlined text-3xl text-primary">
-              sports_tennis
-            </span>
+        <div>
+          <h2 className="font-headline text-2xl font-bold text-on-surface">
+            Live Availability
+          </h2>
+          <p className="mt-2 font-body text-body text-on-surface/70">
+            Real-time status for today's match scheduling.
+          </p>
+        </div>
+        {/* Legend */}
+        <div className="hidden items-center gap-4 sm:flex">
+          <div className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-success" />
+            <span className="font-body text-body-xs text-on-surface/70">Available</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-error" />
+            <span className="font-body text-body-xs text-on-surface/70">Occupied</span>
           </div>
         </div>
-        <h2 className="font-headline text-headline-xl font-bold text-on-surface">
-          Live Court Availability
-        </h2>
-        <p className="mt-3 font-body text-body-lg text-on-surface/70">
-          Real-time status of all {courts.length} courts
-        </p>
       </motion.div>
 
       {/* Courts grid */}
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {courts.map((court, index) => (
           <CourtCard
             key={court.id}

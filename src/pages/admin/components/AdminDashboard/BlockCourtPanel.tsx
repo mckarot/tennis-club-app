@@ -311,7 +311,7 @@ export function BlockCourtPanel({
           whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
           whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
           className="w-full rounded-lg bg-white px-6 py-3 font-body text-base font-bold text-secondary transition-colors hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#9d431b] disabled:cursor-not-allowed disabled:opacity-70"
-          aria-label="Block court"
+          aria-label="Confirm lockout"
         >
           {isSubmitting ? (
             <span className="flex items-center justify-center gap-2">
@@ -320,8 +320,8 @@ export function BlockCourtPanel({
             </span>
           ) : (
             <span className="flex items-center justify-center gap-2">
-              <span className="material-symbols-outlined">block</span>
-              Block Court
+              <span className="material-symbols-outlined">lock</span>
+              CONFIRM LOCKOUT
             </span>
           )}
         </motion.button>

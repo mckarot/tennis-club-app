@@ -2,20 +2,23 @@
  * CourtCard Component (Landing Page)
  *
  * Individual court card for landing page with status badges (OPEN, IN PLAY, RESERVED).
- * Features Framer Motion animations and full accessibility support.
+ * Features Framer Motion animations, colored left border with gradient effect, and full accessibility support.
  *
  * Specifications:
- * - rounded-xl, p-8
+ * - rounded-xl, p-6
+ * - Left border: OPEN=success (green gradient), IN_PLAY=error (red gradient), RESERVED=primary (green gradient)
  * - Status badges: OPEN=success, IN_PLAY=error, RESERVED=primary
- * - Court image, type, surface info
- * - Next available time display
+ * - Court name in uppercase (COURT 01)
+ * - No image - clean minimal design
+ * - Next slot time display
+ * - Enhanced left bar with gradient and shadow
  *
  * @module @components/landing/CourtCard
  */
 
 import { motion, useReducedMotion } from 'framer-motion';
 import type { LandingCourt } from '../../../utils/courtAvailability';
-import { formatTime, getStatusBadgeVariant, getStatusLabel } from '../../../utils/courtAvailability';
+import { formatTime, getStatusLabel } from '../../../utils/courtAvailability';
 
 export interface CourtCardProps {
   /** Court with availability data */
@@ -35,7 +38,13 @@ export function CourtCard({
   className = '',
 }: CourtCardProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
-  const badgeVariant = getStatusBadgeVariant(court.landingStatus);
+
+  // Status border color mapping with gradients
+  const borderGradients: Record<typeof court.landingStatus, string> = {
+    OPEN: 'bg-gradient-to-b from-success via-success to-success-container',
+    IN_PLAY: 'bg-gradient-to-b from-error via-error to-error-container',
+    RESERVED: 'bg-gradient-to-b from-primary via-primary to-primary-container',
+  };
 
   // Status badge color mapping
   const statusColors: Record<typeof court.landingStatus, string> = {
@@ -50,6 +59,9 @@ export function CourtCard({
     RESERVED: 'bg-primary',
   };
 
+  // Surface type display
+  const surfaceDisplay = court.surface === 'Clay' ? 'Red Clay' : court.surface === 'Hard' ? 'Green Hard' : court.surface;
+
   return (
     <motion.div
       initial={{ opacity: shouldReduceMotion ? 1 : 0, y: shouldReduceMotion ? 0 : 24 }}
@@ -62,18 +74,37 @@ export function CourtCard({
         y: shouldReduceMotion ? 0 : -4,
         transition: { duration: 0.2 },
       }}
-      className={`group rounded-xl bg-surface-container-lowest p-8 shadow-sm transition-shadow duration-200 hover:shadow-xl ${className}`}
+      className={`group relative overflow-hidden rounded-xl bg-surface-container-lowest p-6 shadow-md transition-all duration-200 hover:shadow-2xl hover:shadow-primary/10 ${className}`}
       role="article"
       aria-label={`${court.name} - ${getStatusLabel(court.landingStatus)}`}
     >
+      {/* Enhanced colored left border with gradient and glow effect */}
+      <div
+        className={`absolute left-0 top-0 h-full w-2 ${borderGradients[court.landingStatus]} shadow-lg`}
+        style={{
+          boxShadow: court.landingStatus === 'OPEN' 
+            ? '0 0 12px rgba(0, 107, 63, 0.4)'
+            : court.landingStatus === 'IN_PLAY'
+            ? '0 0 12px rgba(186, 26, 26, 0.4)'
+            : '0 0 12px rgba(0, 107, 63, 0.4)',
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Subtle gradient overlay on hover */}
+      <div 
+        className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/0 to-primary/0 opacity-0 transition-opacity duration-300 group-hover:opacity-5"
+        aria-hidden="true"
+      />
+
       {/* Header with status badge */}
       <div className="mb-6 flex items-start justify-between">
-        <div>
-          <h3 className="font-headline text-headline-lg font-semibold text-on-surface">
-            {court.name}
+        <div className="flex-1">
+          <h3 className="font-headline text-lg font-bold uppercase tracking-wide text-on-surface">
+            Court {String(court.number).padStart(2, '0')}
           </h3>
-          <p className="mt-1 font-body text-body-sm text-on-surface/60">
-            Terrain {court.number}
+          <p className="mt-1 font-body text-body-xs text-on-surface/60">
+            {court.description}
           </p>
         </div>
 
@@ -93,99 +124,45 @@ export function CourtCard({
         </div>
       </div>
 
-      {/* Court image */}
-      {court.image ? (
-        <div className="mb-6 overflow-hidden rounded-xl">
-          <div className="relative h-48 w-full">
-            <img
-              src={court.image}
-              alt={court.name}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              loading="lazy"
-            />
-            {/* Overlay gradient */}
-            <div
-              className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"
-              aria-hidden="true"
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="mb-6 flex h-48 items-center justify-center rounded-xl bg-surface-container-highest">
-          <span className="material-symbols-outlined text-6xl text-on-surface/30">
-            sports_tennis
-          </span>
-        </div>
-      )}
-
-      {/* Court info */}
-      <div className="mb-6 flex items-center gap-4">
-        {/* Type */}
-        <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-on-surface/60">
-            sports_tennis
-          </span>
-          <span className="font-body text-body-sm text-on-surface/80">
-            {court.type}
+      {/* Court info - simplified */}
+      <div className="mb-6 space-y-3">
+        {/* Next Slot */}
+        <div className="flex items-center justify-between">
+          <span className="font-body text-body-xs text-on-surface/60">Next Slot</span>
+          <span className="font-body text-body-sm font-medium text-on-surface">
+            {court.landingStatus === 'OPEN' ? 'Now' : court.nextAvailableTime ? formatTime(court.nextAvailableTime) : '—'}
           </span>
         </div>
 
-        {/* Surface */}
-        <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-on-surface/60">
-            landscape
-          </span>
+        {/* Surface Type */}
+        <div className="flex items-center justify-between">
+          <span className="font-body text-body-xs text-on-surface/60">Surface Type</span>
           <span className="font-body text-body-sm text-on-surface/80">
-            {court.surface}
+            {surfaceDisplay}
           </span>
         </div>
       </div>
 
-      {/* Description */}
-      {court.description && (
-        <p className="mb-6 font-body text-body text-on-surface/80">
-          {court.description}
-        </p>
-      )}
-
-      {/* Footer with availability and CTA */}
+      {/* Footer - minimal, no button */}
       <div className="flex items-center justify-between border-t border-surface-container-highest pt-6">
         {/* Availability info */}
         <div className="flex items-center gap-2">
           {court.landingStatus === 'OPEN' ? (
-            <span className="flex items-center gap-2 font-body text-body-sm text-success">
+            <span className="flex items-center gap-1.5 font-body text-body-xs text-success">
               <span className="material-symbols-outlined text-sm">check_circle</span>
               <span>Available now</span>
             </span>
           ) : court.nextAvailableTime ? (
-            <span className="flex items-center gap-2 font-body text-body-sm text-on-surface/80">
+            <span className="flex items-center gap-1.5 font-body text-body-xs text-on-surface/70">
               <span className="material-symbols-outlined text-sm">schedule</span>
-              <span>Next: {formatTime(court.nextAvailableTime)}</span>
+              <span>Ends at {formatTime(court.nextAvailableTime)}</span>
             </span>
           ) : (
-            <span className="font-body text-body-sm text-on-surface/60">
+            <span className="font-body text-body-xs text-on-surface/60">
               Check schedule
             </span>
           )}
         </div>
-
-        {/* Book button */}
-        {onBookClick && (
-          <button
-            onClick={() => onBookClick(court.id)}
-            disabled={court.landingStatus === 'IN_PLAY'}
-            className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 font-body text-body-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface-container-lowest ${
-              court.landingStatus === 'IN_PLAY'
-                ? 'cursor-not-allowed bg-surface-container-highest text-on-surface/40'
-                : 'bg-primary text-on-primary hover:bg-primary-container active:scale-95'
-            }`}
-            aria-label={`Book ${court.name}`}
-            aria-disabled={court.landingStatus === 'IN_PLAY'}
-          >
-            <span>Book</span>
-            <span className="material-symbols-outlined text-sm">arrow_forward</span>
-          </button>
-        )}
       </div>
     </motion.div>
   );

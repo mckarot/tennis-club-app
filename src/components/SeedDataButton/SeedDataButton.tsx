@@ -1,15 +1,25 @@
 /**
  * SeedDataButton Component
- * 
+ *
  * Button to seed Firebase emulators with sample data.
  * Used for development and testing.
+ *
+ * IMPORTANT: This component ensures Firestore user profiles are ALWAYS created/updated
+ * even if the Firebase Auth user already exists. This fixes the "User profile not found"
+ * synchronization issue between Auth and Firestore.
  */
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { getDbInstance, getAuthInstance } from '../../config/firebase.config';
-import { collection, doc, Timestamp, writeBatch } from 'firebase/firestore';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth';
+import { doc, setDoc, Timestamp, writeBatch } from 'firebase/firestore';
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signOut,
+  signInWithEmailAndPassword,
+  type UserCredential,
+} from 'firebase/auth';
 
 export function SeedDataButton() {
   const [isSeeding, setIsSeeding] = useState(false);
@@ -106,7 +116,10 @@ export function SeedDataButton() {
       console.log('[SeedData] ✅ Courts seeded');
 
       // ==========================================
-      // 2. CREATE USERS (with try/catch for each)
+      // 2. CREATE/UPDATE USERS (Auth + Firestore sync)
+      // ==========================================
+      // KEY FIX: Even if Auth user exists, we ALWAYS create/update Firestore document
+      // using the Firebase Auth UID as the Firestore document ID
       // ==========================================
       const users = [
         {
@@ -141,54 +154,90 @@ export function SeedDataButton() {
         },
       ];
 
+      console.log('[SeedData] 🔄 Starting user seeding with Auth/Firestore sync...');
+
       for (const userData of users) {
         try {
-          // Try to sign in first to check if user exists
+          let userCredential: UserCredential;
+          let firebaseUserId: string;
+          let isNewUser = false;
+
+          // Step 1: Try to sign in to get the existing user's UID
           try {
-            await signInWithEmailAndPassword(auth, userData.email, userData.password);
-            console.log(`[SeedData] User ${userData.email} already exists`);
-            await signOut(auth);
-            continue;
-          } catch (signInError) {
-            // User doesn't exist, create it
+            userCredential = await signInWithEmailAndPassword(
+              auth,
+              userData.email,
+              userData.password
+            );
+            firebaseUserId = userCredential.user.uid;
+            console.log(`[SeedData] 🔑 Auth user exists: ${userData.email} (UID: ${firebaseUserId})`);
+          } catch (signInError: any) {
+            // Step 2: If sign in fails, user doesn't exist - create it
+            if (signInError?.code === 'auth/user-not-found' || signInError?.code === 'auth/wrong-password') {
+              console.log(`[SeedData] ➕ Creating new Auth user: ${userData.email}`);
+              userCredential = await createUserWithEmailAndPassword(
+                auth,
+                userData.email,
+                userData.password
+              );
+              firebaseUserId = userCredential.user.uid;
+              isNewUser = true;
+
+              // Update display profile for new users
+              await updateProfile(userCredential.user, {
+                displayName: `${userData.firstName} ${userData.lastName}`,
+              });
+
+              console.log(`[SeedData] ✅ Auth user created: ${userData.email} (UID: ${firebaseUserId})`);
+            } else {
+              throw signInError;
+            }
           }
 
-          // Create user
-          const userCredential = await createUserWithEmailAndPassword(
-            auth,
-            userData.email,
-            userData.password
+          // Step 3: ALWAYS create/update Firestore document with the Firebase Auth UID
+          // This is the KEY FIX - we NEVER skip Firestore creation even if Auth user exists
+          const userRef = doc(db, 'users', firebaseUserId);
+          
+          console.log(`[SeedData] 📝 Creating/updating Firestore document for ${userData.email}...`);
+          
+          await setDoc(
+            userRef,
+            {
+              id: firebaseUserId,
+              email: userData.email,
+              role: userData.role,
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+              phone: userData.phone,
+              status: userData.status,
+              createdAt: Timestamp.now(),
+              updatedAt: Timestamp.now(),
+            },
+            { merge: true } // merge: true updates existing doc or creates new one
           );
 
-          await updateProfile(userCredential.user, {
-            displayName: `${userData.firstName} ${userData.lastName}`,
-          });
+          console.log(
+            `[SeedData] ✅ Firestore ${isNewUser ? 'created' : 'updated'} for ${userData.email} ` +
+            `(UID: ${firebaseUserId}, Role: ${userData.role})`
+          );
 
-          // Create user document in Firestore
-          const userRef = doc(db, 'users', userData.id);
-          await userRef.set({
-            id: userData.id,
-            email: userData.email,
-            role: userData.role,
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            phone: userData.phone,
-            status: userData.status,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now(),
-          });
-
-          console.log(`[SeedData] ✅ User ${userData.email} created`);
-
-          // Sign out after creating each user
+          // Step 4: Sign out after processing each user
           await signOut(auth);
+          console.log(`[SeedData] 🚪 Signed out ${userData.email}\n`);
+
         } catch (err: any) {
-          console.log(`[SeedData] User ${userData.email} might already exist:`, err?.message);
+          if (err?.code === 'auth/email-already-in-use') {
+            console.log(`[SeedData] ⚠️  User ${userData.email} already exists in Auth, but Firestore should still be created`);
+          } else {
+            console.error(`[SeedData] ❌ Error processing user ${userData.email}:`, err?.message);
+            console.error('[SeedData] Error details:', err);
+          }
         }
       }
 
       setSeedStatus('success');
       setMessage('✅ Data seeded successfully!');
+      console.log('[SeedData] ✅ User seeding completed');
       console.log('[SeedData] ✅ Success');
     } catch (err: any) {
       console.error('[SeedData] ❌ Error:', err);

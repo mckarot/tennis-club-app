@@ -52,29 +52,39 @@ export function CourtDeploymentGrid({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-      role="grid"
-      aria-label="Court deployment status"
-      data-testid="court-deployment-grid"
-    >
-      {courts.map((court, index) => (
-        <motion.div
-          key={court.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.05 }}
-        >
-          <CourtDeploymentCard
-            court={court}
-            onToggle={onToggle}
-            isLoading={isLoading}
-          />
-        </motion.div>
-      ))}
-    </motion.div>
+    <div>
+      <div className="mb-4">
+        <h2 className="font-headline text-lg font-bold italic uppercase text-on-surface">
+          COURT DEPLOYMENT
+        </h2>
+        <p className="font-body text-sm text-on-surface-variant">
+          Toggle maintenance state for each court
+        </p>
+      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        role="grid"
+        aria-label="Court deployment status"
+        data-testid="court-deployment-grid"
+      >
+        {courts.map((court, index) => (
+          <motion.div
+            key={court.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+          >
+            <CourtDeploymentCard
+              court={court}
+              onToggle={onToggle}
+              isLoading={isLoading}
+            />
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
   );
 }
 

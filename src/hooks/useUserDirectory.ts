@@ -53,7 +53,16 @@ export function useUserDirectory(): UseUserDirectoryReturn {
     setError(null);
 
     const unsubscribe = subscribeToAllUsers((fetchedUsers) => {
-      setUsers(fetchedUsers);
+      // Map Firestore users to expected format immediately
+      const mappedUsers = fetchedUsers.map(user => ({
+        ...user,
+        displayName: user.displayName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'Unknown',
+        name: user.name || user.displayName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'Unknown',
+        roleLabel: user.role === 'admin' ? 'Admin' : user.role === 'moniteur' ? 'Moniteur' : 'Client',
+        avatar: user.avatar || null,
+      }));
+      
+      setUsers(mappedUsers);
       setIsLoading(false);
     });
 
@@ -77,7 +86,17 @@ export function useUserDirectory(): UseUserDirectoryReturn {
 
       try {
         const results = await searchUsers(filter.search, userFilter);
-        setFilteredUsers(results);
+        
+        // Map search results to expected format
+        const mappedResults = results.map(user => ({
+          ...user,
+          displayName: user.displayName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'Unknown',
+          name: user.name || user.displayName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'Unknown',
+          roleLabel: user.role === 'admin' ? 'Admin' : user.role === 'moniteur' ? 'Moniteur' : 'Client',
+          avatar: user.avatar || null,
+        }));
+        
+        setFilteredUsers(mappedResults);
         setCurrentPage(1); // Reset to first page when filters change
       } catch (err) {
         console.error('[useUserDirectory] Error filtering:', err);
@@ -95,16 +114,14 @@ export function useUserDirectory(): UseUserDirectoryReturn {
       if (!result.success) {
         throw new Error(result.error || 'Failed to create user');
       }
-      
-      // Refresh user list
-      await refresh();
-      
+
+      // No need to refresh - real-time subscription will update automatically
       return result.userId;
     } catch (err) {
       console.error('[useUserDirectory] Error creating user:', err);
       throw err;
     }
-  }, [refresh]);
+  }, []);
 
   const handleUpdateUser = useCallback(async (userId: string, data: Partial<User>) => {
     try {
@@ -113,14 +130,13 @@ export function useUserDirectory(): UseUserDirectoryReturn {
       if (!result.success) {
         throw new Error(result.error || 'Failed to update user');
       }
-      
-      // Refresh user list
-      await refresh();
+
+      // No need to refresh - real-time subscription will update automatically
     } catch (err) {
       console.error('[useUserDirectory] Error updating user:', err);
       throw err;
     }
-  }, [refresh]);
+  }, []);
 
   const handleDeleteUser = useCallback(async (userId: string) => {
     try {
@@ -130,13 +146,12 @@ export function useUserDirectory(): UseUserDirectoryReturn {
         throw new Error(result.error || 'Failed to delete user');
       }
 
-      // Refresh user list
-      await refresh();
+      // No need to refresh - real-time subscription will update automatically
     } catch (err) {
       console.error('[useUserDirectory] Error deleting user:', err);
       throw err;
     }
-  }, [refresh]);
+  }, []);
 
   const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
 
@@ -151,6 +166,13 @@ export function useUserDirectory(): UseUserDirectoryReturn {
     isLoading,
     error,
     filter,
+    filters: filter, // Alias for compatibility
+    searchQuery: filter.search,
+    pagination: {
+      currentPage,
+      totalPages,
+      itemsPerPage: ITEMS_PER_PAGE,
+    },
     currentPage,
     totalPages,
     setFilter,

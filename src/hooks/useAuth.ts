@@ -21,6 +21,9 @@ import {
   signOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  setPersistence,
   type User as FirebaseUser,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, Timestamp } from 'firebase/firestore';
@@ -31,9 +34,9 @@ import type {
   CreateUserInput,
   LoginInput,
   AuthResult,
-  FirebaseAuthErrorCode,
   ClassifiedAuthError,
 } from '../firebase/types';
+import { FirebaseAuthErrorCode } from '../firebase/types';
 
 // ==========================================
 // HOOK RETURN TYPE
@@ -224,10 +227,11 @@ export function useAuth(): UseAuthReturn {
 
             // Update last login
             try {
-              await updateDoc(doc(db, 'users', firebaseUser.uid), {
+              const userDocRef = doc(db, 'users', firebaseUser.uid);
+              await setDoc(userDocRef, {
                 lastLoginAt: Timestamp.now(),
                 status: 'online',
-              });
+              }, { merge: true });
             } catch (err) {
               console.error('[useAuth] Error updating last login:', err);
             }
@@ -262,16 +266,16 @@ export function useAuth(): UseAuthReturn {
       setErrorCode(null);
 
       try {
+        // Set persistence BEFORE signing in
+        if (rememberMe) {
+          await setPersistence(auth, browserLocalPersistence);
+        } else {
+          await setPersistence(auth, browserSessionPersistence);
+        }
+
         // Sign in with Firebase Auth
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const firebaseUser = userCredential.user;
-
-        // Set persistence if remember me is checked
-        if (rememberMe) {
-          await auth.setPersistence('local');
-        } else {
-          await auth.setPersistence('session');
-        }
 
         // Fetch user profile from Firestore
         const userProfile = await fetchUserProfile(firebaseUser.uid);

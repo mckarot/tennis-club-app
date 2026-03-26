@@ -116,7 +116,7 @@ export function UserDirectoryTable({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => onSearch(e.target.value)}
-                placeholder="Search by name, email, or phone..."
+                placeholder="Search members..."
                 className="w-full rounded-lg bg-surface-container-low pl-10 pr-4 py-3 font-body text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary"
                 aria-label="Search users"
                 data-testid="user-search-input"
@@ -188,6 +188,12 @@ export function UserDirectoryTable({
               >
                 Contact
               </th>
+              <th
+                scope="col"
+                className="px-6 py-4 text-left font-body text-xs font-semibold uppercase tracking-wider text-on-surface-variant"
+              >
+                ACTIONS
+              </th>
             </tr>
           </thead>
 
@@ -208,12 +214,15 @@ export function UserDirectoryTable({
                   <td className="px-6 py-4">
                     <div className="h-4 w-24 rounded bg-surface-container-highest" />
                   </td>
+                  <td className="px-6 py-4">
+                    <div className="h-8 w-8 rounded bg-surface-container-highest" />
+                  </td>
                 </tr>
               ))
             ) : users.length === 0 ? (
               // Empty state
               <tr data-testid="empty-state">
-                <td colSpan={4} className="px-6 py-12 text-center">
+                <td colSpan={5} className="px-6 py-12 text-center">
                   <span className="material-symbols-outlined mx-mb-2 block text-4xl text-on-surface-variant">
                     people_outline
                   </span>
@@ -289,6 +298,16 @@ export function UserDirectoryTable({
                           </p>
                         )}
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        className="p-2 hover:bg-surface-container-low rounded-full"
+                        aria-label="More actions"
+                      >
+                        <span className="material-symbols-outlined text-on-surface-variant">
+                          more_vert
+                        </span>
+                      </button>
                     </td>
                   </motion.tr>
                 );

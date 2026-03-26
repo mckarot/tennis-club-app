@@ -125,23 +125,28 @@ export function CourtDeploymentCard({
           </div>
 
           {/* Toggle Switch */}
-          <button
-            onClick={handleToggle}
-            disabled={isLoading}
-            className={`relative h-6 w-11 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-              isMaintenance ? 'bg-secondary' : 'bg-primary'
-            } disabled:cursor-not-allowed disabled:opacity-50`}
-            role="switch"
-            aria-checked={isMaintenance}
-            aria-label={`Toggle maintenance state for court ${court.number}`}
-          >
-            <span
-              className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-                isMaintenance ? 'translate-x-5' : 'translate-x-0'
-              }`}
-              aria-hidden="true"
-            />
-          </button>
+          <div className="flex flex-col items-end gap-1">
+            <button
+              onClick={handleToggle}
+              disabled={isLoading}
+              className={`relative h-6 w-11 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                isMaintenance ? 'bg-secondary' : 'bg-primary'
+              } disabled:cursor-not-allowed disabled:opacity-50`}
+              role="switch"
+              aria-checked={isMaintenance}
+              aria-label={`Toggle maintenance state for court ${court.number}`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                  isMaintenance ? 'translate-x-5' : 'translate-x-0'
+                }`}
+                aria-hidden="true"
+              />
+            </button>
+            <span className="font-body text-xs text-on-surface-variant font-medium">
+              MAINTENANCE STATE
+            </span>
+          </div>
         </div>
 
         {/* Maintenance info */}
