@@ -14,6 +14,9 @@ import AdminDashboard from './pages/admin/Dashboard';
 import ClientDashboard from './pages/client/Dashboard';
 import MoniteurDashboard from './pages/moniteur/Dashboard';
 
+// Import Admin Pages
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+
 // Import Client Pages
 import ClientProfilePage from './pages/client/Profile';
 
@@ -58,7 +61,7 @@ function App() {
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="courts" element={<ComingSoonPage title="Court Management" />} />
-            <Route path="users" element={<ComingSoonPage title="User Directory" />} />
+            <Route path="users" element={<AdminUsersPage />} />
             <Route path="reservations" element={<ComingSoonPage title="Reservations Management" />} />
           </Route>
 

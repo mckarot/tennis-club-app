@@ -23,6 +23,7 @@ import { motion } from 'framer-motion';
 import { DashboardLayout } from '../../components/layout';
 import { AdminErrorBoundary } from '../../components/ui/ErrorBoundary/AdminErrorBoundary';
 import { LiveTimestamp } from './components/AdminDashboard/LiveTimestamp';
+import { SeedDataButton } from '../../components/SeedDataButton/SeedDataButton';
 import { StatsCardsGrid } from './components/AdminDashboard/StatsCardsGrid';
 import { CourtUtilizationChart } from './components/AdminDashboard/CourtUtilizationChart';
 import { BlockCourtPanel } from './components/AdminDashboard/BlockCourtPanel';
@@ -145,7 +146,10 @@ export function Dashboard(): JSX.Element {
                 Real-time club supervision and management
               </p>
             </div>
-            <LiveTimestamp />
+            <div className="flex items-center gap-4">
+              <LiveTimestamp />
+              <SeedDataButton />
+            </div>
           </motion.header>
 
           {/* Stats Cards */}

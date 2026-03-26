@@ -239,6 +239,106 @@ export function SeedDataButton() {
       setMessage('✅ Data seeded successfully!');
       console.log('[SeedData] ✅ User seeding completed');
       console.log('[SeedData] ✅ Success');
+
+      // ==========================================
+      // 2. CREATE RESERVATIONS
+      // ==========================================
+      console.log('\n[SeedData] 📅 Starting reservation seeding...');
+
+      const reservationsBatch = writeBatch(db);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Create sample reservations for today and tomorrow
+      const sampleReservations = [
+        {
+          court_id: 'court_001',
+          court_name: 'Court Central',
+          user_id: 'client_001',
+          user_name: 'Marie Martin',
+          user_email: 'client@tennis-club.com',
+          date: Timestamp.fromDate(today),
+          start_time: Timestamp.fromDate(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 0)),
+          end_time: Timestamp.fromDate(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 10, 0)),
+          status: 'confirmed',
+          type: 'booking',
+          created_at: Timestamp.now(),
+        },
+        {
+          court_id: 'court_002',
+          court_name: 'Court Nord',
+          user_id: 'client_001',
+          user_name: 'Marie Martin',
+          user_email: 'client@tennis-club.com',
+          date: Timestamp.fromDate(today),
+          start_time: Timestamp.fromDate(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 14, 0)),
+          end_time: Timestamp.fromDate(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 15, 30)),
+          status: 'confirmed',
+          type: 'booking',
+          created_at: Timestamp.now(),
+        },
+        {
+          court_id: 'court_003',
+          court_name: 'Court Sud',
+          user_id: 'client_001',
+          user_name: 'Marie Martin',
+          user_email: 'client@tennis-club.com',
+          date: Timestamp.fromDate(today),
+          start_time: Timestamp.fromDate(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 16, 0)),
+          end_time: Timestamp.fromDate(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 17, 0)),
+          status: 'pending',
+          type: 'booking',
+          created_at: Timestamp.now(),
+        },
+        {
+          court_id: 'court_001',
+          court_name: 'Court Central',
+          user_id: 'client_001',
+          user_name: 'Marie Martin',
+          user_email: 'client@tennis-club.com',
+          date: Timestamp.fromDate(today),
+          start_time: Timestamp.fromDate(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 18, 0)),
+          end_time: Timestamp.fromDate(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 19, 30)),
+          status: 'confirmed',
+          type: 'booking',
+          created_at: Timestamp.now(),
+        },
+        {
+          court_id: 'court_004',
+          court_name: 'Court Est',
+          user_id: 'client_001',
+          user_name: 'Marie Martin',
+          user_email: 'client@tennis-club.com',
+          date: Timestamp.fromDate(today),
+          start_time: Timestamp.fromDate(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 10, 0)),
+          end_time: Timestamp.fromDate(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 11, 0)),
+          status: 'confirmed',
+          type: 'booking',
+          created_at: Timestamp.now(),
+        },
+        {
+          court_id: 'court_005',
+          court_name: 'Court Ouest',
+          user_id: 'client_001',
+          user_name: 'Marie Martin',
+          user_email: 'client@tennis-club.com',
+          date: Timestamp.fromDate(today),
+          start_time: Timestamp.fromDate(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 11, 0)),
+          end_time: Timestamp.fromDate(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0)),
+          status: 'confirmed',
+          type: 'booking',
+          created_at: Timestamp.now(),
+        },
+      ];
+
+      sampleReservations.forEach((reservation, index) => {
+        const reservationRef = doc(db, 'reservations', `reservation_${index}`);
+        reservationsBatch.set(reservationRef, reservation);
+        console.log(`[SeedData] 📝 Created reservation ${index + 1}/${sampleReservations.length}: ${reservation.court_name} ${reservation.start_time}-${reservation.end_time}`);
+      });
+
+      await reservationsBatch.commit();
+      console.log('[SeedData] ✅ Reservations seeding completed');
     } catch (err: any) {
       console.error('[SeedData] ❌ Error:', err);
       setSeedStatus('error');

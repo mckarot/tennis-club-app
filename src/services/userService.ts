@@ -365,8 +365,8 @@ export const getAllUsersWithFilters = async (filters?: UserFilter): Promise<User
     constraints.push(where('status', '==', filters.status));
   }
 
-  // Apply ordering (default to name ascending)
-  const orderByField = filters?.orderBy || 'name';
+  // Apply ordering (default to email ascending since 'name' field doesn't exist in Firestore)
+  const orderByField = filters?.orderBy || 'email';
   const orderDirection = filters?.order || 'asc';
   constraints.push(orderBy(orderByField, orderDirection));
 
@@ -378,7 +378,19 @@ export const getAllUsersWithFilters = async (filters?: UserFilter): Promise<User
   const q = query(collection(db, COLLECTION_NAME), ...constraints);
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map((doc) => ({ uid: doc.id, ...doc.data() } as User));
+  console.log('[userService] getAllUsersWithFilters - Found', snapshot.docs.length, 'users');
+  
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    console.log('[userService] User doc:', {
+      id: doc.id,
+      role: data?.role,
+      email: data?.email,
+      firstName: data?.firstName,
+      lastName: data?.lastName
+    });
+    return { uid: doc.id, ...data } as User;
+  });
 };
 
 /**

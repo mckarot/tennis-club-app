@@ -17,17 +17,30 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import type {
-  UserDirectoryEntry,
-  UserFilters,
-  PaginationState,
-} from '../../../hooks/useUserDirectory';
+import type { User, UserRole, UserStatus } from '../../../firebase/types';
+
+/**
+ * User filters interface
+ */
+export interface UserFilters {
+  role: UserRole | 'all';
+  status: UserStatus | 'all';
+}
+
+/**
+ * Pagination state interface
+ */
+export interface PaginationState {
+  currentPage: number;
+  totalPages: number;
+  itemsPerPage: number;
+}
 
 /**
  * UserDirectoryTable component props
  */
 export interface UserDirectoryTableProps {
-  users: UserDirectoryEntry[];
+  users: User[];
   isLoading?: boolean;
   searchQuery: string;
   filters: UserFilters;

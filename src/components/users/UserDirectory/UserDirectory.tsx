@@ -79,6 +79,26 @@ export const UserDirectory: FC<UserDirectoryProps> = ({
     );
   }
 
+  if (users.length === 0) {
+    return (
+      <div
+        role="status"
+        aria-label="No users found"
+        className="flex flex-col items-center justify-center py-12 text-center"
+      >
+        <span className="material-symbols-outlined text-6xl text-on-surface-variant mb-4">
+          people_outline
+        </span>
+        <h3 className="font-headline text-lg font-bold text-on-surface mb-2">
+          No users found
+        </h3>
+        <p className="font-body text-sm text-on-surface-variant max-w-md">
+          No users match your search criteria. Try adjusting your filters or add a new user.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {/* Filters */}

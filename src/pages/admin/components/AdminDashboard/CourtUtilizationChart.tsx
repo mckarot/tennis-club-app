@@ -1,14 +1,15 @@
 /**
- * CourtUtilizationChart Component
+ * CourtUtilizationChart Component - REDESIGNED
  *
- * Displays court utilization as a bar chart with 12 time slots.
- * Shows utilization percentages from 06:00 to 21:00.
+ * Displays court utilization as a bar chart with 8 time slots.
+ * Shows utilization percentages from 06:00 to 20:00.
  *
  * Features:
- * - 12 bars (06:00, 08:00, ..., 20:00)
- * - 3 color levels (peak/primary, high/secondary, low/gray)
- * - Hover tooltip with percentage
- * - Framer Motion animations
+ * - 8 bars with gradient fills
+ * - Y-axis labels (100%, 50%, 0%)
+ * - Grid lines
+ * - Hover tooltip with percentage and booking count
+ * - Framer Motion animations with stagger effect
  * - ARIA labels for accessibility
  *
  * @module @pages/admin/components/AdminDashboard/CourtUtilizationChart
@@ -27,24 +28,18 @@ export interface CourtUtilizationChartProps {
 }
 
 /**
- * Get Tailwind class for bar color based on utilization level
+ * Get gradient color class for bar based on utilization level
+ * Using MORE VISIBLE colors with stronger saturation
  */
-function getBarColorClass(level: 'low' | 'high' | 'peak'): string {
+function getGradientClass(level: 'low' | 'high' | 'peak'): string {
   switch (level) {
     case 'peak':
-      return 'bg-primary';
+      return 'bg-gradient-to-t from-emerald-600 to-emerald-400'; // Strong green
     case 'high':
-      return 'bg-secondary';
+      return 'bg-gradient-to-t from-orange-600 to-orange-400'; // Strong orange
     case 'low':
-      return 'bg-surface-container-highest';
+      return 'bg-gradient-to-t from-gray-400 to-gray-300'; // Visible gray
   }
-}
-
-/**
- * Get bar height percentage (max 100%)
- */
-function getBarHeight(utilization: number): number {
-  return Math.min(100, Math.max(5, utilization));
 }
 
 /**
@@ -56,13 +51,16 @@ export function CourtUtilizationChart({
 }: CourtUtilizationChartProps): JSX.Element {
   const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
 
-  // Find the highest bar for peak indicator
-  const highestBarIndex = data.length > 0
-    ? data.reduce((maxIdx, slot, idx) => 
-        slot.utilization > data[maxIdx].utilization ? idx : maxIdx, 0)
-    : null;
+  // Debug log
+  console.log('[CourtUtilizationChart] Received data:', data);
+  console.log('[CourtUtilizationChart] Data length:', data.length);
 
-  const showPeakIndicator = highestBarIndex !== null && data[highestBarIndex].utilization >= 70;
+  // Find max value for normalization (avoid division by zero)
+  const maxValue = data.length > 0
+    ? Math.max(...data.map((d) => d.utilization), 1)
+    : 1;
+
+  console.log('[CourtUtilizationChart] Max value:', maxValue);
 
   if (isLoading) {
     return (
@@ -71,14 +69,29 @@ export function CourtUtilizationChart({
         role="region"
         aria-label="Court utilization chart loading"
       >
-        <div className="mb-4 h-6 w-48 animate-pulse rounded bg-surface-container-highest" />
-        <div className="flex items-end justify-between gap-2">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="flex flex-1 flex-col items-center gap-2">
-              <div className="h-32 w-full animate-pulse rounded bg-surface-container-highest" />
-              <div className="h-4 w-12 animate-pulse rounded bg-surface-container-highest" />
-            </div>
-          ))}
+        <div className="mb-6 flex justify-between">
+          <div>
+            <div className="mb-2 h-6 w-48 animate-pulse rounded bg-surface-container-highest" />
+            <div className="h-4 w-64 animate-pulse rounded bg-surface-container-highest" />
+          </div>
+          <div className="flex gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <div className="h-3 w-3 animate-pulse rounded bg-surface-container-highest" />
+                <div className="h-3 w-20 animate-pulse rounded bg-surface-container-highest" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="relative h-64">
+          <div className="flex items-end justify-between gap-3">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="flex flex-1 flex-col items-center gap-2">
+                <div className="h-48 w-full animate-pulse rounded bg-surface-container-highest" />
+                <div className="h-4 w-12 animate-pulse rounded bg-surface-container-highest" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -88,11 +101,13 @@ export function CourtUtilizationChart({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
       className="rounded-xl bg-surface-container-lowest p-6 shadow-sm"
       role="region"
       aria-label="Court utilization chart"
     >
-      <div className="mb-6 flex items-center justify-between">
+      {/* Header with title and legend */}
+      <div className="mb-6 flex justify-between items-center">
         <div>
           <h2 className="font-headline text-lg font-bold text-on-surface">
             Court Utilization
@@ -102,10 +117,11 @@ export function CourtUtilizationChart({
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Legend with 3 items */}
+        <div className="flex gap-4">
           <div className="flex items-center gap-2">
             <div
-              className="h-3 w-3 rounded bg-primary"
+              className="w-3 h-3 rounded bg-gradient-to-t from-emerald-600 to-emerald-400"
               aria-hidden="true"
             />
             <span className="font-body text-xs text-on-surface-variant">
@@ -114,7 +130,7 @@ export function CourtUtilizationChart({
           </div>
           <div className="flex items-center gap-2">
             <div
-              className="h-3 w-3 rounded bg-secondary"
+              className="w-3 h-3 rounded bg-gradient-to-t from-orange-600 to-orange-400"
               aria-hidden="true"
             />
             <span className="font-body text-xs text-on-surface-variant">
@@ -123,7 +139,7 @@ export function CourtUtilizationChart({
           </div>
           <div className="flex items-center gap-2">
             <div
-              className="h-3 w-3 rounded bg-surface-container-highest"
+              className="w-3 h-3 rounded bg-gradient-to-t from-gray-400 to-gray-300"
               aria-hidden="true"
             />
             <span className="font-body text-xs text-on-surface-variant">
@@ -133,70 +149,80 @@ export function CourtUtilizationChart({
         </div>
       </div>
 
-      <div
-        className="relative flex h-48 items-end justify-between gap-2"
-        role="img"
-        aria-label="Bar chart showing court utilization by time slot"
-      >
-        {/* Current Peak Indicator */}
-        {showPeakIndicator && highestBarIndex !== null && (
-          <div 
-            className="absolute -top-8 z-10"
-            style={{ left: `${(highestBarIndex / data.length) * 100}%` }}
-          >
-            <div className="bg-surface text-white px-3 py-1 rounded text-xs font-bold whitespace-nowrap">
-              Current Peak
-            </div>
-            <div className="w-0 h-0 border-l-4 border-r-4 border-t-8 border-l-transparent border-r-transparent border-t-surface mx-auto mt-1" />
-          </div>
-        )}
+      {/* Chart Container */}
+      <div className="relative h-64 flex items-end justify-between gap-3">
+        {/* Y-axis labels */}
+        <div
+          className="absolute left-0 top-0 bottom-8 flex flex-col justify-between text-xs text-on-surface-variant"
+          aria-hidden="true"
+        >
+          <span>100%</span>
+          <span>50%</span>
+          <span>0%</span>
+        </div>
 
+        {/* Grid lines */}
+        <div
+          className="absolute inset-0 flex flex-col justify-between pb-8"
+          aria-hidden="true"
+        >
+          <div className="border-t border-surface-container-highest w-full" />
+          <div className="border-t border-surface-container-high w-full" />
+          <div className="border-t border-surface-container-highest w-full" />
+        </div>
+
+        {/* Bars */}
         {data.map((slot, index) => {
-          const height = getBarHeight(slot.utilization);
+          // Calculate height in pixels (container is h-64 = 256px, minus labels/padding = ~200px usable)
+          const maxBarHeight = 200; // pixels
+          const barHeight = slot.utilization > 0 
+            ? Math.max((slot.utilization / 100) * maxBarHeight, 32) // min 32px for visibility
+            : 4; // 4px for empty slots
+
           const isHovered = hoveredSlot === index;
+
+          console.log(`[CourtUtilizationChart] Slot ${slot.time}: ${slot.utilization}% -> height: ${barHeight}px`);
 
           return (
             <div
               key={slot.time}
-              className="relative flex flex-1 flex-col items-center"
+              className="relative flex-1 flex flex-col items-center gap-2 group"
               onMouseEnter={() => setHoveredSlot(index)}
               onMouseLeave={() => setHoveredSlot(null)}
               role="presentation"
             >
               {/* Tooltip */}
-              {isHovered && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute -top-12 z-10 rounded-lg bg-surface-container-highest px-3 py-2 shadow-lg"
-                  role="tooltip"
-                  aria-label={`${slot.time}: ${slot.utilization}% utilization, ${slot.bookings} bookings`}
-                >
-                  <p className="font-body text-xs font-bold text-on-surface">
-                    {slot.utilization}%
-                  </p>
-                  <p className="font-body text-xs text-on-surface-variant">
-                    {slot.bookings} bookings
-                  </p>
-                  <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-surface-container-highest" />
-                </motion.div>
-              )}
+              <div
+                className={`opacity-0 group-hover:opacity-100 transition-opacity absolute -top-16 z-10 ${
+                  isHovered ? 'pointer-events-auto' : 'pointer-events-none'
+                }`}
+                role="tooltip"
+                aria-label={`${slot.time}: ${slot.utilization}% utilization, ${slot.bookings} bookings`}
+              >
+                <div className="bg-surface-container-highest rounded-lg px-3 py-2 shadow-lg">
+                  <p className="font-bold text-on-surface">{slot.utilization}%</p>
+                  <p className="text-xs text-on-surface-variant">{slot.bookings} bookings</p>
+                  <div
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-surface-container-highest"
+                    aria-hidden="true"
+                  />
+                </div>
+              </div>
 
               {/* Bar */}
               <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: `${height}%`, opacity: 1 }}
-                transition={{ delay: index * 0.05, duration: 0.3 }}
-                whileHover={{ scale: 1.05 }}
-                className={`w-full rounded-t-md transition-all ${getBarColorClass(slot.level)}`}
-                style={{ minHeight: '4px' }}
+                initial={{ scaleY: 0 }}
+                animate={{ scaleY: 1 }}
+                transition={{ delay: index * 0.08, duration: 0.4, ease: 'easeOut' }}
+                whileHover={{ scale: 1.05, y: -4 }}
+                className={`w-full rounded-t-lg rounded-b-md ${getGradientClass(slot.level)} origin-bottom`}
+                style={{ height: barHeight }}
                 aria-hidden="true"
               />
 
               {/* Time label */}
               <span
-                className="mt-2 font-body text-xs font-medium text-on-surface-variant"
+                className="font-body text-xs font-medium text-on-surface-variant mt-auto"
                 aria-hidden="true"
               >
                 {slot.time}
@@ -207,9 +233,9 @@ export function CourtUtilizationChart({
       </div>
 
       {/* X-axis label */}
-      <div className="mt-4 border-t border-surface-container-highest pt-3">
+      <div className="mt-4 pt-3 border-t border-surface-container-highest">
         <p
-          className="font-body text-xs font-medium text-on-surface-variant"
+          className="font-body text-xs text-on-surface-variant"
           aria-hidden="true"
         >
           Time slots (2-hour intervals)

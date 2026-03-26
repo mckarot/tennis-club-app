@@ -195,6 +195,8 @@ export function useCourtUtilization(): UseCourtUtilizationReturn {
         unsubscribe = onSnapshot(
           q,
           (snapshot: QuerySnapshot<DocumentData>) => {
+            console.log('[useCourtUtilization] Received snapshot:', snapshot.docs.length, 'reservations');
+            
             try {
               // Initialize slot data
               const slotData: CourtUtilizationSlot[] = TIME_SLOTS.map((slot) => ({
@@ -207,6 +209,13 @@ export function useCourtUtilization(): UseCourtUtilizationReturn {
               // Count bookings per time slot
               snapshot.docs.forEach((doc) => {
                 const reservation = doc.data();
+                console.log('[useCourtUtilization] Reservation:', {
+                  id: doc.id,
+                  court_name: reservation.court_name,
+                  start_time: reservation.start_time?.toDate(),
+                  status: reservation.status
+                });
+                
                 const startTime = reservation.start_time?.toDate();
 
                 if (startTime) {
@@ -217,6 +226,7 @@ export function useCourtUtilization(): UseCourtUtilizationReturn {
 
                   if (slotIndex !== -1) {
                     slotData[slotIndex].bookings += 1;
+                    console.log(`[useCourtUtilization] Added booking to slot ${slotData[slotIndex].time}, total: ${slotData[slotIndex].bookings}`);
                   }
                 }
               });
@@ -228,13 +238,16 @@ export function useCourtUtilization(): UseCourtUtilizationReturn {
                   100,
                   Math.round((slot.bookings / maxBookingsPerSlot) * 100)
                 );
-                return {
+                const result = {
                   ...slot,
                   utilization,
                   level: getUtilizationLevel(utilization),
                 };
+                console.log(`[useCourtUtilization] Slot ${slot.time}: ${slot.bookings} bookings, ${utilization}% utilization, ${result.level}`);
+                return result;
               });
 
+              console.log('[useCourtUtilization] Final data:', JSON.stringify(updatedData, null, 2));
               setData(updatedData);
               setIsLoading(false);
             } catch (err) {

@@ -53,6 +53,8 @@ export function useUserDirectory(): UseUserDirectoryReturn {
     setError(null);
 
     const unsubscribe = subscribeToAllUsers((fetchedUsers) => {
+      console.log('[useUserDirectory] Fetched users from Firestore:', fetchedUsers.length);
+      
       // Map Firestore users to expected format immediately
       const mappedUsers = fetchedUsers.map(user => ({
         ...user,
@@ -61,7 +63,8 @@ export function useUserDirectory(): UseUserDirectoryReturn {
         roleLabel: user.role === 'admin' ? 'Admin' : user.role === 'moniteur' ? 'Moniteur' : 'Client',
         avatar: user.avatar || null,
       }));
-      
+
+      console.log('[useUserDirectory] Mapped users:', mappedUsers.length);
       setUsers(mappedUsers);
       setIsLoading(false);
     });
@@ -80,13 +83,22 @@ export function useUserDirectory(): UseUserDirectoryReturn {
       const userFilter: UserFilter = {
         role: roleFilter,
         status: statusFilter,
-        orderBy: 'name',
+        orderBy: 'email',
         order: 'asc',
       };
 
       try {
+        // If no search query and no filters, use users from subscription directly
+        if (!filter.search && !roleFilter && !statusFilter) {
+          console.log('[useUserDirectory] No filters, using subscribed users directly:', users.length);
+          setFilteredUsers(users);
+          setCurrentPage(1);
+          return;
+        }
+
+        // Otherwise use searchUsers with filters
         const results = await searchUsers(filter.search, userFilter);
-        
+
         // Map search results to expected format
         const mappedResults = results.map(user => ({
           ...user,
@@ -95,7 +107,8 @@ export function useUserDirectory(): UseUserDirectoryReturn {
           roleLabel: user.role === 'admin' ? 'Admin' : user.role === 'moniteur' ? 'Moniteur' : 'Client',
           avatar: user.avatar || null,
         }));
-        
+
+        console.log('[useUserDirectory] Filtered users:', mappedResults.length, 'from', results.length);
         setFilteredUsers(mappedResults);
         setCurrentPage(1); // Reset to first page when filters change
       } catch (err) {
@@ -105,7 +118,7 @@ export function useUserDirectory(): UseUserDirectoryReturn {
     };
 
     applyFilters();
-  }, [filter, users]);
+  }, [filter, users, searchUsers]);
 
   const handleCreateUser = useCallback(async (input: CreateUserInput) => {
     try {
@@ -176,6 +189,7 @@ export function useUserDirectory(): UseUserDirectoryReturn {
     currentPage,
     totalPages,
     setFilter,
+    onFilter: setFilter, // Alias for Dashboard Admin compatibility
     setPage: setCurrentPage,
     createUser: handleCreateUser,
     updateUser: handleUpdateUser,
