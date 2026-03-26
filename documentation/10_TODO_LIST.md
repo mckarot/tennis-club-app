@@ -628,17 +628,46 @@ This document provides a complete task breakdown for implementing the Tennis Clu
 - [x] Build successful (0 errors)
 - [ ] Write unit tests
 
-### 8.5 Admin Integration (Day 39-40)
-- [ ] Connect all admin features to services
-- [ ] Implement real-time updates
-- [ ] Handle admin-specific errors
-- [ ] Write E2E tests for admin flows
+### 8.5 Admin Integration (Day 40-42) ✅ COMPLETED
+- [x] Étape 0: Audit PNG (5 workflows Admin identifiés)
+- [x] Étape 1: Architecture (7 sections, 4 tests E2E planifiés)
+- [x] Étape 2: Firebase (SKIPPED - aucun changement requis)
+- [x] Étape 3: Implémentation (3 modifications + 6 créations)
+- [x] Étape 4: Audit Code (PASS - data-testid ajoutés)
+- [x] Connect all admin features to services
+  - Block Court Panel → blockCourtForMaintenance()
+  - Court Deployment Grid → useCourtDeployment hook
+  - Court Utilization Chart → useCourtUtilization hook
+  - User Directory → useUserDirectory hook
+  - Dashboard Stats → useAdminDashboard hook
+- [x] Implement real-time updates
+  - onSnapshot subscriptions pour tous les composants Admin
+  - Refresh automatique après modifications
+  - Transaction Firestore pour blockCourtForMaintenance
+- [x] Handle admin-specific errors
+  - AdminErrorBoundary mis à jour (QuotaExceededError, InvalidStateError, UnavailableError)
+  - Messages d'erreur spécifiques Admin
+  - Try/catch sur toutes les mutations Firestore
+- [x] Write E2E tests for admin flows (56 tests Playwright)
+  - tests/e2e/admin/admin-court-utilization.spec.ts (10 tests)
+  - tests/e2e/admin/admin-court-deployment.spec.ts (13 tests)
+  - tests/e2e/admin/admin-block-court.spec.ts (16 tests)
+  - tests/e2e/admin/admin-user-directory.spec.ts (17 tests)
+  - tests/e2e/fixtures/admin-fixtures.ts (helpers communs)
+  - tests/playwright.config.ts (configuration Playwright)
+- [x] TypeScript strict (zero any, types explicites)
+- [x] Tailwind Design System tokens (primary, secondary, surface)
+- [x] Firebase patterns (onSnapshot + unsubscribe, try/catch, transactions)
+- [x] Accessibility WCAG 2.1 AA (ARIA labels, roles, focus traps, Escape handlers, data-testid)
+- [x] Build successful (0 errors)
+- [ ] Write unit tests
 
 **Deliverables:**
 - ✅ Admin dashboard complete (9 components + 4 hooks)
 - ✅ User management complete (9 components + 1 hook)
 - ✅ Court management complete (8 components + 1 hook)
 - ✅ Reservations Management complete (10 components + 2 hooks)
+- ✅ Admin Integration complete (56 E2E tests + 3 service connections)
 
 ---
 
@@ -781,11 +810,11 @@ This document provides a complete task breakdown for implementing the Tennis Clu
 | 8.2 User Management | 2 days | 9 components + 1 hook | ✅ COMPLETED |
 | 8.3 Court Management | 2 days | 8 components + 1 hook | ✅ COMPLETED |
 | 8.4 Reservations Management | 3 days | 10 components + 2 hooks | ✅ COMPLETED |
-| 8.5 Admin Integration | 1 day | Real-time updates, error handling | ⏳ PENDING |
+| 8.5 Admin Integration | 3 days | 56 E2E tests + 3 service connections | ✅ COMPLETED |
 | 9. Polish & Refinement | 4 days | Design, a11y, performance | ⏳ PENDING |
 | 10. Testing | 5 days | Test coverage | ⏳ PENDING |
 | 11. Deployment | 3 days | Production launch | ⏳ PENDING |
-| **Total** | **63 days** | **Complete application** | **~85% COMPLETE** |
+| **Total** | **66 days** | **Complete application** | **~90% COMPLETE** |
 
 ---
 
@@ -851,9 +880,9 @@ firebase deploy
 
 ## Next Steps
 
-**Current Progress: ~85% COMPLETE**
+**Current Progress: ~90% COMPLETE**
 
-✅ **Completed Phases (1-8.4):**
+✅ **Completed Phases (1-8.5):**
 - Project setup and infrastructure
 - Core services and hooks
 - Component library (73+ components)
@@ -866,15 +895,21 @@ firebase deploy
 - Admin Dashboard
 - User Management
 - Court Management
-- **Reservations Management** (NEW ✅)
+- Reservations Management
+- **Admin Integration** (NEW ✅ — 56 E2E tests)
 
-⏳ **Remaining Phases (8.5-11):**
-- **Phase 8.5**: Admin Integration (1 day)
-  - Real-time updates
-  - Error handling
-  - E2E tests
+⏳ **Remaining Phases (9-11):**
 - **Phase 9**: Polish & Refinement (4 days)
+  - Design polish
+  - Accessibility improvements
+  - Performance optimization
 - **Phase 10**: Testing & QA (5 days)
+  - Unit tests
+  - Integration tests
+  - Bug fixes
 - **Phase 11**: Deployment (3 days)
+  - Production setup
+  - Build & deploy
+  - Monitoring & analytics
 
-**Prochainement :** Commencer la **Phase 8.5 : Admin Integration**
+**Prochainement :** Commencer la **Phase 9 : Polish & Refinement**

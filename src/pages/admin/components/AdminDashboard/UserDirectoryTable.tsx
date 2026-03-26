@@ -119,6 +119,7 @@ export function UserDirectoryTable({
                 placeholder="Search by name, email, or phone..."
                 className="w-full rounded-lg bg-surface-container-low pl-10 pr-4 py-3 font-body text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary"
                 aria-label="Search users"
+                data-testid="user-search-input"
               />
             </div>
           </div>
@@ -211,7 +212,7 @@ export function UserDirectoryTable({
               ))
             ) : users.length === 0 ? (
               // Empty state
-              <tr>
+              <tr data-testid="empty-state">
                 <td colSpan={4} className="px-6 py-12 text-center">
                   <span className="material-symbols-outlined mx-mb-2 block text-4xl text-on-surface-variant">
                     people_outline
@@ -232,6 +233,7 @@ export function UserDirectoryTable({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="transition-colors hover:bg-surface-container-low"
+                    data-testid="user-table-row"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">

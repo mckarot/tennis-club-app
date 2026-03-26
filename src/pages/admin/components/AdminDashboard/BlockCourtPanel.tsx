@@ -160,6 +160,7 @@ export function BlockCourtPanel({
       className="rounded-xl bg-secondary p-6 shadow-sm"
       role="region"
       aria-label="Block court form"
+      data-testid="block-court-panel"
     >
       <div className="mb-6">
         <h2 className="font-headline text-lg font-bold text-white">

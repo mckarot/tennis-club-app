@@ -58,6 +58,7 @@ export function CourtDeploymentGrid({
       className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
       role="grid"
       aria-label="Court deployment status"
+      data-testid="court-deployment-grid"
     >
       {courts.map((court, index) => (
         <motion.div

@@ -73,6 +73,48 @@ export class AdminErrorBoundary extends Component<AdminErrorBoundaryProps, Admin
     }
 
     const errorMessage = this.state.error.message.toLowerCase();
+    const errorCode = this.state.error.message;
+
+    // Firebase Quota Exceeded Error
+    if (
+      errorMessage.includes('quota') ||
+      errorCode.includes('QuotaExceededError') ||
+      errorMessage.includes('too many requests')
+    ) {
+      return {
+        title: 'Quota Exceeded',
+        message: 'Too many requests. Please wait a moment and try again.',
+        icon: 'hourglass_empty',
+      };
+    }
+
+    // Firebase Invalid State Error
+    if (
+      errorMessage.includes('invalid state') ||
+      errorCode.includes('InvalidStateError') ||
+      errorMessage.includes('transaction failed') ||
+      errorMessage.includes('document already exists')
+    ) {
+      return {
+        title: 'Invalid State',
+        message: 'The operation could not be completed due to a conflict. Please refresh and try again.',
+        icon: 'warning',
+      };
+    }
+
+    // Firebase Unavailable Error (service temporarily unavailable)
+    if (
+      errorMessage.includes('unavailable') ||
+      errorCode.includes('UnavailableError') ||
+      errorMessage.includes('service temporarily unavailable') ||
+      errorMessage.includes('503')
+    ) {
+      return {
+        title: 'Service Unavailable',
+        message: 'The service is temporarily unavailable. Please try again in a few moments.',
+        icon: 'cloud_off',
+      };
+    }
 
     if (errorMessage.includes('permission') || errorMessage.includes('unauthorized')) {
       return {

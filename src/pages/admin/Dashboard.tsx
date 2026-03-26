@@ -31,6 +31,7 @@ import { useAdminDashboard } from '../../hooks/useAdminDashboard';
 import { useCourtUtilization } from '../../hooks/useCourtUtilization';
 import { useCourtDeployment } from '../../hooks/useCourtDeployment';
 import { useUserDirectory } from '../../hooks/useUserDirectory';
+import { blockCourtForMaintenance } from '../../services/adminService';
 import type { BlockCourtFormData } from './components/AdminDashboard/BlockCourtPanel';
 
 /**
@@ -53,6 +54,7 @@ export function Dashboard(): JSX.Element {
     isLoading: courtsLoading,
     error: courtsError,
     onToggleMaintenance,
+    refreshCourts,
   } = useCourtDeployment();
 
   // Hook: User Directory
@@ -74,15 +76,40 @@ export function Dashboard(): JSX.Element {
   const handleBlockCourt = useCallback(
     async (data: BlockCourtFormData): Promise<void> => {
       try {
-        console.log('[Dashboard] Block court submitted:', data);
-        // TODO: Implement court blocking logic with Firebase
-        // This would create a maintenance reservation
+        // Convert time strings to Date objects (today's date with selected time)
+        const today = new Date();
+        const [startHours, startMinutes] = data.startTime.split(':').map(Number);
+        const [endHours, endMinutes] = data.endTime.split(':').map(Number);
+
+        const startTime = new Date(today);
+        startTime.setHours(startHours, startMinutes, 0, 0);
+
+        const endTime = new Date(today);
+        endTime.setHours(endHours, endMinutes, 0, 0);
+
+        // Call admin service to block court for maintenance
+        const result = await blockCourtForMaintenance({
+          courtId: data.courtId,
+          startTime,
+          endTime,
+          title: data.reason,
+          description: `Court blocked for ${data.type}: ${data.reason}`,
+        });
+
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to block court');
+        }
+
+        console.log('[Dashboard] Court blocked successfully:', result.data);
+
+        // Refresh courts data to reflect the maintenance status
+        await refreshCourts();
       } catch (err) {
         console.error('[Dashboard] handleBlockCourt error:', err);
         throw err;
       }
     },
-    []
+    [refreshCourts]
   );
 
   /**
