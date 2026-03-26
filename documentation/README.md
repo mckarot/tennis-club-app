@@ -25,6 +25,15 @@ Progressive Web App (PWA) for managing and booking tennis courts at the municipa
 | [09_TESTING.md](./09_TESTING.md) | Testing strategy, emulator workflow |
 | [10_TODO_LIST.md](./10_TODO_LIST.md) | Complete 0-100% implementation roadmap |
 
+### 🔍 Routing Audit (New - 2026-03-26)
+
+| Document | Description |
+|----------|-------------|
+| [ROUTING_AUDIT.md](./ROUTING_AUDIT.md) | **Complete routing audit** - Missing routes, duplicates, action plan |
+| [ROUTING_ISSUES_SUMMARY.md](./ROUTING_ISSUES_SUMMARY.md) | **Executive summary** - Critical issues, business impact |
+| [ROUTING_MAP.md](./ROUTING_MAP.md) | **Visual routing map** - Navigation flows, file structure |
+| [ROUTING_FIX_CHECKLIST.md](./ROUTING_FIX_CHECKLIST.md) | **Step-by-step checklist** - 4-phase fix plan with testing |
+
 ---
 
 ## Quick Reference
