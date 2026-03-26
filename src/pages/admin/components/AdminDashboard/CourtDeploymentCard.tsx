@@ -125,7 +125,7 @@ export function CourtDeploymentCard({
           </div>
 
           {/* Toggle Switch */}
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex flex-col items-end gap-0.5">
             <button
               onClick={handleToggle}
               disabled={isLoading}
@@ -143,8 +143,8 @@ export function CourtDeploymentCard({
                 aria-hidden="true"
               />
             </button>
-            <span className="font-body text-xs text-on-surface-variant font-medium">
-              MAINTENANCE STATE
+            <span className="font-body text-[10px] text-on-surface-variant font-medium leading-tight">
+              MAINT. STATE
             </span>
           </div>
         </div>
@@ -154,15 +154,15 @@ export function CourtDeploymentCard({
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            className="rounded-lg bg-secondary-fixed/20 p-3"
+            className="rounded-lg bg-secondary-fixed/20 p-2"
             aria-label="Maintenance information"
           >
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm text-secondary">
+              <span className="material-symbols-outlined text-xs text-secondary">
                 tools
               </span>
-              <span className="font-body text-xs text-secondary">
-                Maintenance mode enabled
+              <span className="font-body text-[10px] text-secondary font-medium">
+                Maintenance mode
               </span>
             </div>
           </motion.div>
